@@ -63,7 +63,10 @@ def assign_value(name, value):
   __variables[name].value = value
 
 def get_variable(name):
-  return __variables.get(name, None)
+  var = __variables.get(name, None)
+  if var is None:
+    raise ex.VarUndeclared(f'variable {name} non déclarée')
+  return var
 
 def show_variables():
   for k, v in __variables:

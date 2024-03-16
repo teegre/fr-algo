@@ -47,7 +47,23 @@ def p_statement(p):
 def p_expression(p):
   '''
   expression : var_assignment
+             | PRINT ID NEWLINE
   '''
+  if p[1] == 'Ecrire':
+    try:
+      var = fralgoast.get_variable(p[2])
+      if var.type == 'Booléen':
+        if var.value:
+          print('VRAI')
+        else:
+          print('FAUX')
+      else:
+        print(var.value)
+    except ex.FralgoException as e:
+      print(f'***** {e.message}')
+      print(f'----- ligne {p.lineno(1)}')
+      print(f'----- position {p.lexpos(1)+1}')
+      sys.exit(1)
 
 def p_var_assignment(p):
   '''

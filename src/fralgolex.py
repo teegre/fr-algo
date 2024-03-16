@@ -31,7 +31,7 @@ reserved = {
   'Numérique':  'TYPE_FLOAT',
   'Début':      'PROG_START',
   'Fin':        'PROG_END',
-  # 'Ecrire':     'PRINT',
+  'Ecrire':     'PRINT',
   # 'Lire':       'READ',
   # 'Si':         'COND_IF',
   # 'Sinon':      'COND_ELSE',

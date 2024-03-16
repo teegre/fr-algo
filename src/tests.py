@@ -12,6 +12,12 @@ Début
   n ← 7
   s ← "Huit !"
   b ← VRAI
+  Ecrire x
+  Ecrire y
+  Ecrire z
+  Ecrire n
+  Ecrire s
+  Ecrire b
 Fin'''
 
 class Test(unittest.TestCase):

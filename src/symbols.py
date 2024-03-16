@@ -19,17 +19,28 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-class FralgoException(Exception):
-  def __init__(self, message):
-    self.message = message
-  def __str__(self):
-    return str(self.message)
+import exceptions as ex
+from absytr import Variable
 
-class VarUndeclared(FralgoException):
-  '''Variable non déclarée.'''
-class BadType(FralgoException):
-  '''Le type de données n\'est pas conforme à celui de la variable.'''
-class VarRedeclared(FralgoException):
-  '''La variable a déjà été déclarée.'''
-class VarTypeUnknown(FralgoException):
-  '''Le type de données est inconnu.'''
+__variables = {}
+
+types = ('Booléen', 'Chaîne', 'Entier', 'Numérique')
+
+def declare_var(name, var_type):
+  if name in __variables.keys():
+    raise ex.VarRedeclared(f'redéclaration de la variable {name}')
+  var = Variable(name, var_type)
+  __variables[name] = var
+
+def assign_value(name, value):
+  if name not in __variables.keys():
+    raise ex.VarUndeclared(f'variable {name} non déclarée')
+  var = get_variable(name)
+  var.set_value(value)
+  __variables[name].value = value
+
+def get_variable(name):
+  var = __variables.get(name, None)
+  if var is None:
+    raise ex.VarUndeclared(f'variable {name} non déclarée')
+  return var

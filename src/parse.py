@@ -20,12 +20,12 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-import fralgoast
-import fralgolex as lexer
-import fralgoexception as ex
+from symbols import declare_var, assign_value
+import lex
+import exceptions as ex
 from ply.yacc import yacc
 
-tokens = lexer.tokens
+tokens = lex.tokens
 
 def p_program(p):
   '''
@@ -47,23 +47,31 @@ def p_statement(p):
 def p_expression(p):
   '''
   expression : var_assignment
-             | PRINT ID NEWLINE
+             | PRINT sequence
   '''
-  if p[1] == 'Ecrire':
-    try:
-      var = fralgoast.get_variable(p[2])
-      if var.type == 'Booléen':
-        if var.value:
-          print('VRAI')
-        else:
-          print('FAUX')
-      else:
-        print(var.value)
-    except ex.FralgoException as e:
-      print(f'***** {e.message}')
-      print(f'----- ligne {p.lineno(1)}')
-      print(f'----- position {p.lexpos(1)+1}')
-      sys.exit(1)
+  # if p[1] == 'Ecrire':
+    # p[0] = fralgoast.Print(p[2])
+
+def p_sequence(p):
+  '''
+  sequence : sequence element
+           | element
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[2]
+
+def p_element(p):
+  '''
+  element : vars
+          | STRING
+          | BOOL_TRUE
+          | BOOL_FALSE
+          | INTEGER
+          | FLOAT
+  '''
+  p[0] = [p[1]]
 
 def p_var_assignment(p):
   '''
@@ -75,7 +83,7 @@ def p_var_assignment(p):
   '''
   if len(p) == 5:
     try:
-      fralgoast.assign_value(p[1], p[3])
+      assign_value(p[1], p[3])
     except ex.FralgoException as e:
       print(f'****** {e.message}')
       print(f'------ ligne {p.lineno(1)}')
@@ -97,9 +105,9 @@ def p_var_declaration(p):
     try:
       if isinstance(p[2], list):
         for var in p[2]:
-          fralgoast.declare_var(var, p[4])
+          declare_var(var, p[4])
       else:
-        fralgoast.declare_var(p[2], p[4])
+        declare_var(p[2], p[4])
     except ex.FralgoException as e:
       print(f'****** {e.message}')
       print(f'------ ligne {p.lineno(1)}')
@@ -125,11 +133,18 @@ def p_var_list(p):
   else:
     p[0] = p[1] + p[3]
 
+def p_vars(p):
+  '''
+  vars : vars var
+       | var
+  '''
+
 def p_var(p):
   '''
   var : ID
   '''
   p[0] = [p[1]]
+
 
 def p_error(p):
   if p:

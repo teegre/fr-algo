@@ -22,8 +22,11 @@
 from datatypes import init_variable_data_type, map_type, Boolean
 
 class Statements:
-  def __init__(self):
-    self.children = []
+  def __init__(self, value):
+    if value is None:
+      self.children = []
+    else:
+      self.children = [value]
   def eval(self):
     for statement in self:
       statement.eval()

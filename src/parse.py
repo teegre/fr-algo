@@ -31,8 +31,8 @@ tokens = lex.tokens
 
 def p_program(p):
   '''
-  program : var_declarations PROG_START NEWLINE statements PROG_END
-          | PROG_START NEWLINE statements PROG_END
+  program : PROG_START NEWLINE statements PROG_END
+          | var_declarations PROG_START NEWLINE statements PROG_END
   '''
   if len(p) == 6:
     p[0] = p[4]
@@ -112,7 +112,7 @@ def p_var(p):
     p[0] = get_variable(p[1])
   except ex.VarUndeclared as e:
     print(f'*** {e.message}')
-    print(f'->- ligne {p.lineno(1)}')
+    print(f'-v- ligne {p.lineno(1)}')
     print(f'->- position {p.lexpos(1)+1}')
     sys.exit(1)
 
@@ -122,7 +122,7 @@ def p_statements(p):
              | statement 
   '''
   if len(p) == 2:
-    p[0] = Statements()
+    p[0] = Statements(p[1])
   else:
     p[1].append(p[2])
     p[0] = p[1]

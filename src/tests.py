@@ -13,6 +13,9 @@ Début
   n ← 7
   s ← "Huit !"
   b ← VRAI
+  Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
+  Ecrire "n est égal à " n
+  Ecrire "s vaut " s " et b est " b
 Fin'''
 
 class Test(unittest.TestCase):
@@ -20,7 +23,7 @@ class Test(unittest.TestCase):
     print(prog)
     print()
 
-    parse.parser.parse(prog)
+    instructions = parse.parser.parse(prog)
 
     x = symbols.get_variable('x')
     y = symbols.get_variable('y')
@@ -42,6 +45,10 @@ class Test(unittest.TestCase):
     self.assertEqual(n.data.data_type, 'Entier', 'n should be Entier')
     self.assertEqual(s.data.data_type, 'Chaîne', 's should be Chaîne')
     self.assertEqual(b.data.data_type, 'Booléen', 'b should be Booléen')
+
+    for instruction in instructions:
+      if instruction is not None:
+        instruction.eval()
 
 if __name__ == '__main__':
   unittest.main()

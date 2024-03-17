@@ -23,17 +23,20 @@ import exceptions as ex
 
 class Base():
   _type = 'Base'
+  value = None
   def eval(self):
     raise NotImplementedError
   def set_value(self, value):
     raise NotImplementedError
+  def __repr__(self):
+    if self.value is None:
+      return f'{self.data_type}'
+    return f'{self.data_type} → {self.value}'
   @property
   def data_type(self):
     return self._type
 
 class Number(Base):
-  def __init__(self, value):
-    self.value = value
   def set_value(self, value):
     raise NotImplementedError
   def eval(self):
@@ -45,6 +48,8 @@ class Number(Base):
 
 class Integer(Number):
   _type = 'Entier'
+  def __init__(self, value):
+    self.value = value
   def set_value(self, value):
     if isinstance(value, int):
       self.value = value
@@ -53,6 +58,8 @@ class Integer(Number):
 
 class Float(Number):
   _type = 'Numérique'
+  def __init__(self, value):
+    self.value = value
   def set_value(self, value):
     if isinstance(value, float):
       self.value = value
@@ -73,27 +80,36 @@ class String(Base):
       raise ex.VarUndefined('valeur indéfinie')
     return self.value
   def __repr__(self):
-    return str(f'{self.data_type} → {self.value}')
+    return f'{self.data_type} → "{self.value}"'
 
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
     self.value = value
   def set_value(self, value):
-    if isinstance(value, bool):
-      self.value = value
-    else:
+    if value not in (True, False):
       raise ex.BadType(f'type {self.data_type} attendu')
+    self.value = value
   def eval(self):
     if self.value is None:
       raise ex.VarUndefined('valeur indéfinie')
     return self.value
+  def __bool__(self):
+    return self.value
+  def __eq__(self, other):
+    if isinstance(other, bool):
+      return self.value == other
+    if isinstance(other, Boolean):
+      return self.value == other.value
+    return False
+  def __not__(self, other):
+    return not self.__eq__(other)
   def __str__(self):
-    if self.value is True:
-      return 'VRAI'
-    return 'FAUX'
+    if self.value is not None:
+      return 'VRAI' if self.value is True else 'FAUX'
+    return f'{self.data_type}'
   def __repr__(self):
-    return f'{self.data_type} → {self.__str__()}'
+    return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
 
 def map_type(value):
   if isinstance(value, int) and not isinstance(value, bool):
@@ -104,7 +120,7 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
-  raise ex.VarTypeUnknown(f'valeur de type inconnu {value} ???')
+  return value
 
 def init_variable_data_type(data_type):
   if data_type == 'Booléen':
@@ -116,5 +132,5 @@ def init_variable_data_type(data_type):
   if data_type == 'Entier':
     return Integer(None)
   # ça n'arrivera jamais car l'utilisation d'un type inconnu
-  # entraîne une erreur de syntaxe.
+  # entraîne une erreur de syntaxe vvv.
   raise ex.VarTypeUnknown(f'type inconnu {data_type} ???')

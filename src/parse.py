@@ -20,8 +20,10 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-from symbols import declare_var, assign_value
-import lex
+from datatypes import map_type
+from absytr import Statements, Print
+from symbols import declare_var, assign_value, get_variable
+import lexer as lex
 import exceptions as ex
 from ply.yacc import yacc
 
@@ -32,25 +34,112 @@ def p_program(p):
   program : var_declarations PROG_START NEWLINE statements PROG_END
           | PROG_START NEWLINE statements PROG_END
   '''
+  if len(p) == 6:
+    p[0] = p[4]
+  else:
+    p[0] = p[3]
+
+def p_var_declarations(p):
+  '''
+  var_declarations : var_declarations var_declaration
+                   | var_declaration
+  '''
+  p[0] = None
+
+def p_var_declaration(p):
+  '''
+  var_declaration : VAR_DECL ID TYPE_DECL type NEWLINE
+                  | VARS_DECL var_list TYPE_DECL type NEWLINE
+  '''
+  if len(p) == 6:
+    try:
+      if isinstance(p[2], list):
+        for var in p[2]:
+          declare_var(var, p[4])
+      else:
+        declare_var(p[2], p[4])
+      p[0] = None
+    except ex.VarUndeclared as e:
+      print(f'*** {e.message}')
+      print(f'-v- ligne {p.lineno(1)}')
+      print(f'->- position {p.lexpos(1)+1}')
+      sys.exit(1)
+
+def p_type(p):
+  '''
+  type : TYPE_BOOLEAN
+       | TYPE_FLOAT
+       | TYPE_INTEGER
+       | TYPE_STRING
+  '''
+  p[0] = p[1]
+
+def p_var_list(p):
+  # list of variables: a, b, c
+  '''
+  var_list : var_list COMMA u_var
+           | u_var
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[3]
+
+def p_u_var(p):
+  # variable not declared yet
+  '''
+  u_var : ID
+  '''
+  p[0] = [p[1]]
+
+def p_vars(p):
+  # sequence of variables: a b c
+  '''
+  vars : vars var
+       | var
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = [p[1]] + p[2]
+
+def p_var(p):
+  # declared variable
+  '''
+  var : ID
+  '''
+  try:
+    p[0] = get_variable(p[1])
+  except ex.VarUndeclared as e:
+    print(f'*** {e.message}')
+    print(f'->- ligne {p.lineno(1)}')
+    print(f'->- position {p.lexpos(1)+1}')
+    sys.exit(1)
 
 def p_statements(p):
   '''
   statements : statements statement
              | statement 
   '''
+  if len(p) == 2:
+    p[0] = Statements()
+  else:
+    p[1].append(p[2])
+    p[0] = p[1]
 
 def p_statement(p):
   '''
   statement : expression
   '''
+  p[0] = map_type(p[1])
 
 def p_expression(p):
   '''
   expression : var_assignment
-             | PRINT sequence
+             | PRINT sequence NEWLINE
   '''
-  # if p[1] == 'Ecrire':
-    # p[0] = fralgoast.Print(p[2])
+  if p[1] == 'Ecrire':
+    p[0] = Print(p[2])
 
 def p_sequence(p):
   '''
@@ -71,7 +160,7 @@ def p_element(p):
           | INTEGER
           | FLOAT
   '''
-  p[0] = [p[1]]
+  p[0] = [map_type(p[1])]
 
 def p_var_assignment(p):
   '''
@@ -84,74 +173,38 @@ def p_var_assignment(p):
   if len(p) == 5:
     try:
       assign_value(p[1], p[3])
-    except ex.FralgoException as e:
-      print(f'****** {e.message}')
-      print(f'------ ligne {p.lineno(1)}')
-      print(f'------ position {p.lexpos(1)+1}')
+    except (ex.VarUndeclared, ex.BadType) as e:
+      print(f'*** {e.message}')
+      print(f'-v- ligne {p.lineno(1)}')
+      print(f'->- position {p.lexpos(1)+1}')
       sys.exit(1)
 
-def p_var_declarations(p):
-  '''
-  var_declarations : var_declarations var_declaration
-                   | var_declaration
-  '''
+  p[0] = None
 
-def p_var_declaration(p):
-  '''
-  var_declaration : VAR_DECL ID TYPE_DECL type NEWLINE
-                  | VARS_DECL var_list TYPE_DECL type NEWLINE
-  '''
-  if len(p) == 6:
-    try:
-      if isinstance(p[2], list):
-        for var in p[2]:
-          declare_var(var, p[4])
-      else:
-        declare_var(p[2], p[4])
-    except ex.FralgoException as e:
-      print(f'****** {e.message}')
-      print(f'------ ligne {p.lineno(1)}')
-      print(f'------ position {p.lexpos(1)+1}')
-      sys.exit(1)
-
-def p_type(p):
-  '''
-  type : TYPE_BOOLEAN
-       | TYPE_FLOAT
-       | TYPE_INTEGER
-       | TYPE_STRING
-  '''
-  p[0] = p[1]
-
-def p_var_list(p):
-  '''
-  var_list : var_list COMMA var
-           | var
-  '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = p[1] + p[3]
-
-def p_vars(p):
-  '''
-  vars : vars var
-       | var
-  '''
-
-def p_var(p):
-  '''
-  var : ID
-  '''
-  p[0] = [p[1]]
 
 
 def p_error(p):
   if p:
-    print(f'******* erreur de syntaxe >> {p.value} <<')
-    print(f'------- ligne {p.lineno}')
-    print(f'------- position {p.lexpos+1}')
+    print(f'*** erreur de syntaxe >> {p.value} <<')
+    print(f'-v- ligne {p.lineno}')
+    print(f'->- position {p.lexpos+1}')
   else:
-    print('****** fin de fichier inattendue.')
+    print('*** fin de fichier prématurée.')
+  sys.exit(1)
 
 parser = yacc()
+prog = '''Variable n en Entier
+Variables x, y, z en Numérique
+Variable s en Chaîne
+Variable b en Booléen
+Début
+  x ← 1.2
+  y ← 3.4
+  z ← 5.6
+  n ← 7
+  s ← "Huit !"
+  b ← VRAI
+  Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
+  Ecrire "n est égal à " n
+  Ecrire "s vaut " s " et b est " b
+Fin'''

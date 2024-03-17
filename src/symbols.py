@@ -24,17 +24,13 @@ from absytr import Variable
 
 __variables = {}
 
-types = ('Booléen', 'Chaîne', 'Entier', 'Numérique')
-
 def declare_var(name, var_type):
-  if name in __variables.keys():
+  if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'redéclaration de la variable {name}')
   var = Variable(name, var_type)
   __variables[name] = var
 
 def assign_value(name, value):
-  if name not in __variables.keys():
-    raise ex.VarUndeclared(f'variable {name} non déclarée')
   var = get_variable(name)
   var.set_value(value)
   __variables[name].value = value

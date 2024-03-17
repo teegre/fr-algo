@@ -32,7 +32,7 @@ reserved = {
   'Début':      'PROG_START',
   'Fin':        'PROG_END',
   'Ecrire':     'PRINT',
-  # 'Lire':       'READ',
+  'Lire':       'READ',
   # 'Si':         'COND_IF',
   # 'Sinon':      'COND_ELSE',
   # 'SinonSi':    'COND_ELSIF',
@@ -47,8 +47,8 @@ reserved = {
 tokens = (
   # 'PLUS', 'MINUS', 'MUL', 'DIV', 'DIVBY',
   # 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
-  # 'POWER',
-  # 'LPAREN', 'RPAREN', 'ARROW', 'COMMA',
+  # 'POWER', 'CONCAT',
+  # 'LPAREN', 'RPAREN',
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
   'COMMA',
@@ -67,6 +67,8 @@ t_ARROW = '←'
 # t_GE = r'>='
 # t_LE = r'<='
 # t_NE = r'<>'
+# t_POWER = r'\^'
+# t_CONCAT = r'&'
 # t_LPAREN = r'\('
 # t_RPAREN = r'\)'
 t_COMMA = r'\,'

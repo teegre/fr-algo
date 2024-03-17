@@ -1,6 +1,6 @@
 import unittest
 import parse
-import symbols
+import lib.symbols as sym
 
 prog = '''Variables x, y, z en Numérique
 Variable n en Entier
@@ -20,35 +20,40 @@ Fin'''
 
 class Test(unittest.TestCase):
   def test(self):
+    print('Source :')
     print(prog)
     print()
 
     instructions = parse.parser.parse(prog)
 
-    x = symbols.get_variable('x')
-    y = symbols.get_variable('y')
-    z = symbols.get_variable('z')
-    n = symbols.get_variable('n')
-    s = symbols.get_variable('s')
-    b = symbols.get_variable('b')
+    x = sym.get_variable('x')
+    y = sym.get_variable('y')
+    z = sym.get_variable('z')
+    n = sym.get_variable('n')
+    s = sym.get_variable('s')
+    b = sym.get_variable('b')
 
-    self.assertEqual(x.data.value, 1.2, 'x should be 1.2')
-    self.assertEqual(y.data.value, 3.4, 'y should be 3.4')
-    self.assertEqual(z.data.value, 5.6, 'z should be 5.6')
-    self.assertEqual(n.data.value, 7, 'n should be 7')
-    self.assertEqual(s.data.value, 'Huit !', ' s should be Huit !')
-    self.assertEqual(b.data.value, True, 'b should be VRAI')
+    self.assertEqual(x.value, 1.2, 'x should be 1.2')
+    self.assertEqual(y.value, 3.4, 'y should be 3.4')
+    self.assertEqual(z.value, 5.6, 'z should be 5.6')
+    self.assertEqual(n.value, 7, 'n should be 7')
+    self.assertEqual(s.value, 'Huit !', ' s should be Huit !')
+    self.assertEqual(b.value, True, 'b should be VRAI')
 
-    self.assertEqual(x.data.data_type, 'Numérique', 'x should be Numérique')
-    self.assertEqual(y.data.data_type, 'Numérique', 'y should be Numérique')
-    self.assertEqual(z.data.data_type, 'Numérique', 'z should be Numérique')
-    self.assertEqual(n.data.data_type, 'Entier', 'n should be Entier')
-    self.assertEqual(s.data.data_type, 'Chaîne', 's should be Chaîne')
-    self.assertEqual(b.data.data_type, 'Booléen', 'b should be Booléen')
+    self.assertEqual(x.data_type, 'Numérique', 'x should be Numérique')
+    self.assertEqual(y.data_type, 'Numérique', 'y should be Numérique')
+    self.assertEqual(z.data_type, 'Numérique', 'z should be Numérique')
+    self.assertEqual(n.data_type, 'Entier', 'n should be Entier')
+    self.assertEqual(s.data_type, 'Chaîne', 's should be Chaîne')
+    self.assertEqual(b.data_type, 'Booléen', 'b should be Booléen')
 
+    print('Instructions :')
     for instruction in instructions:
-      if instruction is not None:
-        instruction.eval()
+      print(instruction)
+    print()
+
+    print('Résultat :')
+    instructions.eval()
 
 if __name__ == '__main__':
   unittest.main()

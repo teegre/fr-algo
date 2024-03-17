@@ -1,3 +1,4 @@
+'''Parser for the pseudo-language Algo'''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -20,11 +21,11 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-from datatypes import map_type
-from absytr import Statements, Print
-from symbols import declare_var, assign_value, get_variable
 import lexer as lex
-import exceptions as ex
+from lib.absytr import Statements, Print, Read
+from lib.datatypes import map_type
+from lib.symbols import declare_var, assign_value, get_variable
+import lib.exceptions as ex
 from ply.yacc import yacc
 
 tokens = lex.tokens
@@ -137,9 +138,14 @@ def p_expression(p):
   '''
   expression : var_assignment
              | PRINT sequence NEWLINE
+             | READ ID NEWLINE
   '''
   if p[1] == 'Ecrire':
     p[0] = Print(p[2])
+  elif p[1] == 'Lire':
+    p[0] = Read(p[2])
+  else:
+    p[0] = None
 
 def p_sequence(p):
   '''

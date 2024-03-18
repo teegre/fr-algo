@@ -1,0 +1,13 @@
+# Exemple de programme
+# avec un commentaire sur
+# plusieurs lignes.
+Variable prenom en Chaîne
+Début
+  # Affichage de la question.
+  Ecrire "Quel est votre prénom ?"
+  # Demande du prénom de l'utilisateur.
+  # La valeur entrée est assignée à la variable nom.
+  Lire prenom
+  # Salutations à l'utilisateur.
+  Ecrire "Bonjour, " prenom " !"
+Fin

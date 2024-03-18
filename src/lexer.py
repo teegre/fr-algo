@@ -109,11 +109,13 @@ def t_ID(t):
   t.type = reserved.get(t.value, 'ID')
   return t
 
+def t_COMMENT(t):
+  r'^\#.*\n$'
+
 def t_NEWLINE(t):
   r'\n+'
   t.lexer.lineno += len(t.value)
   return t
-
 
 def t_error(t):
   print(f'****** caractère invalide {t.value[0]!r}')

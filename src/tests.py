@@ -1,9 +1,13 @@
 import unittest
-import parse
+import parser
 import lib.symbols as sym
 
-prog = '''Variables x, y, z en Numérique
-Variable n en Entier
+prog = '''# Programme test
+Variables x, y, z en Numérique # Déclaration de plusieurs variables du type Numérique (FLOAT).
+
+Variable n en Entier # Variable de type Entier (INTEGER).
+# La variable s est du type Chaîne (STRING).
+
 Variable s en Chaîne
 Variable b en Booléen
 Début
@@ -24,7 +28,7 @@ class Test(unittest.TestCase):
     print(prog)
     print()
 
-    instructions = parse.parser.parse(prog)
+    instructions = parser.parser.parse(prog)
 
     x = sym.get_variable('x')
     y = sym.get_variable('y')

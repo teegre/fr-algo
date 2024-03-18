@@ -191,7 +191,8 @@ def p_var_assignment(p):
 
 def p_error(p):
   if p:
-    print(f'*** erreur de syntaxe >> {p.value} <<')
+    value = p.value.replace('\n', '↵')
+    print(f'*** erreur de syntaxe >> {value} <<')
     print(f'-v- ligne {p.lineno}')
     print(f'->- position {p.lexpos+1}')
   else:

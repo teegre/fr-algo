@@ -10,7 +10,8 @@ Début
   Ecrire "c est maintenant égal à " c
   Ecrire "c * 2 = " c * 2 
   Ecrire "a * b + 2 = " a * b + 2
-  Ecrire "Nombre " 2
-  # Ecrire "Nombre négatif " -5
+  Ecrire "(a + 2) * b = " (a + 2) * b
+  Ecrire "c au carré : " c ^ 2
+  Ecrire "-c : " -c
   Ecrire "(2 * a) + ((b * 5) + 2) = " (2 * a) + ((b * 5) + 2)
 Fin

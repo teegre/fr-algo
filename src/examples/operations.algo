@@ -1,0 +1,16 @@
+# Test opérations arithmétiques.
+Variables a, b, c en Entier
+Début
+  a ← 2
+  b ← 3
+  c ← a + b
+  Ecrire "c est égal à a + b soit 2 + 3 = " c
+  Ecrire "ajoutons 5 à c"
+  c ← c + 5
+  Ecrire "c est maintenant égal à " c
+  Ecrire "c * 2 = " c * 2 
+  Ecrire "a * b + 2 = " a * b + 2
+  Ecrire "Nombre " 2
+  # Ecrire "Nombre négatif " -5
+  Ecrire "(2 * a) + ((b * 5) + 2) = " (2 * a) + ((b * 5) + 2)
+Fin

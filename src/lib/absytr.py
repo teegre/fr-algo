@@ -20,6 +20,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Float, Integer, String
 from lib.symbols import get_variable
@@ -91,3 +92,25 @@ class Read:
       raise BadType(f'type {var.data_type} attendu') from e
   def __repr__(self):
     return f'Lire {self.var}'
+
+class Binop:
+  __op = {
+      '+'    : operator.add,
+      '-'    : operator.sub,
+      '*'    : operator.mul,
+      'DIV'  : operator.truediv,
+      'FDIV' : operator.floordiv,
+      'dp'   : operator.mod,
+      '^'    : operator.pow,
+  }
+  def __init__(self, op, a, b):
+    self.a = a
+    self.b = b
+    self.op = op
+  def eval(self):
+    a = self.a
+    b = self.b
+    op = self.__op.get(self.op, None)
+    return op(a.eval(), b.eval())
+  def __repr__(self):
+    return f'{self.a} {self.op} {self.b}'

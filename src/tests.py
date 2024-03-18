@@ -7,6 +7,7 @@ Variables x, y, z en Numérique
 Variable n en Entier
 Variable s en Chaîne
 Variable b en Booléen
+Variable resultat en Entier
 Début
   x ← 1.2
   y ← 3.4
@@ -17,6 +18,8 @@ Début
   Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
   Ecrire "n est égal à " n
   Ecrire "s vaut " s " et b est " b
+  resultat ← n + 8
+  Ecrire "J'ai ajouté 8 à n et ça fait " resultat
 Fin'''
 
 class Test(unittest.TestCase):
@@ -48,13 +51,6 @@ class Test(unittest.TestCase):
     self.assertEqual(s.data_type, 'Chaîne', 's should be Chaîne')
     self.assertEqual(b.data_type, 'Booléen', 'b should be Booléen')
 
-    print('Instructions :')
-    for instruction in instructions:
-      print(instruction)
-    print()
-
-    print('Résultat :')
-    instructions.eval()
 
 if __name__ == '__main__':
   unittest.main()

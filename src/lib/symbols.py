@@ -39,10 +39,12 @@ def declare_var(name, data_type):
 def assign_value(name, value):
   var = get_variable(name)
   var.set_value(value)
-  __variables[name].value = value
 
 def get_variable(name):
   var = __variables.get(name, None)
   if var is None:
     raise ex.VarUndeclared(f'variable {name} non déclarée')
   return var
+
+def is_variable(name):
+  return __variables.get(name, False) is not False

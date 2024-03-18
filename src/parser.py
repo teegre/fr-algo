@@ -22,13 +22,19 @@
 
 import sys
 import lexer as lex
-from lib.absytr import Statements, Print, Read
+from lib.absytr import Statements, Print, Read, Binop
 from lib.datatypes import map_type
-from lib.symbols import declare_var, assign_value, get_variable
+from lib.symbols import declare_var, assign_value, get_variable, is_variable
 import lib.exceptions as ex
 from ply.yacc import yacc
 
 tokens = lex.tokens
+
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'MUL', 'DIV'),
+    # ('right', 'UMINUS'),
+)
 
 def p_program(p):
   '''
@@ -64,7 +70,7 @@ def p_var_declaration(p):
       print(f'*** {e.message}')
       print(f'-v- ligne {p.lineno(1)}')
       print(f'->- position {p.lexpos(1)+1}')
-      sys.exit(1)
+      # sys.exit(1)
 
 def p_type(p):
   '''
@@ -115,7 +121,7 @@ def p_var(p):
     print(f'*** {e.message}')
     print(f'-v- ligne {p.lineno(1)}')
     print(f'->- position {p.lexpos(1)+1}')
-    sys.exit(1)
+    # sys.exit(1)
 
 def p_statements(p):
   '''
@@ -139,13 +145,63 @@ def p_expression(p):
   expression : var_assignment
              | PRINT sequence NEWLINE
              | READ ID NEWLINE
+             | FLOAT
+             | INTEGER
+             | STRING
+             | BOOL_TRUE
+             | BOOL_FALSE
+             | ID
   '''
   if p[1] == 'Ecrire':
-    p[0] = Print(p[2])
+    p[0] = Print(p[2]).eval()
   elif p[1] == 'Lire':
-    p[0] = Read(p[2])
+    p[0] = Read(p[2]).eval()
   else:
-    p[0] = None
+    try:
+      if is_variable(p[1]):
+        p[0] = get_variable(p[1])
+      else:
+        p[0] = map_type(p[1])
+    except ex.VarUndeclared:
+      p[0] = p[1]
+
+def p_expression_binop(p):
+  '''
+  expression : expression PLUS expression
+             | expression MINUS expression
+             | expression MUL expression
+             | expression DIV expression
+             | expression DIVBY expression
+             | expression POWER expression
+             | expression CONCAT expression
+  '''
+  a = map_type(p[1])
+  b = map_type(p[3])
+
+  if p[2] == '/':
+    if isinstance(a.eval(), int) and isinstance(b.eval(), int):
+      result = map_type(Binop('FDIV', a, b))
+      p[0] = result.eval()
+    elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
+      result = map_type(Binop('DIV', a, b))
+      p[0] = result.eval()
+  else:
+    result = map_type(Binop(p[2], a, b))
+    p[0] = result.eval()
+
+def p_expression_group(p):
+  '''
+  expression : LPAREN expression RPAREN
+  '''
+  p[0] = p[2]
+
+# def p_expression_uminus(p):
+
+#   '''
+#   expression : MINUS expression %prec UMINUS
+#   '''
+#   print('HELLO?')
+#   p[0] = -map_type(p[2])
 
 def p_sequence(p):
   '''
@@ -165,6 +221,7 @@ def p_element(p):
           | BOOL_FALSE
           | INTEGER
           | FLOAT
+          | expression
   '''
   p[0] = [map_type(p[1])]
 
@@ -175,6 +232,7 @@ def p_var_assignment(p):
                  | ID ARROW FLOAT NEWLINE
                  | ID ARROW INTEGER NEWLINE
                  | ID ARROW STRING NEWLINE
+                 | ID ARROW expression NEWLINE
   '''
   if len(p) == 5:
     try:
@@ -183,11 +241,9 @@ def p_var_assignment(p):
       print(f'*** {e.message}')
       print(f'-v- ligne {p.lineno(1)}')
       print(f'->- position {p.lexpos(1)+1}')
-      sys.exit(1)
+      # sys.exit(1)
 
   p[0] = None
-
-
 
 def p_error(p):
   if p:
@@ -197,7 +253,7 @@ def p_error(p):
     print(f'->- position {p.lexpos+1}')
   else:
     print('*** fin de fichier prématurée.')
-  sys.exit(1)
+  # sys.exit(1)
 
 parser = yacc()
 prog = '''Variable n en Entier

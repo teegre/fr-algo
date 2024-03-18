@@ -45,32 +45,32 @@ reserved = {
 }
 
 tokens = (
-  # 'PLUS', 'MINUS', 'MUL', 'DIV', 'DIVBY',
+  'PLUS', 'MINUS', 'MUL', 'DIV', 'DIVBY', 'POWER', 'CONCAT',
   # 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
   # 'POWER', 'CONCAT',
-  # 'LPAREN', 'RPAREN',
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
+  'LPAREN', 'RPAREN',
   'COMMA',
   'NEWLINE',
   'ID',
 ) + tuple(reserved.values())
 
+t_PLUS = r'\+'
 t_ARROW = '←'
-# t_PLUS = r'\+'
-# t_MUL = r'\*'
-# t_DIV = r'/'
-# t_DIVBY = r'dp'
+t_MUL = r'\*'
+t_DIV = r'/'
+t_DIVBY = r'dp'
 # t_EQ = r'='
 # t_GT = r'>'
 # t_LT = r'<'
 # t_GE = r'>='
 # t_LE = r'<='
 # t_NE = r'<>'
-# t_POWER = r'\^'
-# t_CONCAT = r'&'
-# t_LPAREN = r'\('
-# t_RPAREN = r'\)'
+t_POWER = r'\^'
+t_CONCAT = r'&'
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
 t_COMMA = r'\,'
 
 t_ignore = ' \t'
@@ -105,7 +105,7 @@ def t_BOOL_FALSE(t):
 #   return t
 
 def t_ID(t):
-  r'[A-Za-zàéî\-_][A-Za-zàéî0-9\-_]*'
+  r'[A-Za-zàéî\_][A-Za-zàéî0-9\_]*'
   t.type = reserved.get(t.value, 'ID')
   return t
 

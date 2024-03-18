@@ -1,9 +1,9 @@
 import unittest
-import parser
+from parser import parser
 import lib.symbols as sym
 
 prog = '''# Commentaire
-Variables x, y, z en Numérique
+Variables x, y, z, c en Numérique
 Variable n en Entier
 Variable s en Chaîne
 Variable b en Booléen
@@ -20,6 +20,9 @@ Début
   Ecrire "s vaut " s " et b est " b
   resultat ← n + 8
   Ecrire "J'ai ajouté 8 à n et ça fait " resultat
+  c ← x ^ 2
+  Ecrire "J'ai mis x au carré : " c
+  Ecrire "J'ai négationné le carré : " -c
 Fin'''
 
 class Test(unittest.TestCase):
@@ -28,7 +31,7 @@ class Test(unittest.TestCase):
     print(prog)
     print()
 
-    instructions = parser.parser.parse(prog)
+    parser.parse(prog)
 
     x = sym.get_variable('x')
     y = sym.get_variable('y')
@@ -36,6 +39,8 @@ class Test(unittest.TestCase):
     n = sym.get_variable('n')
     s = sym.get_variable('s')
     b = sym.get_variable('b')
+    c = sym.get_variable('c')
+    print(c)
 
     self.assertEqual(x.value, 1.2, 'x should be 1.2')
     self.assertEqual(y.value, 3.4, 'y should be 3.4')
@@ -43,6 +48,7 @@ class Test(unittest.TestCase):
     self.assertEqual(n.value, 7, 'n should be 7')
     self.assertEqual(s.value, 'Huit !', ' s should be Huit !')
     self.assertEqual(b.value, True, 'b should be VRAI')
+    self.assertEqual(c.value, 1.44, 'c should be 1.44')
 
     self.assertEqual(x.data_type, 'Numérique', 'x should be Numérique')
     self.assertEqual(y.data_type, 'Numérique', 'y should be Numérique')
@@ -50,6 +56,7 @@ class Test(unittest.TestCase):
     self.assertEqual(n.data_type, 'Entier', 'n should be Entier')
     self.assertEqual(s.data_type, 'Chaîne', 's should be Chaîne')
     self.assertEqual(b.data_type, 'Booléen', 'b should be Booléen')
+    self.assertEqual(c.data_type, 'Numérique', 'c should be Numérique')
 
 
 if __name__ == '__main__':

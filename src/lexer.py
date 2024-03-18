@@ -100,9 +100,9 @@ def t_BOOL_FALSE(t):
   t.value = False
   return t
 
-# def t_MINUS(t):
-#   r'-'
-#   return t
+def t_MINUS(t):
+  r'-'
+  return t
 
 def t_ID(t):
   r'[A-Za-zàéî\_][A-Za-zàéî0-9\_]*'

@@ -20,11 +20,11 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys
+# import sys
 import lexer as lex
-from lib.absytr import Statements, Print, Read, Binop
+from lib.absytr import Statements, Print, Read, Negative, Binop
 from lib.datatypes import map_type
-from lib.symbols import declare_var, assign_value, get_variable, is_variable
+from lib.symbols import declare_var, assign_value, get_variable #, is_variable
 import lib.exceptions as ex
 from ply.yacc import yacc
 
@@ -33,7 +33,7 @@ tokens = lex.tokens
 precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV'),
-    # ('right', 'UMINUS'),
+    ('right', 'UMINUS'),
 )
 
 def p_program(p):
@@ -140,6 +140,28 @@ def p_statement(p):
   '''
   p[0] = map_type(p[1])
 
+def p_sequence(p):
+  '''
+  sequence : sequence element
+           | element
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[2]
+
+def p_element(p):
+  '''
+  element : vars
+          | expression
+          | STRING
+          | BOOL_TRUE
+          | BOOL_FALSE
+          | INTEGER
+          | FLOAT
+  '''
+  p[0] = [map_type(p[1])]
+
 def p_expression(p):
   '''
   expression : var_assignment
@@ -150,20 +172,24 @@ def p_expression(p):
              | STRING
              | BOOL_TRUE
              | BOOL_FALSE
+             | var
              | ID
+
   '''
   if p[1] == 'Ecrire':
-    p[0] = Print(p[2]).eval()
+    Print(p[2]).eval()
   elif p[1] == 'Lire':
-    p[0] = Read(p[2]).eval()
+    Read(p[2]).eval()
+  # elif is_variable(p[1]):
+    # p[0] = get_variable(p[1])
   else:
-    try:
-      if is_variable(p[1]):
-        p[0] = get_variable(p[1])
-      else:
-        p[0] = map_type(p[1])
-    except ex.VarUndeclared:
-      p[0] = p[1]
+    p[0] = map_type(p[1])
+
+def p_expression_uminus(p):
+  '''
+  expression : MINUS expression %prec UMINUS
+  '''
+  p[0] = Negative(map_type(p[2])).eval()
 
 def p_expression_binop(p):
   '''
@@ -194,36 +220,6 @@ def p_expression_group(p):
   expression : LPAREN expression RPAREN
   '''
   p[0] = p[2]
-
-# def p_expression_uminus(p):
-
-#   '''
-#   expression : MINUS expression %prec UMINUS
-#   '''
-#   print('HELLO?')
-#   p[0] = -map_type(p[2])
-
-def p_sequence(p):
-  '''
-  sequence : sequence element
-           | element
-  '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = p[1] + p[2]
-
-def p_element(p):
-  '''
-  element : vars
-          | STRING
-          | BOOL_TRUE
-          | BOOL_FALSE
-          | INTEGER
-          | FLOAT
-          | expression
-  '''
-  p[0] = [map_type(p[1])]
 
 def p_var_assignment(p):
   '''
@@ -270,4 +266,5 @@ Début
   Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
   Ecrire "n est égal à " n
   Ecrire "s vaut " s " et b est " b
+  Ecrire n
 Fin'''

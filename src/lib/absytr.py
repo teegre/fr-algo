@@ -23,7 +23,7 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Float, Integer, String
-from lib.symbols import get_variable
+from lib.symbols import get_variable, is_variable
 from lib.exceptions import BadType, InterruptedByUser
 
 class Statements:
@@ -92,6 +92,22 @@ class Read:
       raise BadType(f'type {var.data_type} attendu') from e
   def __repr__(self):
     return f'Lire {self.var}'
+
+class Negative:
+  def __init__(self, value):
+    if isinstance(value, (Integer, Float)):
+      self.value = map_type(-value.eval())
+    elif is_variable(value):
+      print('variable', value)
+      var = get_variable(value)
+      self.value = map_type(-var.eval())
+      print(self.value)
+    else:
+      raise BadType(f'{self.value} ne peut pas être négatif.')
+  def eval(self):
+    return self.value
+  def __repr__(self):
+    return self.value.__repr__()
 
 class Binop:
   __op = {

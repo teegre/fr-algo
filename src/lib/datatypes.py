@@ -55,6 +55,8 @@ class Integer(Number):
   def set_value(self, value):
     if isinstance(value, int):
       self.value = value
+    elif isinstance(value, Integer):
+      self.value = value.eval()
     else:
       raise BadType(f'type {self.data_type} attendu')
 
@@ -65,6 +67,8 @@ class Float(Number):
   def set_value(self, value):
     if isinstance(value, float):
       self.value = value
+    elif isinstance(value, Float):
+      self.value = value.eval()
     else:
       raise BadType(f'type {self.data_type} attendu')
 

@@ -2,12 +2,9 @@ import unittest
 import parser
 import lib.symbols as sym
 
-prog = '''# Programme test
-Variables x, y, z en Numérique # Déclaration de plusieurs variables du type Numérique (FLOAT).
-
-Variable n en Entier # Variable de type Entier (INTEGER).
-# La variable s est du type Chaîne (STRING).
-
+prog = '''# Commentaire
+Variables x, y, z en Numérique
+Variable n en Entier
 Variable s en Chaîne
 Variable b en Booléen
 Début

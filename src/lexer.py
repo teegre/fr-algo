@@ -110,7 +110,8 @@ def t_ID(t):
   return t
 
 def t_COMMENT(t):
-  r'^\#.*\n$'
+  r'\#.*\n*'
+  t.lexer.lineno += 1
 
 def t_NEWLINE(t):
   r'\n+'
@@ -118,8 +119,8 @@ def t_NEWLINE(t):
   return t
 
 def t_error(t):
-  print(f'****** caractère invalide {t.value[0]!r}')
-  print(f'erreur: ligne n° {t.lineno}.')
+  print(f'*** caractère invalide {t.value[0]!r}')
+  print(f'-v- ligne {t.lineno}.')
   t.lexer.skip(1)
 
 lexer = lex()

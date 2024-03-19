@@ -129,3 +129,9 @@ class BinOp:
     return op(a.eval(), b.eval())
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'
+
+class If:
+  def __init__(self, cond, statements, else_):
+    self.cond = cond.eval()
+    self.statements = statements
+    self.else_ = else_

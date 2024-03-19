@@ -22,7 +22,7 @@
 
 # import sys
 import lexer as lex
-from lib.absytr import Statements, Print, Read, BinOp
+from lib.absytr import Statements, Print, Read, BinOp, If
 from lib.datatypes import map_type
 from lib.symbols import declare_var, assign_value, get_variable
 import lib.exceptions as ex
@@ -261,6 +261,31 @@ def p_var_assignment(p):
       # sys.exit(1)
 
   p[0] = None
+
+# def p_if_block(p):
+#   '''
+#   if_block : IF expression THEN NEWLINE statements NEWLINE else_blocks
+#   '''
+#   t[0] = If(p[2], p[5], p[7])
+
+# def p_else_if_blocks(p):
+#   '''
+#   else_blocks : else_if_blocks
+#               | else_block
+#               | ENDIF NEWLINE
+#   '''
+
+# def p_else_block(p):
+#   '''
+#   else_block : ELSE statements ENDIF NEWLINE
+#   '''
+  
+
+# def p_else_if_block(p):
+#   '''
+#   else_if_block : ELSIF expression THEN NEWLINE statement else_blocks
+#   '''
+
 
 def p_error(p):
   if p:

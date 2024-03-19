@@ -26,6 +26,8 @@ Début
   Ecrire "c est-il divisible par 2 ? " c dp 2
   Ecrire "c est-il divisible par 3 ? " c dp 3
   Ecrire "n est-il divisible par 7 ? " n dp 7
+  Ecrire "Concaténation de chaînes :"
+  Ecrire s & " Neuf !" & " Dix !"
 Fin'''
 
 class Test(unittest.TestCase):

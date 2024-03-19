@@ -118,6 +118,14 @@ class Binop:
       '//' : operator.floordiv,
       'dp' : 'dummy',
       '^'  : operator.pow,
+      '&'  : 'dummy',
+      # '>'  : operator.gt,
+      # '<'  : operator.lt,
+      # '>=' : operator.ge,
+      # '<=' : operator.le,
+      # '<>' : operator.ne,
+      # 'AND': operator.and_,
+      # 'OR' : operator.or_,
   }
   def __init__(self, op, a, b):
     self.a = a

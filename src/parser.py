@@ -204,11 +204,18 @@ def p_expression_binop(p):
   a = map_type(p[1])
   b = map_type(p[3])
 
-  if p[2] == ('/'):
+  if p[2] == '/':
+    # Return an Integer if both value are int.
     if isinstance(a.eval(), int) and isinstance(b.eval(), int):
         result = map_type(Binop(p[2], a, b))
+    # Return a Float if at least one value is a float.
     elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
       result = map_type(Binop('//', a, b))
+  elif p[2] == '&':
+    if isinstance(a.eval(), str) and isinstance(b.eval(), str):
+      result = map_type(a.eval() + b.eval())
+    else:
+      raise ex.BadType(f'concaténation de {a} et {b} impossible')
   else:
     result = map_type(Binop(p[2], a, b))
   p[0] = result.eval()

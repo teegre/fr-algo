@@ -1,0 +1,11 @@
+Variables A, B, C, D, E en Booléen
+Variable X en Entier
+Début
+  Lire X
+  A ← X < 2
+  B ← X > 12
+  C ← X < 6
+  D ← (A ET B) OU C
+  E ← A ET (B OU C)
+  Ecrire D, E
+Fin

@@ -111,13 +111,13 @@ class Negative:
 
 class Binop:
   __op = {
-      '+'    : operator.add,
-      '-'    : operator.sub,
-      '*'    : operator.mul,
-      'DIV'  : operator.truediv,
-      'FDIV' : operator.floordiv,
-      'dp'   : operator.mod,
-      '^'    : operator.pow,
+      '+'  : operator.add,
+      '-'  : operator.sub,
+      '*'  : operator.mul,
+      '/'  : operator.truediv,
+      '//' : operator.floordiv,
+      'dp' : 'dummy',
+      '^'  : operator.pow,
   }
   def __init__(self, op, a, b):
     self.a = a
@@ -127,6 +127,8 @@ class Binop:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
+    if self.op == 'dp':
+      return a.eval() % b.eval() == 0
     return op(a.eval(), b.eval())
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'

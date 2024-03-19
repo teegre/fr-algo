@@ -23,6 +23,9 @@ Début
   c ← x ^ 2
   Ecrire "J'ai mis x au carré : " c
   Ecrire "J'ai négationné le carré : " -c
+  Ecrire "c est-il divisible par 2 ? " c dp 2
+  Ecrire "c est-il divisible par 3 ? " c dp 3
+  Ecrire "n est-il divisible par 7 ? " n dp 7
 Fin'''
 
 class Test(unittest.TestCase):
@@ -40,7 +43,6 @@ class Test(unittest.TestCase):
     s = sym.get_variable('s')
     b = sym.get_variable('b')
     c = sym.get_variable('c')
-    print(c)
 
     self.assertEqual(x.value, 1.2, 'x should be 1.2')
     self.assertEqual(y.value, 3.4, 'y should be 3.4')

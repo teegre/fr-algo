@@ -33,6 +33,7 @@ reserved = {
   'Fin':        'PROG_END',
   'Ecrire':     'PRINT',
   'Lire':       'READ',
+  'dp':         'DIVBY',
   # 'Si':         'COND_IF',
   # 'Sinon':      'COND_ELSE',
   # 'SinonSi':    'COND_ELSIF',
@@ -45,9 +46,8 @@ reserved = {
 }
 
 tokens = (
-  'PLUS', 'MINUS', 'MUL', 'DIV', 'DIVBY', 'POWER', 'CONCAT',
+  'PLUS', 'MINUS', 'MUL', 'DIV', 'POWER', 'CONCAT',
   # 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
-  # 'POWER', 'CONCAT',
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
   'LPAREN', 'RPAREN',
@@ -60,7 +60,6 @@ t_PLUS = r'\+'
 t_ARROW = '←'
 t_MUL = r'\*'
 t_DIV = r'/'
-t_DIVBY = r'dp'
 # t_EQ = r'='
 # t_GT = r'>'
 # t_LT = r'<'

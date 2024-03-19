@@ -204,16 +204,14 @@ def p_expression_binop(p):
   a = map_type(p[1])
   b = map_type(p[3])
 
-  if p[2] == '/':
+  if p[2] == ('/'):
     if isinstance(a.eval(), int) and isinstance(b.eval(), int):
-      result = map_type(Binop('FDIV', a, b))
-      p[0] = result.eval()
+        result = map_type(Binop(p[2], a, b))
     elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
-      result = map_type(Binop('DIV', a, b))
-      p[0] = result.eval()
+      result = map_type(Binop('//', a, b))
   else:
     result = map_type(Binop(p[2], a, b))
-    p[0] = result.eval()
+  p[0] = result.eval()
 
 def p_expression_group(p):
   '''

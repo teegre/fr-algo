@@ -1,0 +1,22 @@
+Variables H, M, S en Entier
+Début
+  Ecrire "> Entrez l'heure :"
+  Lire H
+  Ecrire "> Entrez les minutes :"
+  Lire M
+  Ecrire "> Entrez les secondes :"
+  Lire S
+  S ← S + 1
+  Si S = 60 Alors
+    M ← M + 1
+    S ← 0
+    Si M = 60 Alors
+      H ← H + 1
+      M ← 0
+      Si H = 24 Alors
+        H ← 0
+      FinSi
+    FinSi
+  FinSi
+  Ecrire "Dans une seconde, il sera", H, "heures", M, "minutes et", S, "secondes."
+Fin

@@ -22,18 +22,21 @@
 from ply.lex import lex
 
 reserved = {
-  'Variable':   'VAR_DECL',
-  'Variables':  'VARS_DECL',
-  'en':         'TYPE_DECL',
-  'Booléen':    'TYPE_BOOLEAN',
-  'Entier':     'TYPE_INTEGER',
-  'Chaîne':     'TYPE_STRING',
-  'Numérique':  'TYPE_FLOAT',
-  'Début':      'PROG_START',
-  'Fin':        'PROG_END',
-  'Ecrire':     'PRINT',
-  'Lire':       'READ',
-  'dp':         'DIVBY',
+  'Variable':  'VAR_DECL',
+  'Variables': 'VARS_DECL',
+  'en':        'TYPE_DECL',
+  'Booléen':   'TYPE_BOOLEAN',
+  'Entier':    'TYPE_INTEGER',
+  'Chaîne':    'TYPE_STRING',
+  'Numérique': 'TYPE_FLOAT',
+  'Début':     'PROG_START',
+  'Fin':       'PROG_END',
+  'Ecrire':    'PRINT',
+  'Lire':      'READ',
+  'dp':        'DIVBY',
+  'ET':        'AND',
+  'OU':        'OR',
+  'NON':       'NOT',
   # 'Si':         'COND_IF',
   # 'Sinon':      'COND_ELSE',
   # 'SinonSi':    'COND_ELSIF',
@@ -47,9 +50,10 @@ reserved = {
 
 tokens = (
   'PLUS', 'MINUS', 'MUL', 'DIV', 'POWER', 'CONCAT',
-  # 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
+  'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
+  'XOR',
   'LPAREN', 'RPAREN',
   'COMMA',
   'NEWLINE',
@@ -60,12 +64,13 @@ t_PLUS = r'\+'
 t_ARROW = '←'
 t_MUL = r'\*'
 t_DIV = r'/'
-# t_EQ = r'='
-# t_GT = r'>'
-# t_LT = r'<'
-# t_GE = r'>='
-# t_LE = r'<='
-# t_NE = r'<>'
+t_EQ = r'='
+t_GE = r'>='
+t_LE = r'<='
+t_NE = r'<>'
+t_GT = r'>'
+t_LT = r'<'
+t_XOR = r'XOR'
 t_POWER = r'\^'
 t_CONCAT = r'&'
 t_LPAREN = r'\('

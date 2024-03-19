@@ -66,7 +66,7 @@ class Print:
         result.append(str(element))
       else:
         result.append(str(map_type(element).eval()))
-    print(''.join(result))
+    print(' '.join(result))
   def __repr__(self):
     return f'Ecrire {self.data}'
 
@@ -93,39 +93,26 @@ class Read:
   def __repr__(self):
     return f'Lire {self.var}'
 
-class Negative:
-  def __init__(self, value):
-    if isinstance(value, (Integer, Float)):
-      self.value = map_type(-value.eval())
-    elif is_variable(value):
-      print('variable', value)
-      var = get_variable(value)
-      self.value = map_type(-var.eval())
-      print(self.value)
-    else:
-      raise BadType(f'{self.value} ne peut pas être négatif.')
-  def eval(self):
-    return self.value
-  def __repr__(self):
-    return self.value.__repr__()
-
-class Binop:
+class BinOp:
   __op = {
-      '+'  : operator.add,
-      '-'  : operator.sub,
-      '*'  : operator.mul,
-      '/'  : operator.truediv,
-      '//' : operator.floordiv,
-      'dp' : 'dummy',
-      '^'  : operator.pow,
-      '&'  : 'dummy',
-      # '>'  : operator.gt,
-      # '<'  : operator.lt,
-      # '>=' : operator.ge,
-      # '<=' : operator.le,
-      # '<>' : operator.ne,
-      # 'AND': operator.and_,
-      # 'OR' : operator.or_,
+      '+'   : operator.add,
+      '-'   : operator.sub,
+      '*'   : operator.mul,
+      '/'   : operator.truediv,
+      '//'  : operator.floordiv,
+      'dp'  : 'dummy',
+      '^'   : operator.pow,
+      '&'   : 'dummy',
+      '='   : operator.eq,
+      '>'   : operator.gt,
+      '<'   : operator.lt,
+      '>='  : operator.ge,
+      '<='  : operator.le,
+      '<>'  : operator.ne,
+      'ET'  : operator.and_,
+      'OU'  : operator.or_,
+      'XOR' : operator.xor,
+      'NON' : operator.not_,
   }
   def __init__(self, op, a, b):
     self.a = a
@@ -137,6 +124,8 @@ class Binop:
     op = self.__op.get(self.op, None)
     if self.op == 'dp':
       return a.eval() % b.eval() == 0
+    elif self.b is None:
+      return op(a.eval())
     return op(a.eval(), b.eval())
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'

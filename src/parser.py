@@ -22,17 +22,19 @@
 
 # import sys
 import lexer as lex
-from lib.absytr import Statements, Print, Read, Negative, Binop
+from lib.absytr import Statements, Print, Read, BinOp
 from lib.datatypes import map_type
-from lib.symbols import declare_var, assign_value, get_variable #, is_variable
+from lib.symbols import declare_var, assign_value, get_variable
 import lib.exceptions as ex
 from ply.yacc import yacc
 
 tokens = lex.tokens
 
 precedence = (
+    ('left', 'EQ', 'GT', 'LT', 'GE', 'LE'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV'),
+    ('left', 'POWER'),
     ('right', 'UMINUS'),
 )
 
@@ -99,17 +101,6 @@ def p_u_var(p):
   '''
   p[0] = [p[1]]
 
-def p_vars(p):
-  # sequence of variables: a b c
-  '''
-  vars : vars var
-       | var
-  '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = [p[1]] + p[2]
-
 def p_var(p):
   # declared variable
   '''
@@ -142,18 +133,17 @@ def p_statement(p):
 
 def p_sequence(p):
   '''
-  sequence : sequence element
+  sequence : sequence COMMA element
            | element
   '''
   if len(p) == 2:
     p[0] = p[1]
   else:
-    p[0] = p[1] + p[2]
+    p[0] = p[1] + p[3]
 
 def p_element(p):
   '''
-  element : vars
-          | expression
+  element : expression
           | STRING
           | BOOL_TRUE
           | BOOL_FALSE
@@ -180,16 +170,8 @@ def p_expression(p):
     Print(p[2]).eval()
   elif p[1] == 'Lire':
     Read(p[2]).eval()
-  # elif is_variable(p[1]):
-    # p[0] = get_variable(p[1])
   else:
     p[0] = map_type(p[1])
-
-def p_expression_uminus(p):
-  '''
-  expression : MINUS expression %prec UMINUS
-  '''
-  p[0] = Negative(map_type(p[2])).eval()
 
 def p_expression_binop(p):
   '''
@@ -200,25 +182,59 @@ def p_expression_binop(p):
              | expression DIVBY expression
              | expression POWER expression
              | expression CONCAT expression
+             | expression EQ expression
+             | expression LT expression
+             | expression GT expression
+             | expression LE expression
+             | expression GE expression
+             | expression NE expression
+             | expression AND expression
+             | expression OR expression
+             | expression XOR expression
   '''
+
   a = map_type(p[1])
   b = map_type(p[3])
+  op = p[2]
 
-  if p[2] == '/':
+  if op in ('ET', 'OU', 'XOR'):
+    if not isinstance(a.eval(), bool) and not isinstance(b.eval(), bool):
+      raise ex.BadType(f'type Booléen attendu')
+    result = map_type(BinOp(op, a, b))
+  elif op == '/':
     # Return an Integer if both value are int.
     if isinstance(a.eval(), int) and isinstance(b.eval(), int):
-        result = map_type(Binop(p[2], a, b))
+      result = map_type(BinOp(op, a, b))
     # Return a Float if at least one value is a float.
     elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
-      result = map_type(Binop('//', a, b))
-  elif p[2] == '&':
+      result = map_type(BinOp('//', a, b))
+    else:
+      raise ex.BadType('type Numérique ou Entier attendu')
+  elif op == '&':
     if isinstance(a.eval(), str) and isinstance(b.eval(), str):
       result = map_type(a.eval() + b.eval())
     else:
-      raise ex.BadType(f'concaténation de {a} et {b} impossible')
+      raise ex.BadType(f'concaténation de [{a}] et [{b}] impossible')
   else:
-    result = map_type(Binop(p[2], a, b))
+    result = map_type(BinOp(op, a, b))
   p[0] = result.eval()
+
+def p_expression_uminus(p):
+  '''
+  expression : MINUS expression %prec UMINUS
+  '''
+  try:
+    p[0] = map_type(-p[2].eval())
+  except TypeError as e:
+    raise ex.BadType('type Numérique ou Entier attendu') from e
+
+def p_expression_not(p):
+  '''
+  expression : NOT LPAREN expression RPAREN
+  '''
+  result = map_type(BinOp(p[1], p[3], None))
+  p[0] = result.eval()
+
 
 def p_expression_group(p):
   '''

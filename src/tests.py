@@ -8,6 +8,7 @@ Variable n en Entier
 Variable s en Chaîne
 Variable b en Booléen
 Variable resultat en Entier
+Variable d en Booléen
 Début
   x ← 1.2
   y ← 3.4
@@ -15,19 +16,25 @@ Début
   n ← 7
   s ← "Huit !"
   b ← VRAI
-  Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
-  Ecrire "n est égal à " n
-  Ecrire "s vaut " s " et b est " b
+  Ecrire "Les valeurs de x, y et z sont", x, y, z
+  Ecrire "n est égal à", n
+  Ecrire "s vaut", s, "et b est", b
   resultat ← n + 8
-  Ecrire "J'ai ajouté 8 à n et ça fait " resultat
+  Ecrire "J'ai ajouté 8 à n et ça fait", resultat
   c ← x ^ 2
-  Ecrire "J'ai mis x au carré : " c
-  Ecrire "J'ai négationné le carré : " -c
-  Ecrire "c est-il divisible par 2 ? " c dp 2
-  Ecrire "c est-il divisible par 3 ? " c dp 3
-  Ecrire "n est-il divisible par 7 ? " n dp 7
-  Ecrire "Concaténation de chaînes :"
-  Ecrire s & " Neuf !" & " Dix !"
+  Ecrire "J'ai mis x au carré :", c
+  Ecrire "J'ai négationné le carré :", -c
+  Ecrire "c est-il divisible par 2 ?", c dp 2
+  Ecrire "c est-il divisible par 3 ?", c dp 3
+  Ecrire "n est-il divisible par 7 ?", n dp 7
+  Ecrire "Concaténation de chaînes : " & s & " Neuf !" & " Dix !"
+  Ecrire "x différent de y :", x <> y
+  Ecrire "n = 7 ?", n = 7
+  d ← y - x = 2.3
+  Ecrire d
+  Ecrire y, "-", x, "= 2.2 ?", y - x = 2.2
+  Ecrire "NON(b) =", NON(b)
+  Ecrire "x = n OU n = 7", x = n OU n = 7
 Fin'''
 
 class Test(unittest.TestCase):

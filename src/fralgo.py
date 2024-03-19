@@ -19,4 +19,15 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
+from parser import parser
 
+if __name__ == "__main__":
+  try:
+    with open(sys.argv[1], 'r') as f:
+      prog = f.read()
+      prog = prog[:-1]
+  except FileNotFoundError:
+    print('*** fichier non trouvé')
+    sys.exit(1)
+  parser.parse(prog)

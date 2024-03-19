@@ -9,5 +9,9 @@ Début
   # La valeur entrée est assignée à la variable nom.
   Lire prenom
   # Salutations à l'utilisateur.
-  Ecrire "Bonjour, " prenom " !"
+  Si prenom <> "Stéphane" Alors
+    Ecrire "Bonjour", prenom, "!"
+  Sinon
+    Ecrire "Bonjour Maître", prenom, "!"
+  FinSi
 Fin

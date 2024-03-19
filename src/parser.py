@@ -22,9 +22,9 @@
 
 # import sys
 import lexer as lex
-from lib.absytr import Statements, Print, Read, BinOp, If
+from lib.absytr import Statements, Assign, Print, Read, BinOp, If
 from lib.datatypes import map_type
-from lib.symbols import declare_var, assign_value, get_variable
+from lib.symbols import declare_var, get_variable
 import lib.exceptions as ex
 from ply.yacc import yacc
 
@@ -127,9 +127,74 @@ def p_statements(p):
 
 def p_statement(p):
   '''
-  statement : expression
+  statement : var_assignment
+            | if_block
+            | PRINT sequence NEWLINE
+            | READ ID NEWLINE
   '''
-  p[0] = map_type(p[1])
+  if p[1] == 'Ecrire':
+    Print(p[2]).eval()
+  elif p[1] == 'Lire':
+    Read(p[2]).eval()
+  else:
+    p[0] = map_type(p[1])
+
+def p_if_block(p):
+  '''
+  if_block : IF expression THEN NEWLINE c_statements else_blocks
+  '''
+  if p[6] == 'FinSi':
+    result = If(map_type(p[2]), p[5], None)
+  else:
+    result = If(map_type(p[2]), p[5], p[6])
+  result.eval()
+  p[0] = None
+
+def p_else_if_blocks(p):
+  '''
+  else_blocks : else_if_block
+              | else_block
+              | ENDIF NEWLINE
+  '''
+  p[0] = p[1]
+
+def p_else_block(p):
+  '''
+  else_block : ELSE NEWLINE c_statements ENDIF NEWLINE
+  '''
+  p[0] = p[3]
+
+def p_else_if_block(p):
+  '''
+  else_if_block : ELSIF expression THEN NEWLINE c_statements else_blocks
+  '''
+  p[0] = If(map_type(p[2]), p[5], p[6])
+
+def p_c_statements(p):
+  '''
+  c_statements : c_statements c_statement
+               | c_statement
+  '''
+  if len(p) == 2:
+    p[0] = Statements(p[1])
+  else:
+    p[1].append(p[2])
+    p[0] = p[1]
+
+def p_c_statement(p):
+  '''
+  c_statement : c_var_assignment
+              | if_block
+              | PRINT sequence NEWLINE
+              | READ ID NEWLINE
+  '''
+  if p[1] == 'Ecrire':
+    p[0] = Statements(Print(p[2]))
+  elif p[1] == 'Lire':
+    p[0] = Statements(Read(p[2]))
+  else:
+    print(p[1])
+    p[0] = p[1]
 
 def p_sequence(p):
   '''
@@ -154,10 +219,7 @@ def p_element(p):
 
 def p_expression(p):
   '''
-  expression : var_assignment
-             | PRINT sequence NEWLINE
-             | READ ID NEWLINE
-             | FLOAT
+  expression : FLOAT
              | INTEGER
              | STRING
              | BOOL_TRUE
@@ -166,12 +228,7 @@ def p_expression(p):
              | ID
 
   '''
-  if p[1] == 'Ecrire':
-    Print(p[2]).eval()
-  elif p[1] == 'Lire':
-    Read(p[2]).eval()
-  else:
-    p[0] = map_type(p[1])
+  p[0] = map_type(p[1])
 
 def p_expression_binop(p):
   '''
@@ -199,7 +256,7 @@ def p_expression_binop(p):
 
   if op in ('ET', 'OU', 'XOR'):
     if not isinstance(a.eval(), bool) and not isinstance(b.eval(), bool):
-      raise ex.BadType(f'type Booléen attendu')
+      raise ex.BadType('type Booléen attendu')
     result = map_type(BinOp(op, a, b))
   elif op == '/':
     # Return an Integer if both value are int.
@@ -253,7 +310,8 @@ def p_var_assignment(p):
   '''
   if len(p) == 5:
     try:
-      assign_value(p[1], p[3])
+      result = Assign(p[1], p[3])
+      result.eval()
     except (ex.VarUndeclared, ex.BadType) as e:
       print(f'*** {e.message}')
       print(f'-v- ligne {p.lineno(1)}')
@@ -262,30 +320,17 @@ def p_var_assignment(p):
 
   p[0] = None
 
-# def p_if_block(p):
-#   '''
-#   if_block : IF expression THEN NEWLINE statements NEWLINE else_blocks
-#   '''
-#   t[0] = If(p[2], p[5], p[7])
-
-# def p_else_if_blocks(p):
-#   '''
-#   else_blocks : else_if_blocks
-#               | else_block
-#               | ENDIF NEWLINE
-#   '''
-
-# def p_else_block(p):
-#   '''
-#   else_block : ELSE statements ENDIF NEWLINE
-#   '''
-  
-
-# def p_else_if_block(p):
-#   '''
-#   else_if_block : ELSIF expression THEN NEWLINE statement else_blocks
-#   '''
-
+def p_c_var_assignment(p):
+  '''
+  c_var_assignment : ID ARROW BOOL_TRUE NEWLINE
+                   | ID ARROW BOOL_FALSE NEWLINE
+                   | ID ARROW FLOAT NEWLINE
+                   | ID ARROW INTEGER NEWLINE
+                   | ID ARROW STRING NEWLINE
+                   | ID ARROW expression NEWLINE
+  '''
+  if len(p) == 5:
+    result = Assign(p[1], p[3])
 
 def p_error(p):
   if p:
@@ -298,19 +343,3 @@ def p_error(p):
   # sys.exit(1)
 
 parser = yacc()
-prog = '''Variable n en Entier
-Variables x, y, z en Numérique
-Variable s en Chaîne
-Variable b en Booléen
-Début
-  x ← 1.2
-  y ← 3.4
-  z ← 5.6
-  n ← 7
-  s ← "Huit !"
-  b ← VRAI
-  Ecrire "Les valeurs de x, y et z sont " x ", " y ", " z
-  Ecrire "n est égal à " n
-  Ecrire "s vaut " s " et b est " b
-  Ecrire n
-Fin'''

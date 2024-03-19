@@ -23,14 +23,14 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Float, Integer, String
-from lib.symbols import get_variable, is_variable
+from lib.symbols import get_variable, assign_value
 from lib.exceptions import BadType, InterruptedByUser
 
 class Statements:
   '''
   Program statements.
   Statements are added to a list and can be evaluated once
-  the program has been parsed.
+  they have been parsed.
   '''
   def __init__(self, value):
     if value is None:
@@ -53,6 +53,16 @@ class Statements:
     return len(self.children)
   def __repr__(self):
     return f'{self.children}'
+
+
+class Assign:
+  def __init__(self, var, value):
+    self.var = var
+    self.value = value
+  def eval(self):
+    assign_value(self.var, self.value)
+  def __repr__(self):
+    return f'{self.var} ← {self.value}'
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -124,14 +134,22 @@ class BinOp:
     op = self.__op.get(self.op, None)
     if self.op == 'dp':
       return a.eval() % b.eval() == 0
-    elif self.b is None:
+    if self.b is None:
       return op(a.eval())
     return op(a.eval(), b.eval())
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'
 
 class If:
-  def __init__(self, cond, statements, else_):
-    self.cond = cond.eval()
-    self.statements = statements
-    self.else_ = else_
+  def __init__(self, condition, dothis, dothat):
+    self.condition = condition
+    self.dothis = dothis
+    self.dothat = dothat
+  def eval(self):
+    if self.condition.eval():
+      for statement in self.dothis:
+        statement.eval()
+    elif self.dothat is not None:
+      self.dothat.eval()
+  def __repr__(self):
+    return f'Si {self.condition} {self.dothis} {self.dothat}'

@@ -23,39 +23,33 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Float, Integer, String
-from lib.symbols import get_variable, assign_value
+from lib.symbols import declare_var, get_variable, assign_value
 from lib.exceptions import BadType, InterruptedByUser
 
-class Statements:
-  '''
-  Program statements.
-  Statements are added to a list and can be evaluated once
-  they have been parsed.
-  '''
-  def __init__(self, value):
-    if value is None:
-      self.children = []
-    else:
-      self.children = [value]
+class Node:
+  def __init__(self, statement: Node):
+    self.children = [statement] if statement else []
+  def append(self, statement: Node):
+    if statement is not None:
+      self.children.append(statement)
+      return self
   def eval(self):
-    '''Evaluate all statements in the list.'''
-    for statement in self:
+    for statement in self.children:
       statement.eval()
-  def append(self, value):
-    '''Add a statement to the list.'''
-    if value is not None:
-      self.children.append(value)
-  def __getitem__(self, index):
-    return self.children[index]
-  def __iter__(self):
-    return iter(self.children)
-  def __len__(self):
-    return len(self.children)
   def __repr__(self):
-    return f'{self.children}'
+    return f'Node {self.children}'
 
+class Declare:
+  def __init__(self, name, var_type):
+    self.name = name
+    self.var_type = var_type
+  def eval():
+    declare_var(self.name, self.var_type)
+  def __repr__(self):
+    return f'Variable {self.name} en {self.var_type}'
 
 class Assign:
+  _type: 'assign'
   def __init__(self, var, value):
     self.var = var
     self.value = value
@@ -152,4 +146,6 @@ class If:
     elif self.dothat is not None:
       self.dothat.eval()
   def __repr__(self):
-    return f'Si {self.condition} {self.dothis} {self.dothat}'
+    if self.dothat is not None:
+      return f'Si {self.condition} {self.dothis} {self.dothat}'
+    return f'Si {self.condition} {self.dothis}'

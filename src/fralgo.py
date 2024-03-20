@@ -1,4 +1,10 @@
-# FRALGO
+#   __           _             
+#  / _|_ __ __ _| | __ _  ___  
+# | |_| '__/ _` | |/ _` |/ _ \ 
+# |  _| | | (_| | | (_| | (_) |
+# |_| |_|  \__,_|_|\__, |\___/ 
+#                  |___/       
+#
 # Copyright © 2024 Stéphane MEYER (teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining

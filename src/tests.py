@@ -1,5 +1,5 @@
 import unittest
-from parser import parser
+from algoparser import parser
 import lib.symbols as sym
 
 prog = '''# Commentaire

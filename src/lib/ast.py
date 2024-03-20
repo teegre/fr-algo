@@ -24,17 +24,17 @@ import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Float, Integer, String
 from lib.symbols import declare_var, get_variable, assign_value
-from lib.exceptions import BadType, InterruptedByUser
+from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
 class Node:
-  def __init__(self, statement: Node):
+  def __init__(self, statement=None):
     self.children = [statement] if statement else []
-  def append(self, statement: Node):
+  def append(self, statement):
     if statement is not None:
       self.children.append(statement)
-      return self
   def eval(self):
     for statement in self.children:
+      # print(statement)
       statement.eval()
   def __repr__(self):
     return f'Node {self.children}'
@@ -43,20 +43,32 @@ class Declare:
   def __init__(self, name, var_type):
     self.name = name
     self.var_type = var_type
-  def eval():
+  def eval(self):
     declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
 
 class Assign:
-  _type: 'assign'
   def __init__(self, var, value):
     self.var = var
     self.value = value
   def eval(self):
-    assign_value(self.var, self.value)
+    assign_value(self.var, self.value.eval())
   def __repr__(self):
     return f'{self.var} ← {self.value}'
+
+class Variable:
+  def __init__(self, name):
+    self.name = name
+  def eval(self):
+    var = get_variable(self.name)
+    return var.eval()
+  def __repr__(self):
+    try:
+      value = get_variable(self.name)
+      return f'{self.name} → {value}'
+    except VarUndeclared:
+      return f'{self.name} → ?'
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -66,6 +78,7 @@ class Print:
     '''Print data'''
     result = []
     for element in self.data:
+      # here we want to use the str method of the evaluated class.
       if isinstance(element, Boolean):
         result.append(str(element))
       else:
@@ -127,12 +140,23 @@ class BinOp:
     b = self.b
     op = self.__op.get(self.op, None)
     if self.op == 'dp':
-      return a.eval() % b.eval() == 0
+      return map_type(a.eval() % b.eval() == 0)
     if self.b is None:
-      return op(a.eval())
-    return op(a.eval(), b.eval())
+      return map_type(op(a.eval()))
+    return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'
+
+class Neg:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    if not isinstance(value, (int, float)):
+      raise BadType('type Entier ou Numérique attendu')
+    return map_type(-value)
+  def __repr__(self):
+    return f'-{self.value}'
 
 class If:
   def __init__(self, condition, dothis, dothat):

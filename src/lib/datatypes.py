@@ -58,7 +58,7 @@ class Integer(Number):
     elif isinstance(value, Integer):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
 
 class Float(Number):
   _type = 'Numérique'
@@ -70,7 +70,7 @@ class Float(Number):
     elif isinstance(value, Float):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
 
 class String(Base):
   _type = 'Chaîne'
@@ -80,7 +80,7 @@ class String(Base):
     if isinstance(value, str):
       self.value = value
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
   def eval(self):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
@@ -96,7 +96,7 @@ class Boolean(Base):
     self.value = value
   def set_value(self, value):
     if value not in (True, False):
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
     self.value = value
   def eval(self):
     if self.value is None:

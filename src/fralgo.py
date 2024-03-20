@@ -1,9 +1,9 @@
-#   __           _             
-#  / _|_ __ __ _| | __ _  ___  
-# | |_| '__/ _` | |/ _` |/ _ \ 
+#   __           _
+#  / _|_ __ __ _| | __ _  ___
+# | |_| '__/ _` | |/ _` |/ _ \
 # |  _| | | (_| | | (_| | (_) |
-# |_| |_|  \__,_|_|\__, |\___/ 
-#                  |___/       
+# |_| |_|  \__,_|_|\__, |\___/
+#                  |___/
 #
 # Copyright © 2024 Stéphane MEYER (teegre)
 #
@@ -26,7 +26,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-from parser import parser
+from algoparser import parser
 
 if __name__ == "__main__":
   try:

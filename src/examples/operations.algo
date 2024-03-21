@@ -18,4 +18,5 @@ Début
   Ecrire "-C :", -C
   Ecrire "(2 * A) + ((B * 5) + 2) =", (2 * A) + ((B * 5) + 2)
   Ecrire "D est", D
+  Ecrire "NON(D) est", NON(D)
 Fin

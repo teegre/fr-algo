@@ -1,0 +1,16 @@
+Variables H, M en Entier
+Début
+  Ecrire "> Entrez l'heure :"
+  Lire H
+  Ecrire "> Entrez les minutes :"
+  Lire M
+  M ← M + 1
+  Si M = 60 Alors
+    H ← H + 1
+    M ← 0
+    Si H = 24 Alors
+      H ← 0
+    FinSi
+  FinSi
+  Ecrire "Dans une minute, il sera", H & ":" & M
+Fin

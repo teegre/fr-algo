@@ -1,0 +1,15 @@
+Variable s en Chaîne
+Début
+  Ecrire "> Ecrivez AZERTY, s'il vous plaît :"
+  Lire s
+  Si s = "AZERTY" Alors
+    Ecrire "> Merci de votre coopération."
+    Ecrire "> On vous rappelera."
+  SinonSi s = "azerty" Alors
+    Ecrire "> Presque..."
+    Ecrire "> Essayez encore."
+  Sinon
+    Ecrire "> Vous n'en faites qu'à votre tête !"
+    Ecrire "> C'est bien."
+  FinSi
+Fin

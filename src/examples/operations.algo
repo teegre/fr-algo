@@ -1,17 +1,22 @@
 # Test opérations arithmétiques.
-Variables a, b, c en Entier
+Variables A, B, C en Entier
+Variable D en Booléen
 Début
-  a ← 2
-  b ← 3
-  c ← a + b
-  Ecrire "c est égal à a + b soit 2 + 3 = " c
-  Ecrire "ajoutons 5 à c"
-  c ← c + 5
-  Ecrire "c est maintenant égal à " c
-  Ecrire "c * 2 = " c * 2 
-  Ecrire "a * b + 2 = " a * b + 2
-  Ecrire "(a + 2) * b = " (a + 2) * b
-  Ecrire "c au carré : " c ^ 2
-  Ecrire "-c : " -c
-  Ecrire "(2 * a) + ((b * 5) + 2) = " (2 * a) + ((b * 5) + 2)
+  A ← 2
+  B ← 3
+  C ← A + B
+  D ← FAUX
+  Ecrire "C est égal à A + B soit 2 + 3 =", C
+  Ecrire "2 + 3 =", 2 + 3
+  Ecrire "ajoutons 5 à C"
+  C ← C + 5
+  Ecrire "C est maintenant égal à", C
+  Ecrire "C + 2 =", C + 2
+  Ecrire "A * B + 2 =", A * B + 2
+  Ecrire "(A + 2) * B =", (A + 2) * B
+  Ecrire "C au carré :", C ^ 2
+  Ecrire "-C :", -C
+  Ecrire "(2 * A) + ((B * 5) + 2) =", (2 * A) + ((B * 5) + 2)
+  Ecrire "D est", D
+  Ecrire "NON(D) est", NON(D)
 Fin

@@ -1,4 +1,10 @@
-# FRALGO
+#   __           _
+#  / _|_ __ __ _| | __ _  ___
+# | |_| '__/ _` | |/ _` |/ _ \
+# |  _| | | (_| | | (_| | (_) |
+# |_| |_|  \__,_|_|\__, |\___/
+#                  |___/
+#
 # Copyright © 2024 Stéphane MEYER (teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -19,4 +25,15 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
+from algoparser import parser
 
+if __name__ == "__main__":
+  try:
+    with open(sys.argv[1], 'r') as f:
+      prog = f.read()
+      prog = prog[:-1]
+  except FileNotFoundError:
+    print('*** fichier non trouvé')
+    sys.exit(1)
+  parser.parse(prog)

@@ -43,6 +43,10 @@ class Number(Base):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
     return self.value
+  def __str__(self):
+    if self.value is None:
+      raise VarUndefined('valeur indéfinie')
+    return f'{self.value}'
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type} → ?'
@@ -58,7 +62,7 @@ class Integer(Number):
     elif isinstance(value, Integer):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
 
 class Float(Number):
   _type = 'Numérique'
@@ -70,7 +74,7 @@ class Float(Number):
     elif isinstance(value, Float):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
 
 class String(Base):
   _type = 'Chaîne'
@@ -80,7 +84,7 @@ class String(Base):
     if isinstance(value, str):
       self.value = value
     else:
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
   def eval(self):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
@@ -96,22 +100,23 @@ class Boolean(Base):
     self.value = value
   def set_value(self, value):
     if value not in (True, False):
-      raise BadType(f'type {self.data_type} attendu')
+      raise BadType(f'type {self.data_type} attendu [{self.value}]')
     self.value = value
   def eval(self):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
     return self.value
-  def __bool__(self):
-    return self.value
-  def __eq__(self, other):
-    if isinstance(other, bool):
-      return self.value == other
-    if isinstance(other, Boolean):
-      return self.value == other.value
-    return False
-  def __not__(self, other):
-    return not self.__eq__(other)
+  # def __bool__(self):
+  #   return self.value
+  # def __eq__(self, other):
+  #   print('__EQ__', self, other)
+  #   if isinstance(other, bool):
+  #     return self.value == other
+  #   if isinstance(other, Boolean):
+  #     return self.value == other.value
+  #   return False
+  # def __not__(self, other):
+  #   return not self.__eq__(other)
   def __str__(self):
     if self.value is not None:
       return 'VRAI' if self.value is True else 'FAUX'

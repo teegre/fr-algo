@@ -22,37 +22,66 @@
 
 import operator
 from lib.datatypes import map_type
-from lib.datatypes import Boolean, Float, Integer, String
-from lib.symbols import get_variable, is_variable
-from lib.exceptions import BadType, InterruptedByUser
+from lib.datatypes import Boolean, Number, Float, Integer, String
+from lib.symbols import declare_var, get_variable, assign_value
+from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
-class Statements:
-  '''
-  Program statements.
-  Statements are added to a list and can be evaluated once
-  the program has been parsed.
-  '''
-  def __init__(self, value):
-    if value is None:
-      self.children = []
-    else:
-      self.children = [value]
+class Node:
+  def __init__(self, statement=None, lineno=0):
+    self.children = [statement] if statement else []
+    self.lineno = lineno
+  def append(self, statement):
+    if statement is not None:
+      self.children.append(statement)
   def eval(self):
-    '''Evaluate all statements in the list.'''
-    for statement in self:
+    for statement in self.children:
       statement.eval()
-  def append(self, value):
-    '''Add a statement to the list.'''
-    if value is not None:
-      self.children.append(value)
-  def __getitem__(self, index):
-    return self.children[index]
   def __iter__(self):
     return iter(self.children)
-  def __len__(self):
-    return len(self.children)
   def __repr__(self):
-    return f'{self.children}'
+    return f'Node({self.lineno}) {self.children}'
+
+def print_tree(node):
+  for n in node:
+    if isinstance(n, Node):
+      if n.lineno != 0:
+        print('.')
+      print_tree(n)
+    else:
+      print(f'|_ {n}')
+
+class Declare:
+  def __init__(self, name, var_type):
+    self.name = name
+    self.var_type = var_type
+  def eval(self):
+    declare_var(self.name, self.var_type)
+  def __repr__(self):
+    return f'Variable {self.name} en {self.var_type}'
+
+class Assign:
+  def __init__(self, var, value):
+    self.var = var
+    self.value = value
+  def eval(self):
+    assign_value(self.var, self.value.eval())
+  def __repr__(self):
+    return f'{self.var} ← {self.value}'
+
+class Variable:
+  def __init__(self, name):
+    self.name = name
+  def eval(self):
+    var = get_variable(self.name)
+    if isinstance(var, (Boolean, Number, String)):
+      return var.eval()
+    return var
+  def __repr__(self):
+    try:
+      value = get_variable(self.name)
+      return f'{self.name} → {value}'
+    except VarUndeclared:
+      return f'{self.name} → ?'
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -62,10 +91,15 @@ class Print:
     '''Print data'''
     result = []
     for element in self.data:
-      if isinstance(element, Boolean):
-        result.append(str(element))
-      else:
-        result.append(str(map_type(element).eval()))
+      if isinstance(element, (BinOp, Variable)):
+        if isinstance(element.eval(), bool):
+          # special treatment for bool type...
+          # we want to print VRAI or FAUX
+          # instead True or False
+          result.append(str(map_type(element.eval())))
+          continue
+      # here we want to use the str method of the evaluated class.
+      result.append(str(element.eval()))
     print(' '.join(result))
   def __repr__(self):
     return f'Ecrire {self.data}'
@@ -123,15 +157,46 @@ class BinOp:
     b = self.b
     op = self.__op.get(self.op, None)
     if self.op == 'dp':
-      return a.eval() % b.eval() == 0
-    elif self.b is None:
-      return op(a.eval())
+      return map_type(a.eval() % b.eval() == 0)
+    if self.op == '&':
+      # evaluate expressions until we get a str.
+      while isinstance(a, (String, BinOp, Variable)):
+        a = a.eval()
+      while isinstance(b, (String, BinOp, Variable)):
+        b = b.eval()
+      return a + b
+    if self.b is None:
+      return map_type(op(a.eval()))
     return op(a.eval(), b.eval())
+    # return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
+    if self.b is None:
+      return f'{self.op} {self.a}'
     return f'{self.a} {self.op} {self.b}'
 
+class Neg:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    if not isinstance(value, (int, float)):
+      raise BadType('type Entier ou Numérique attendu')
+    return map_type(-value)
+  def __repr__(self):
+    return f'-{self.value}'
+
 class If:
-  def __init__(self, cond, statements, else_):
-    self.cond = cond.eval()
-    self.statements = statements
-    self.else_ = else_
+  def __init__(self, condition, dothis, dothat):
+    self.condition = condition
+    self.dothis = dothis
+    self.dothat = dothat
+  def eval(self):
+    if self.condition.eval():
+      for statement in self.dothis:
+        statement.eval()
+    elif self.dothat is not None:
+      self.dothat.eval()
+  def __repr__(self):
+    if self.dothat is not None:
+      return f'Si {self.condition} {self.dothis} {self.dothat}'
+    return f'Si {self.condition} {self.dothis}'

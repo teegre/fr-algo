@@ -1,5 +1,5 @@
 import unittest
-from parser import parser
+from algoparser import parser
 import lib.symbols as sym
 
 prog = '''# Commentaire
@@ -43,7 +43,8 @@ class Test(unittest.TestCase):
     print(prog)
     print()
 
-    parser.parse(prog)
+    p = parser.parse(prog)
+    p.eval()
 
     x = sym.get_variable('x')
     y = sym.get_variable('y')

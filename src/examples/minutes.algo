@@ -12,5 +12,5 @@ Début
       H ← 0
     FinSi
   FinSi
-  Ecrire "Dans une minute, il sera", H & ":" & M
+  Ecrire "Dans une minute, il sera", H, "h et",  M, "m"
 Fin

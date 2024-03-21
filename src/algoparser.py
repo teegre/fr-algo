@@ -127,24 +127,27 @@ def p_if_block(p):
   '''
   if_block : IF expression THEN NEWLINE statements else_blocks
   '''
+  p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
 def p_else_blocks(p):
   '''
   else_blocks : else_if_block
               | else_block
               | ENDIF NEWLINE
-
   '''
+  p[0] = p[1] if len(p) == 2 else None
 
 def p_else_if_block(p):
   '''
   else_if_block : ELSIF expression THEN NEWLINE statements else_blocks
   '''
+  p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
 def p_else_block(p):
   '''
   else_block : ELSE NEWLINE statements ENDIF NEWLINE
   '''
+  p[0] = p[3]
 
 def p_sequence(p):
   '''

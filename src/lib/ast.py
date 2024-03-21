@@ -27,8 +27,9 @@ from lib.symbols import declare_var, get_variable, assign_value
 from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
 class Node:
-  def __init__(self, statement=None):
+  def __init__(self, statement=None, lineno=0):
     self.children = [statement] if statement else []
+    self.lineno = lineno
   def append(self, statement):
     if statement is not None:
       self.children.append(statement)
@@ -38,16 +39,16 @@ class Node:
   def __iter__(self):
     return iter(self.children)
   def __repr__(self):
-    return f'Node {self.children}'
+    return f'Node({self.lineno}) {self.children}'
 
-def print_tree(node, level=1):
+def print_tree(node):
   for n in node:
     if isinstance(n, Node):
-      print('.')
-      print_tree(n, level+1)
+      if n.lineno != 0:
+        print('.')
+      print_tree(n)
     else:
-      if level > 1:
-        print(f'|{level}|', n)
+      print(f'|_ {n}')
 
 class Declare:
   def __init__(self, name, var_type):
@@ -75,7 +76,6 @@ class Variable:
     if isinstance(var, (Boolean, Number, String)):
       return var.eval()
     return var
-    return var
   def __repr__(self):
     try:
       value = get_variable(self.name)
@@ -91,16 +91,15 @@ class Print:
     '''Print data'''
     result = []
     for element in self.data:
+      if isinstance(element, (BinOp, Variable)):
+        if isinstance(element.eval(), bool):
+          # special treatment for bool type...
+          # we want to print VRAI or FAUX
+          # instead True or False
+          result.append(str(map_type(element.eval())))
+          continue
       # here we want to use the str method of the evaluated class.
-      try:
-        element.eval()
-        e = element
-      except TypeError:
-        e = map_type(element)
-      if isinstance(e, Boolean):
-        result.append(str(e.eval()))
-      else:
-        result.append(str(e.eval()))
+      result.append(str(element.eval()))
     print(' '.join(result))
   def __repr__(self):
     return f'Ecrire {self.data}'
@@ -160,18 +159,19 @@ class BinOp:
     if self.op == 'dp':
       return map_type(a.eval() % b.eval() == 0)
     if self.op == '&':
-      print("concat")
-      if isinstance(a, (String, BinOp, Variable)):
+      # evaluate expressions until we get a str.
+      while isinstance(a, (String, BinOp, Variable)):
         a = a.eval()
-      if isinstance(b, (String, BinOp, Variable)):
+      while isinstance(b, (String, BinOp, Variable)):
         b = b.eval()
-      return map_type(a + b)
+      return a + b
     if self.b is None:
-      return op(a.eval())
-      # return map_type(op(a.eval()))
+      return map_type(op(a.eval()))
     return op(a.eval(), b.eval())
     # return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
+    if self.b is None:
+      return f'{self.op} {self.a}'
     return f'{self.a} {self.op} {self.b}'
 
 class Neg:

@@ -43,6 +43,10 @@ class Number(Base):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
     return self.value
+  def __str__(self):
+    if self.value is None:
+      raise VarUndefined('valeur indéfinie')
+    return f'{self.value}'
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type} → ?'

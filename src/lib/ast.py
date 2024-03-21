@@ -36,8 +36,17 @@ class Node:
     for statement in self.children:
       # print(statement)
       statement.eval()
+  def __iter__(self):
+    return iter(self.children)
   def __repr__(self):
     return f'Node {self.children}'
+
+def print_tree(node, level=1):
+  for n in node:
+    if isinstance(n, Node):
+      print_tree(n, level+1)
+    else:
+      print(level * '-', n)
 
 class Declare:
   def __init__(self, name, var_type):

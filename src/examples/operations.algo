@@ -5,10 +5,11 @@ Début
   b ← 3
   c ← a + b
   Ecrire "c est égal à a + b soit 2 + 3 =", c
+  Ecrire "2 + 3 =", 2 + 3
   Ecrire "ajoutons 5 à c"
   c ← c + 5
   Ecrire "c est maintenant égal à", c
-  Ecrire "c * 2 =", c * 2 
+  Ecrire "c + 2 =", c + 2
   Ecrire "a * b + 2 =", a * b + 2
   Ecrire "(a + 2) * b =", (a + 2) * b
   Ecrire "c au carré :", c ^ 2

@@ -1,4 +1,4 @@
-'''Abstract syntax tree kinda'''
+'''Abstract syntax tree'''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -164,7 +164,9 @@ class BinOp:
         a = a.eval()
       while isinstance(b, (String, BinOp, Variable)):
         b = b.eval()
-      return a + b
+      if isinstance(a, str) and isinstance(b, str):
+        return a + b
+      raise BadType('type Chaîne attendu')
     if self.b is None:
       return map_type(op(a.eval()))
     return op(a.eval(), b.eval())
@@ -198,5 +200,5 @@ class If:
       self.dothat.eval()
   def __repr__(self):
     if self.dothat is not None:
-      return f'Si {self.condition} {self.dothis} {self.dothat}'
-    return f'Si {self.condition} {self.dothis}'
+      return f'{self.condition} ? {self.dothis} : {self.dothat}'
+    return f'Si {self.condition} ? {self.dothis}'

@@ -23,7 +23,8 @@ Début
   Ecrire "J'ai ajouté 8 à n et ça fait", resultat
   c ← x ^ 2
   Ecrire "J'ai mis x au carré :", c
-  Ecrire "J'ai négationné le carré :", -c
+  Ecrire "J'ai négationné le carré de x :", -c
+  Ecrire "J'ai mis le carré de x au carré :", c ^ 2
   Ecrire "c est-il divisible par 2 ?", c dp 2
   Ecrire "c est-il divisible par 3 ?", c dp 3
   Ecrire "n est-il divisible par 7 ?", n dp 7
@@ -35,6 +36,11 @@ Début
   Ecrire y, "-", x, "= 2.2 ?", y - x = 2.2
   Ecrire "NON(b) =", NON(b)
   Ecrire "x = n OU n = 7", x = n OU n = 7
+  Si 2 * x = 2.4 Alors
+    Ecrire "2x est bien égal à", 2 * x
+  FinSi
+  Ecrire "Fin du test. Merci de votre attention."
+  Ecrire "FRALGO vous souhaite une excellente journée !"
 Fin'''
 
 class Test(unittest.TestCase):

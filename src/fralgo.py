@@ -36,4 +36,5 @@ if __name__ == "__main__":
   except FileNotFoundError:
     print('*** fichier non trouvé')
     sys.exit(1)
-  parser.parse(prog)
+  statements = parser.parse(prog)
+  statements.eval()

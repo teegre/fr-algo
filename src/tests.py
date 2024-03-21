@@ -43,7 +43,8 @@ class Test(unittest.TestCase):
     print(prog)
     print()
 
-    parser.parse(prog)
+    p = parser.parse(prog)
+    p.eval()
 
     x = sym.get_variable('x')
     y = sym.get_variable('y')

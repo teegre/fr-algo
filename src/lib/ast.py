@@ -22,7 +22,7 @@
 
 import operator
 from lib.datatypes import map_type
-from lib.datatypes import Boolean, Float, Integer, String
+from lib.datatypes import Boolean, Number, Float, Integer, String
 from lib.symbols import declare_var, get_variable, assign_value
 from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
@@ -34,7 +34,6 @@ class Node:
       self.children.append(statement)
   def eval(self):
     for statement in self.children:
-      # print(statement)
       statement.eval()
   def __iter__(self):
     return iter(self.children)
@@ -44,9 +43,11 @@ class Node:
 def print_tree(node, level=1):
   for n in node:
     if isinstance(n, Node):
+      print('.')
       print_tree(n, level+1)
     else:
-      print(level * '-', n)
+      if level > 1:
+        print(f'|{level}|', n)
 
 class Declare:
   def __init__(self, name, var_type):
@@ -71,7 +72,10 @@ class Variable:
     self.name = name
   def eval(self):
     var = get_variable(self.name)
-    return var.eval()
+    if isinstance(var, (Boolean, Number, String)):
+      return var.eval()
+    return var
+    return var
   def __repr__(self):
     try:
       value = get_variable(self.name)
@@ -88,10 +92,15 @@ class Print:
     result = []
     for element in self.data:
       # here we want to use the str method of the evaluated class.
-      if isinstance(element, Boolean):
-        result.append(str(element))
+      try:
+        element.eval()
+        e = element
+      except TypeError:
+        e = map_type(element)
+      if isinstance(e, Boolean):
+        result.append(str(e.eval()))
       else:
-        result.append(str(map_type(element).eval()))
+        result.append(str(e.eval()))
     print(' '.join(result))
   def __repr__(self):
     return f'Ecrire {self.data}'
@@ -150,9 +159,18 @@ class BinOp:
     op = self.__op.get(self.op, None)
     if self.op == 'dp':
       return map_type(a.eval() % b.eval() == 0)
+    if self.op == '&':
+      print("concat")
+      if isinstance(a, (String, BinOp, Variable)):
+        a = a.eval()
+      if isinstance(b, (String, BinOp, Variable)):
+        b = b.eval()
+      return map_type(a + b)
     if self.b is None:
-      return map_type(op(a.eval()))
-    return map_type(op(a.eval(), b.eval()))
+      return op(a.eval())
+      # return map_type(op(a.eval()))
+    return op(a.eval(), b.eval())
+    # return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
     return f'{self.a} {self.op} {self.b}'
 

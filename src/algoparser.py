@@ -4,6 +4,16 @@ from lib.exceptions import BadType
 import lexer as lex
 from ply.yacc import yacc
 
+# For debugging
+
+from lib.ast import print_tree
+
+def parse_prog(name):
+  with open(name, 'r') as f:
+    prog = f.read()
+    prog = prog[:-1]
+  return parser.parse(prog)
+
 tokens = lex.tokens
 
 precedence = (
@@ -37,7 +47,7 @@ def p_var_declarations(p):
   if len(p) == 2:
     _ast.append(p[1])
   else:
-    _ast.append(p[1] + p[2])
+    _ast.append(p[2])
 
 def p_var_declaration(p):
   '''
@@ -214,8 +224,8 @@ def p_expression_logical(p):
   a = p[1]
   b = p[3]
 
-  if not isinstance(a, Boolean) or not isinstance(b, Boolean):
-    raise BadType('type Booléen attendu')
+  # if not isinstance(a, Boolean) or not isinstance(b, Boolean):
+  #   raise BadType('type Booléen attendu')
 
   p[0] = BinOp(p[2], a, b)
 
@@ -226,8 +236,9 @@ def p_expression_concat(p):
   a = p[1]
   b = p[3]
 
-  if not isinstance(a, String) or not isinstance(b, String):
-    raise BadType('type Chaîne attendu')
+  # if not isinstance(a, String) or not isinstance(b, String):
+  #   print(type(a), (type(b)))
+  #   raise BadType('type Chaîne attendu')
 
   p[0] = BinOp(p[2], a, b)
 

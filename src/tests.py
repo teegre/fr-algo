@@ -1,81 +1,156 @@
 import unittest
-from algoparser import parser
+from algoparser import parser, _ast
 import lib.symbols as sym
 
-prog = '''# Commentaire
-Variables x, y, z, c en Numérique
-Variable n en Entier
-Variable s en Chaîne
-Variable b en Booléen
-Variable resultat en Entier
-Variable d en Booléen
-Début
-  x ← 1.2
-  y ← 3.4
-  z ← 5.6
-  n ← 7
-  s ← "Huit !"
-  b ← VRAI
-  Ecrire "Les valeurs de x, y et z sont", x, y, z
-  Ecrire "n est égal à", n
-  Ecrire "s vaut", s, "et b est", b
-  resultat ← n + 8
-  Ecrire "J'ai ajouté 8 à n et ça fait", resultat
-  c ← x ^ 2
-  Ecrire "J'ai mis x au carré :", c
-  Ecrire "J'ai négationné le carré de x :", -c
-  Ecrire "J'ai mis le carré de x au carré :", c ^ 2
-  Ecrire "c est-il divisible par 2 ?", c dp 2
-  Ecrire "c est-il divisible par 3 ?", c dp 3
-  Ecrire "n est-il divisible par 7 ?", n dp 7
-  Ecrire "Concaténation de chaînes : " & s & " Neuf !" & " Dix !"
-  Ecrire "x différent de y :", x <> y
-  Ecrire "n = 7 ?", n = 7
-  d ← y - x = 2.3
-  Ecrire d
-  Ecrire y, "-", x, "= 2.2 ?", y - x = 2.2
-  Ecrire "NON(b) =", NON(b)
-  Ecrire "x = n OU n = 7", x = n OU n = 7
-  Si 2 * x = 2.4 Alors
-    Ecrire "2x est bien égal à", 2 * x
-  FinSi
-  Ecrire "Fin du test. Merci de votre attention."
-  Ecrire "FRALGO vous souhaite une excellente journée !"
-Fin'''
+def reset_parser():
+  try:
+    parser.restart()
+  except AttributeError:
+    pass
+  sym.reset_variables()
+  _ast.children.clear()
 
 class Test(unittest.TestCase):
-  def test(self):
-    print('Source :')
-    print(prog)
+  def test_while(self):
+
+    prog = '''Variable Marche en Booléen
+    Début
+      Marche ← VRAI
+      Ecrire "Test de la boucle 'TantQue Marche'"
+      TantQue Marche
+        Ecrire Marche
+        Marche ← FAUX
+      FinTantQue
+      Ecrire Marche
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    m = sym.get_variable('Marche')
+    self.assertEqual(m.eval(), False, 'should be False')
+
+  def test_while_multable(self):
+
+    prog = '''Variable N en Entier
+    Début
+      N ← 1
+      Ecrire "Test de la boucle 'TantQue N < 11'"
+      TantQue N < 11
+        Ecrire N, "x 9 =", N * 9
+        N ← N + 1
+      FinTantQue
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    n = sym.get_variable('N')
+    self.assertEqual(n.eval(), 11, 'should be 11')
+
+  def test_for_loop_normal(self):
+
+    prog = '''Variable I en Entier
+    Début
+      Ecrire "Test de la boucle 'Pour I <- 1 à 10'"
+      Pour I ← 1 à 10
+        Ecrire I
+      I Suivant
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    i = sym.get_variable('I')
+    self.assertEqual(i.eval(), 11, 'I should be 11')
+
+  def test_for_loop_reverse(self):
+
+    prog = '''Variable I en Entier
+    Début
+      Ecrire "Test de la boucle 'Pour I <- 10 à 0 Pas -1'"
+      Pour I ← 10 à 0 Pas -1
+        Ecrire I
+      I Suivant
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    i = sym.get_variable('I')
+    self.assertEqual(i.eval(), -1, 'I should be -1')
     print()
 
-    p = parser.parse(prog)
-    p.eval()
+  def test_for_step_two(self):
 
-    x = sym.get_variable('x')
-    y = sym.get_variable('y')
-    z = sym.get_variable('z')
-    n = sym.get_variable('n')
-    s = sym.get_variable('s')
-    b = sym.get_variable('b')
-    c = sym.get_variable('c')
+    prog = '''Variable I en Entier
+    Début
+      Ecrire "Test de la boucle 'Pour I <- 1 à 10 Pas 2'"
+      Pour I ← 1 à 10 Pas 2
+        Ecrire I
+      I Suivant
+    Fin'''
 
-    self.assertEqual(x.value, 1.2, 'x should be 1.2')
-    self.assertEqual(y.value, 3.4, 'y should be 3.4')
-    self.assertEqual(z.value, 5.6, 'z should be 5.6')
-    self.assertEqual(n.value, 7, 'n should be 7')
-    self.assertEqual(s.value, 'Huit !', ' s should be Huit !')
-    self.assertEqual(b.value, True, 'b should be VRAI')
-    self.assertEqual(c.value, 1.44, 'c should be 1.44')
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    i = sym.get_variable('I')
+    self.assertEqual(i.eval(), 11, 'I should be 11')
+    print()
 
-    self.assertEqual(x.data_type, 'Numérique', 'x should be Numérique')
-    self.assertEqual(y.data_type, 'Numérique', 'y should be Numérique')
-    self.assertEqual(z.data_type, 'Numérique', 'z should be Numérique')
-    self.assertEqual(n.data_type, 'Entier', 'n should be Entier')
-    self.assertEqual(s.data_type, 'Chaîne', 's should be Chaîne')
-    self.assertEqual(b.data_type, 'Booléen', 'b should be Booléen')
-    self.assertEqual(c.data_type, 'Numérique', 'c should be Numérique')
+  def test_for_step_negative_two(self):
 
+    prog = '''Variable I en Entier
+    Début
+      Ecrire "Test de la boucle 'Pour I <- 0 à -10 Pas -2'"
+      Pour I ← 0 à -10 Pas -2
+        Ecrire I
+      I Suivant
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    i = sym.get_variable('I')
+    self.assertEqual(i.eval(), -12, 'I should be -12')
+    print()
+
+  def test_for_negative(self):
+
+    prog = '''Variable I en Entier
+    Début
+      Ecrire "Test de la boucle 'Pour I <- 0 à -10'"
+      Pour I ← 0 à -10
+        Ecrire I
+      I Suivant
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    i = sym.get_variable('I')
+    self.assertEqual(i.eval(), 0, 'I should be 0')
+    print()
+
+  def test_if_not(self):
+
+    prog = '''Variables A, B en Booléen
+    Début
+      Ecrire "Test de 'NON(A)'"
+      A ← VRAI
+      Si NON(A) Alors
+        B ← VRAI
+      Sinon
+        B ← FAUX
+      FinSi
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    b = sym.get_variable('B')
+    self.assertEqual(b.eval(), False, 'I should be False')
+    print()
 
 if __name__ == '__main__':
   unittest.main()

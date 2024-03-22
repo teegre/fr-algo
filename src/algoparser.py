@@ -1,10 +1,11 @@
-from lib.ast import Node, print_tree, Declare, Assign, Variable, Print, Read, BinOp, Neg, If
-from lib.datatypes import map_type, Boolean, Number
+from lib.ast import Node, print_tree, Declare, Assign, Variable, Print, Read, BinOp, Neg, If, While, For
+from lib.datatypes import map_type, Number
 from lib.exceptions import BadType
 import lexer as lex
 from ply.yacc import yacc
 
 def parse_prog(name):
+  # For debugging only.
   with open(name, 'r') as f:
     prog = f.read()
     prog = prog[:-1]
@@ -74,12 +75,14 @@ def p_d_var(p):
   '''
   d_var : ID
   '''
+  # A variable name in a multiple variables declaration.
   p[0] = [p[1]]
 
 def p_var(p):
   '''
   var : ID
   '''
+  # A variable.
   p[0] = Variable(p[1])
 
 def p_type(p):
@@ -106,6 +109,8 @@ def p_statement(p):
   '''
   statement : var_assignment
             | if_block
+            | while_block
+            | for_block
             | PRINT sequence NEWLINE
             | READ ID NEWLINE
   '''
@@ -149,6 +154,22 @@ def p_else_block(p):
   '''
   p[0] = p[3]
 
+def p_while_block(p):
+  '''
+  while_block : WHILE expression NEWLINE statements ENDWHILE NEWLINE
+  '''
+  p[0] = Node(While(p[2], p[4]), p.lineno(1))
+
+def p_for_block(p):
+  '''
+  for_block : FOR var ARROW expression TO expression NEWLINE statements var NEXT NEWLINE
+            | FOR var ARROW expression TO expression STEP expression NEWLINE statements var NEXT NEWLINE
+  '''
+  if len(p) == 12:
+    p[0] = Node(For(p[2], p[4], p[6], p[8], p[9]), p.lineno(1))
+  else:
+    p[0] = Node(For(p[2], p[4], p[6], p[10], p[11], p[8]), p.lineno(1))
+
 def p_sequence(p):
   '''
   sequence : sequence COMMA element
@@ -190,6 +211,7 @@ def p_expression_binop(p):
              | expression GE expression
              | expression NE expression
   '''
+# TODO %      | expression REMAINDER expression
 
   a = p[1]
   b = p[3]
@@ -235,10 +257,6 @@ def p_expression_concat(p):
   '''
   a = p[1]
   b = p[3]
-
-  # if not isinstance(a, String) or not isinstance(b, String):
-  #   print(type(a), (type(b)))
-  #   raise BadType('type Chaîne attendu')
 
   p[0] = BinOp(p[2], a, b)
 

@@ -23,7 +23,7 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_var, get_variable, assign_value
+from lib.symbols import declare_var, get_variable, get_type, assign_value
 from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
 class Node:
@@ -46,6 +46,8 @@ def print_tree(node):
     if isinstance(n, Node):
       if n.lineno != 0:
         print('.')
+      else:
+        print('x')
       print_tree(n)
     else:
       print(f'|_ {n}')
@@ -110,12 +112,13 @@ class Read:
     self.var = var
   def eval(self):
     '''... on evaluation'''
+    var_type = get_type(self.var)
     try:
-      user_input = input()
-      var = get_variable(self.var)
+      user_input = input(f'({var_type[0]}) > ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:
+      var = get_variable(self.var)
       if isinstance(var, Integer):
         var.set_value(int(user_input))
       elif isinstance(var, Float):
@@ -168,7 +171,7 @@ class BinOp:
         return a + b
       raise BadType('type Chaîne attendu')
     if self.b is None:
-      return map_type(op(a.eval()))
+      return op(a.eval())
     return op(a.eval(), b.eval())
     # return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
@@ -183,7 +186,7 @@ class Neg:
     value = self.value.eval()
     if not isinstance(value, (int, float)):
       raise BadType('type Entier ou Numérique attendu')
-    return map_type(-value)
+    return -value
   def __repr__(self):
     return f'-{self.value}'
 
@@ -202,3 +205,35 @@ class If:
     if self.dothat is not None:
       return f'{self.condition} ? {self.dothis} : {self.dothat}'
     return f'Si {self.condition} ? {self.dothis}'
+
+class While:
+  def __init__(self, condition, dothis):
+    self.condition = condition
+    self.dothis = dothis
+  def eval(self):
+    while self.condition.eval():
+      for statement in self.dothis:
+        statement.eval()
+  def __repr__(self):
+    return f'TantQue {self.condition} → {self.dothis}'
+
+class For:
+  def __init__(self, v, b, e, dt, nv, s=Integer(1)):
+    # if v != nv:
+    #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
+    self.var = v.name
+    self.start = b.eval()
+    self.end = e.eval()
+    self.step = s.eval()
+    self.dothis = dt
+  def eval(self):
+    i = self.start
+    end = self.end
+    assign_value(self.var, i)
+    while i <= end if self.step > 0 else i >= end:
+      for statement in self.dothis:
+        statement.eval()
+      i += self.step
+      assign_value(self.var, i)
+  def __repr__(self):
+    return f'Pour {self.var} ← {self.start} à {self.end}'

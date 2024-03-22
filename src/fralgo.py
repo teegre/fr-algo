@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 #   __           _
 #  / _|_ __ __ _| | __ _  ___
 # | |_| '__/ _` | |/ _` |/ _ \
@@ -36,4 +37,5 @@ if __name__ == "__main__":
   except FileNotFoundError:
     print('*** fichier non trouvé')
     sys.exit(1)
-  parser.parse(prog)
+  statements = parser.parse(prog)
+  statements.eval()

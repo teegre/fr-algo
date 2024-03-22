@@ -52,3 +52,9 @@ def is_variable(name):
 def get_type(name):
   var = get_variable(name)
   return  var.data_type
+
+def delete_variable(name):
+  __variables.pop(name)
+
+def reset_variables():
+  __variables.clear()

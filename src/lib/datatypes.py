@@ -106,17 +106,6 @@ class Boolean(Base):
     if self.value is None:
       raise VarUndefined('valeur indéfinie')
     return self.value
-  # def __bool__(self):
-  #   return self.value
-  # def __eq__(self, other):
-  #   print('__EQ__', self, other)
-  #   if isinstance(other, bool):
-  #     return self.value == other
-  #   if isinstance(other, Boolean):
-  #     return self.value == other.value
-  #   return False
-  # def __not__(self, other):
-  #   return not self.__eq__(other)
   def __str__(self):
     if self.value is not None:
       return 'VRAI' if self.value is True else 'FAUX'

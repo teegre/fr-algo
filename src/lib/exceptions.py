@@ -28,12 +28,9 @@ class FralgoException(Exception):
 class VarUndeclared(FralgoException):
   '''Variable non déclarée.'''
 class BadType(FralgoException):
-  '''Le type de données n\'est pas conforme à celui de la variable.'''
+  '''Le type de données n\'est pas conforme à celui attendu.'''
 class VarRedeclared(FralgoException):
   '''La variable a déjà été déclarée.'''
-class VarTypeUnknown(FralgoException):
-  '''Le type de données est inconnu.'''
-  # Est-ce bien nécessaire ?
 class VarUndefined(FralgoException):
   '''Attention, ne jamais toucher à une variable vide...'''
   # ... même tombée à terre !

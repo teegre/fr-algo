@@ -48,3 +48,7 @@ def get_variable(name):
 
 def is_variable(name):
   return __variables.get(name, False) is not False
+
+def get_type(name):
+  var = get_variable(name)
+  return  var.data_type

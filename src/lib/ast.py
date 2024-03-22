@@ -23,7 +23,7 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_var, get_variable, assign_value
+from lib.symbols import declare_var, get_variable, get_type, assign_value
 from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
 
 class Node:
@@ -110,12 +110,13 @@ class Read:
     self.var = var
   def eval(self):
     '''... on evaluation'''
+    var_type = get_type(self.var)
     try:
-      user_input = input()
-      var = get_variable(self.var)
+      user_input = input(f'({var_type[0]}) > ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:
+      var = get_variable(self.var)
       if isinstance(var, Integer):
         var.set_value(int(user_input))
       elif isinstance(var, Float):

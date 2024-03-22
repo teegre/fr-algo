@@ -46,6 +46,8 @@ def print_tree(node):
     if isinstance(n, Node):
       if n.lineno != 0:
         print('.')
+      else:
+        print('x')
       print_tree(n)
     else:
       print(f'|_ {n}')
@@ -169,7 +171,7 @@ class BinOp:
         return a + b
       raise BadType('type Chaîne attendu')
     if self.b is None:
-      return map_type(op(a.eval()))
+      return op(a.eval())
     return op(a.eval(), b.eval())
     # return map_type(op(a.eval(), b.eval()))
   def __repr__(self):
@@ -184,7 +186,7 @@ class Neg:
     value = self.value.eval()
     if not isinstance(value, (int, float)):
       raise BadType('type Entier ou Numérique attendu')
-    return map_type(-value)
+    return -value
   def __repr__(self):
     return f'-{self.value}'
 
@@ -214,3 +216,24 @@ class While:
         statement.eval()
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
+
+class For:
+  def __init__(self, v, b, e, dt, nv, s=Integer(1)):
+    # if v != nv:
+    #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
+    self.var = v.name
+    self.start = b.eval()
+    self.end = e.eval()
+    self.step = s.eval()
+    self.dothis = dt
+  def eval(self):
+    i = self.start
+    end = self.end
+    assign_value(self.var, i)
+    while i <= end if self.step > 0 else i >= end:
+      for statement in self.dothis:
+        statement.eval()
+      i += self.step
+      assign_value(self.var, i)
+  def __repr__(self):
+    return f'Pour {self.var} ← {self.start} à {self.end}'

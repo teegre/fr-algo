@@ -44,9 +44,10 @@ reserved = {
   'FinSi':     'ENDIF',
   'TantQue':    'WHILE',
   'FinTantQue': 'ENDWHILE',
-  # 'Pour':       'LOOP_FOR',
-  # 'à':          'LOOP_FOR_RANGE',
-  # 'Suivant':    'LOOP_FOR_NEXT',
+  'Pour':       'FOR',
+  'à':          'TO',
+  'Pas':        'STEP',
+  'Suivant':    'NEXT',
 }
 
 tokens = (
@@ -82,7 +83,7 @@ t_ignore = ' \t'
 
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
-  t.value = bytes(t.value[1:-1], 'latin-1').decode('unicode-escape')
+  t.value = bytes(t.value[1:-1], 'latin9').decode('unicode-escape')
   return t
 
 def t_FLOAT(t):

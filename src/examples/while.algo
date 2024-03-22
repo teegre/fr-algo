@@ -1,0 +1,9 @@
+# TantQue example
+Variable N en Entier
+Début
+N ← 10
+TantQue N > -1
+  Ecrire N
+  N ← N - 1
+FinTantQue
+Fin

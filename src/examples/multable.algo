@@ -1,0 +1,17 @@
+# Tables de multiplication
+Variables N, I en Entier
+Début
+  Ecrire "Entrez un nombre entier positif non nul :"
+  Lire N
+  Si N > 0 Alors
+    I ← 1
+    TantQue I < 11
+      Ecrire N, "x", I, "=", N * I
+      I ← I + 1
+    FinTantQue
+  SinonSi N = 0 Alors
+    Ecrire "Vous ne lisez pas ce qu'on vous dit..."
+  Sinon
+    Ecrire N, "n'est pas positif... Donc c'est négatif."
+  FinSi
+Fin

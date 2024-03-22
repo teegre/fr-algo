@@ -1,4 +1,4 @@
-from lib.ast import Node, print_tree, Declare, Assign, Variable, Print, Read, BinOp, Neg, If
+from lib.ast import Node, print_tree, Declare, Assign, Variable, Print, Read, BinOp, Neg, If, While
 from lib.datatypes import map_type, Boolean, Number
 from lib.exceptions import BadType
 import lexer as lex
@@ -106,6 +106,7 @@ def p_statement(p):
   '''
   statement : var_assignment
             | if_block
+            | while_block
             | PRINT sequence NEWLINE
             | READ ID NEWLINE
   '''
@@ -148,6 +149,12 @@ def p_else_block(p):
   else_block : ELSE NEWLINE statements ENDIF NEWLINE
   '''
   p[0] = p[3]
+
+def p_while_block(p):
+  '''
+  while_block : WHILE expression NEWLINE statements ENDWHILE NEWLINE
+  '''
+  p[0] = Node(While(p[2], p[4]), p.lineno(1))
 
 def p_sequence(p):
   '''

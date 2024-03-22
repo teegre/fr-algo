@@ -203,3 +203,14 @@ class If:
     if self.dothat is not None:
       return f'{self.condition} ? {self.dothis} : {self.dothat}'
     return f'Si {self.condition} ? {self.dothis}'
+
+class While:
+  def __init__(self, condition, dothis):
+    self.condition = condition
+    self.dothis = dothis
+  def eval(self):
+    while self.condition.eval():
+      for statement in self.dothis:
+        statement.eval()
+  def __repr__(self):
+    return f'TantQue {self.condition} → {self.dothis}'

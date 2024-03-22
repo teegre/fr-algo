@@ -5,7 +5,7 @@ Début
   Ecrire "> Entrez les minutes :"
   Lire M
   M ← M + 1
-  Si M = 60 Alors
+  Si M > 59 Alors
     H ← H + 1
     M ← 0
     Si H = 24 Alors

@@ -6,15 +6,15 @@
 
 `←`
 
-=, <, <=, >, >=, <>, ET, OU
+`=, <, <=, >, >=, <>, ET, OU, XOR`
 
-+, -, \*, /, dp, ^, &
+`+, -, \*, /, dp, ^, &`
 
 `VRAI, FAUX`
 
 `Lire, Ecrire`
 
-Si, SinonSi, Sinon, FinSi,
+`Si, SinonSi, Sinon, FinSi`
 
 TantQue, FinTantQue,
 

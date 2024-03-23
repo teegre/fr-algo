@@ -208,6 +208,7 @@ def p_expression_binop(p):
              | expression MINUS expression
              | expression MUL expression
              | expression DIVBY expression
+             | expression MODULO expression
              | expression POWER expression
              | expression EQ expression
              | expression LT expression
@@ -216,7 +217,6 @@ def p_expression_binop(p):
              | expression GE expression
              | expression NE expression
   '''
-# TODO %      | expression REMAINDER expression
 
   a = p[1]
   b = p[3]

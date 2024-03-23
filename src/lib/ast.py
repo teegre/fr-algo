@@ -138,6 +138,7 @@ class BinOp:
       '*'   : operator.mul,
       '/'   : operator.truediv,
       '//'  : operator.floordiv,
+      '%'   : operator.mod,
       'dp'  : 'dummy',
       '^'   : operator.pow,
       '&'   : 'dummy',

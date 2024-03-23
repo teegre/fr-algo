@@ -56,6 +56,7 @@ tokens = (
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
   'XOR',
+  'MODULO',
   'LPAREN', 'RPAREN',
   'COMMA',
   'NEWLINE',
@@ -66,6 +67,7 @@ t_PLUS = r'\+'
 t_ARROW = '←'
 t_MUL = r'\*'
 t_DIV = r'/'
+t_MODULO = r'\%'
 t_EQ = r'='
 t_GE = r'>='
 t_LE = r'<='

@@ -24,7 +24,7 @@ import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Number, Float, Integer, String
 from lib.symbols import declare_var, get_variable, get_type, assign_value
-from lib.exceptions import BadType, InterruptedByUser, VarUndeclared
+from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -35,22 +35,23 @@ class Node:
       self.children.append(statement)
   def eval(self):
     for statement in self.children:
-      statement.eval()
+      try:
+        statement.eval()
+      except FralgoException as e:
+        print('***', e.message)
+        print('-v-', f'ligne {self.lineno}')
+        break
+  def __getitem__(self, start=0, end=0):
+    return self.children[start:end] if end != 0 else self.children[start]
   def __iter__(self):
     return iter(self.children)
+  def __str__(self):
+    statements = []
+    for statement in self:
+      statements.append(str(statement))
+    return '\n'.join(statements)
   def __repr__(self):
     return f'Node({self.lineno}) {self.children}'
-
-def print_tree(node):
-  for n in node:
-    if isinstance(n, Node):
-      if n.lineno != 0:
-        print('.')
-      else:
-        print('x')
-      print_tree(n)
-    else:
-      print(f'|_ {n}')
 
 class Declare:
   def __init__(self, name, var_type):
@@ -97,7 +98,7 @@ class Print:
         if isinstance(element.eval(), bool):
           # special treatment for bool type...
           # we want to print VRAI or FAUX
-          # instead True or False
+          # instead of True or False
           result.append(str(map_type(element.eval())))
           continue
       # here we want to use the str method of the evaluated class.
@@ -137,6 +138,7 @@ class BinOp:
       '*'   : operator.mul,
       '/'   : operator.truediv,
       '//'  : operator.floordiv,
+      '%'   : operator.mod,
       'dp'  : 'dummy',
       '^'   : operator.pow,
       '&'   : 'dummy',
@@ -203,8 +205,8 @@ class If:
       self.dothat.eval()
   def __repr__(self):
     if self.dothat is not None:
-      return f'{self.condition} ? {self.dothis} : {self.dothat}'
-    return f'Si {self.condition} ? {self.dothis}'
+      return f'Si {self.condition} Alors {self.dothis} Sinon {self.dothat}'
+    return f'Si {self.condition} Alors {self.dothis}'
 
 class While:
   def __init__(self, condition, dothis):

@@ -1,5 +1,6 @@
-from lib.ast import Node, print_tree, Declare, Assign, Variable, Print, Read, BinOp, Neg, If, While, For
+from lib.ast import Node, Declare, Assign, Variable, Print, Read, BinOp, Neg, If, While, For
 from lib.datatypes import map_type, Number
+from lib.symbols import reset_variables
 from lib.exceptions import BadType
 import lexer as lex
 from ply.yacc import yacc
@@ -10,6 +11,10 @@ def parse_prog(name):
     prog = f.read()
     prog = prog[:-1]
   return parser.parse(prog)
+
+def reset():
+  parser.restart()
+  reset_variables()
 
 tokens = lex.tokens
 
@@ -24,18 +29,18 @@ precedence = (
 
 # GRAMMAR
 
-_ast = Node()
-
 def p_program(p):
   '''
   program : START NEWLINE statements END
           | var_declarations START NEWLINE statements END
   '''
+  root = Node()
   if len(p) == 5:
-    _ast.append(p[3])
+    root.append(p[3])
   else:
-    _ast.append(p[4])
-  p[0] = _ast
+    root.append(p[1])
+    root.append(p[4])
+  p[0] = root
 
 def p_var_declarations(p):
   '''
@@ -43,9 +48,10 @@ def p_var_declarations(p):
                    | var_declaration
   '''
   if len(p) == 2:
-    _ast.append(p[1])
+    p[0] = Node(p[1], p.lineno(1))
   else:
-    _ast.append(p[2])
+    p[1].append(p[2])
+    p[0] = p[1]
 
 def p_var_declaration(p):
   '''
@@ -58,8 +64,7 @@ def p_var_declaration(p):
       declarations.append(Declare(name, p[4]))
     p[0] = declarations
   else:
-    declaration = Declare(p[2], p[4])
-    p[0] = Node(declaration, p.lineno(1))
+    p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
 def p_var_list(p):
   '''
@@ -203,6 +208,7 @@ def p_expression_binop(p):
              | expression MINUS expression
              | expression MUL expression
              | expression DIVBY expression
+             | expression MODULO expression
              | expression POWER expression
              | expression EQ expression
              | expression LT expression
@@ -211,7 +217,6 @@ def p_expression_binop(p):
              | expression GE expression
              | expression NE expression
   '''
-# TODO %      | expression REMAINDER expression
 
   a = p[1]
   b = p[3]

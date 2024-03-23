@@ -8,7 +8,7 @@
 
 `=, <, <=, >, >=, <>, ET, OU, XOR`
 
-`+, -, \*, /, dp, ^, &`
+`+, -, \*, /, %, dp, ^, &`
 
 `VRAI, FAUX`
 
@@ -16,6 +16,6 @@
 
 `Si, SinonSi, Sinon, FinSi`
 
-TantQue, FinTantQue,
+`TantQue, FinTantQue,`
 
-Pour, à, Suivant
+`Pour, à, Suivant`

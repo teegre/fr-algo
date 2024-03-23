@@ -1,5 +1,5 @@
 import unittest
-from algoparser import parser, _ast
+from algoparser import parser
 import lib.symbols as sym
 
 def reset_parser():
@@ -8,7 +8,6 @@ def reset_parser():
   except AttributeError:
     pass
   sym.reset_variables()
-  _ast.children.clear()
 
 class Test(unittest.TestCase):
   def test_while(self):

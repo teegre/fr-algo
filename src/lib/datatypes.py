@@ -19,14 +19,14 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from lib.exceptions import BadType, VarUndefined
+from lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
 
 class Base():
   _type = 'Base'
   value = None
   def eval(self):
     raise NotImplementedError
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     raise NotImplementedError
   def __repr__(self):
     if self.value is None:
@@ -37,7 +37,7 @@ class Base():
     return self._type
 
 class Number(Base):
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     raise NotImplementedError
   def eval(self):
     if self.value is None:
@@ -56,7 +56,7 @@ class Integer(Number):
   _type = 'Entier'
   def __init__(self, value):
     self.value = value
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     if isinstance(value, int):
       self.value = value
     elif isinstance(value, Integer):
@@ -68,7 +68,7 @@ class Float(Number):
   _type = 'Numérique'
   def __init__(self, value):
     self.value = value
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     if isinstance(value, float):
       self.value = value
     elif isinstance(value, Float):
@@ -80,7 +80,7 @@ class String(Base):
   _type = 'Chaîne'
   def __init__(self, value):
     self.value = value
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     if isinstance(value, str):
       self.value = value
     else:
@@ -94,11 +94,67 @@ class String(Base):
       return f'{self.data_type} → ?'
     return f'{self.data_type} → "{self.value}"'
 
+class Array(Base):
+  _type = 'Tableau'
+  def __init__(self, datatype, *max_indexes):
+    self.size = len(max_indexes)
+    self.max_indexes = list(max_indexes)
+    self.datatype = datatype
+    # http://cours.pise.info/algo/tableaux.htm
+    if self.size == 0:
+      self.data = []
+    else:
+      self.data = []
+      for idx in max_indexes:
+        data = [None for _ in range(idx + 1)]
+        self.data += [data] if self.size > 1 else data
+  def eval(self):
+    if self.data:
+      return self.data
+    raise VarUndefined('valeur indéfinie')
+  def redim(self, size, *indexes):
+    array = self.get_item(*indexes)
+    if not isinstance(array, list):
+      raise BadType('type Tableau attendu')
+    if len(array) == 0:
+      raise VarUndefined('tableau non dimensionné')
+    if size < self.size or size < 0:
+      raise ArrayResizeFailed(f'{size} < {self.size} redimensionnement impossible')
+    data = [None for _ in range(len(array), size + 1)]
+    self.max_indexes[indexes[-1]] = Integer(size)
+    array += data
+  def get_item(self, *indexes):
+    item = self.data
+    if len(indexes) > 0:
+      for index in indexes:
+        try:
+          item = item[index]
+        except IndexError as e:
+          raise IndexOutOfRange(f'{index}, indice hors limite') from e
+        if item is None:
+          raise VarUndefined('valeur indéfinie')
+    return item
+  def set_value(self, value, *args, **kwargs):
+    '''set_value(value, list_index1, list_index2, ..., item_index)'''
+    if self.size == 0:
+      raise VarUndefined('tableau non dimensionné')
+    array = self.get_item(*args[:-1])
+    typed_value = map_type(value)
+    if typed_value.data_type != self.datatype:
+      raise BadType(f'type {self.datatype} attendu')
+    try:
+      array[args[-1]] = typed_value
+    except IndexError as e:
+      raise IndexOutOfRange(f'{args[0]}, indice hors limite') from e
+  def __repr__(self):
+    data = ['?' if v is None else str(v) for v in self.data]
+    return f'{self.data_type}{self.max_indexes} en {self.datatype} ['+ ', '.join(data) + ']'
+
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
     self.value = value
-  def set_value(self, value):
+  def set_value(self, value, *args, **kwargs):
     if value not in (True, False):
       raise BadType(f'type {self.data_type} attendu [{self.value}]')
     self.value = value
@@ -125,4 +181,6 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
+  if isinstance(value, list):
+    return Array(value)
   return value

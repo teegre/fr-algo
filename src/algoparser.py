@@ -1,12 +1,15 @@
-from lib.ast import Node, Declare, Assign, Variable, Print, Read, BinOp, Neg, If, While, For
+from lib.ast import Node, Declare, DeclareArray, Assign, Variable
+from lib.ast import Print, Read, BinOp, Neg, If, While, For
 from lib.datatypes import map_type, Number
 from lib.symbols import reset_variables
 from lib.exceptions import BadType
 import lexer as lex
 from ply.yacc import yacc
 
+
+# --> FOR DEBUGGING ONLY.
+
 def parse_prog(name):
-  # For debugging only.
   with open(name, 'r') as f:
     prog = f.read()
     prog = prog[:-1]
@@ -15,6 +18,8 @@ def parse_prog(name):
 def reset():
   parser.restart()
   reset_variables()
+
+# <--
 
 tokens = lex.tokens
 
@@ -33,13 +38,19 @@ def p_program(p):
   '''
   program : START NEWLINE statements END
           | var_declarations START NEWLINE statements END
+          | var_declarations
+          | statements
   '''
   root = Node()
   if len(p) == 5:
     root.append(p[3])
-  else:
+  elif len(p) == 6:
     root.append(p[1])
     root.append(p[4])
+  # FOR FUTURE REPL
+  else:
+    root.append(p[1])
+
   p[0] = root
 
 def p_var_declarations(p):
@@ -55,16 +66,64 @@ def p_var_declarations(p):
 
 def p_var_declaration(p):
   '''
-  var_declaration : VAR_DECL ID TYPE_DECL type NEWLINE
+  var_declaration : ARRAY_DECL array TYPE_DECL type NEWLINE
+                  | ARRAYS_DECL array_list TYPE_DECL type NEWLINE
+                  | VAR_DECL ID TYPE_DECL type NEWLINE
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
   '''
-  if isinstance(p[2], list):
+  if p[1] == 'Tableaux':
     declarations = Node(lineno=p.lineno(1))
-    for name in p[2]:
-      declarations.append(Declare(name, p[4]))
+    for params in p[2]:
+      print(params)
+      declarations.append(DeclareArray(params[0], p[4], *params[1]))
     p[0] = declarations
+  elif p[1] == 'Tableau':
+    p[0] = Node(DeclareArray(p[2][0], p[4], -1), p.lineno(1))
   else:
-    p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
+    if isinstance(p[2], list):
+      declarations = Node(lineno=p.lineno(1))
+      for name in p[2]:
+        declarations.append(Declare(name, p[4]))
+      p[0] = declarations
+    else:
+      p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
+
+def p_array_list(p):
+  '''
+  array_list : array_list COMMA array
+             | array
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[3]
+
+def p_array(p):
+  '''
+  array : ID LBRACKET RBRACKET
+        | ID LBRACKET array_max_indexes RBRACKET
+  '''
+  if len(p) == 4:
+    p[0] = [p[1]]
+  else:
+    p[0] = [[p[1], p[3]]]
+
+
+def p_array_max_indexes(p):
+  '''
+  array_max_indexes : array_max_indexes COMMA array_max_index
+                    | array_max_index
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[3]
+
+def p_array_max_index(p):
+  '''
+  array_max_index : INTEGER
+  '''
+  p[0] = [p[1]]
 
 def p_var_list(p):
   '''
@@ -97,7 +156,8 @@ def p_type(p):
        | TYPE_INTEGER
        | TYPE_STRING
   '''
-  p[0] = p[1]
+  if len(p) == 2:
+    p[0] = p[1]
 
 def p_statements(p):
   '''

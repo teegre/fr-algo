@@ -1,5 +1,6 @@
 import unittest
 from algoparser import parser
+from lib.datatypes import Array
 import lib.symbols as sym
 
 def reset_parser():
@@ -10,6 +11,53 @@ def reset_parser():
   sym.reset_variables()
 
 class Test(unittest.TestCase):
+
+  def test_array_declaration(self):
+    prog = '''Tableau T[] en Entier
+    Début
+      Ecrire "Test déclaration d'un tableau vide"
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('T')
+    self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(type(t), Array, 'should be Array')
+
+  def test_multidimensional_array_declaration(self):
+    prog = '''Tableau T[2, 2] en Entier
+    Début
+      Ecrire "Test déclaration d'un tableau multidimensionnel vide"
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('T')
+    self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(type(t), Array, 'should be Array')
+
+  def test_arrays_declaration(self):
+    prog = '''Tableaux T1[], T2[2, 2], T3[3] en Entier
+    Début
+      Ecrire "Test déclarations de plusieurs tableaux"
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('T1')
+    t2 = sym.get_variable('T2')
+    t3 = sym.get_variable('T3')
+    self.assertEqual(t1.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(t2.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(t3.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(t1.size, 0, 'size should be 0')
+    self.assertEqual(t2.size, 2, 'size should be 2')
+    self.assertEqual(t3.size, 1, 'size should be 1')
+
+
   def test_while(self):
 
     prog = '''Variable Marche en Booléen

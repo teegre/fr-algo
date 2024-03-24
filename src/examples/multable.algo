@@ -4,11 +4,10 @@ Début
   Ecrire "Entrez un nombre entier positif non nul :"
   Lire N
   Si N > 0 Alors
-    I ← 1
-    TantQue I < 11
+    Pour I ← 1 à 10
       Ecrire N, "x", I, "=", N * I
       I ← I + 1
-    FinTantQue
+    I Suivant
   SinonSi N = 0 Alors
     Ecrire "Vous ne lisez pas ce qu'on vous dit..."
   Sinon

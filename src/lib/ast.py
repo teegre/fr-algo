@@ -22,8 +22,8 @@
 
 import operator
 from lib.datatypes import map_type
-from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_var, get_variable, get_type, assign_value
+from lib.datatypes import Array, Boolean, Number, Float, Integer, String
+from lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
 class Node:
@@ -61,6 +61,20 @@ class Declare:
     declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
+
+class DeclareArray:
+  def __init__(self, name, var_type, *max_indexes):
+    self.name = name
+    self.var_type = var_type
+    self.max_indexes = max_indexes
+  def eval(self):
+    declare_array(self.name, self.var_type, *self.max_indexes)
+  def __repr__(self):
+    indexes = [str(n) for n in self.max_indexes]
+    idx = ', '.join(indexes)
+    if idx == '-1':
+      idx = ''
+    return f'Tableau {self.name}[{idx}] en {self.var_type}'
 
 class Assign:
   def __init__(self, var, value):
@@ -115,7 +129,7 @@ class Read:
     '''... on evaluation'''
     var_type = get_type(self.var)
     try:
-      user_input = input(f'({var_type[0]}) > ')
+      user_input = input(f'({self.var} ← {var_type[0]}) : ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:

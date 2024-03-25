@@ -83,10 +83,12 @@ class ArrayGetItem:
   def eval(self):
     if get_type(self.var) != 'Tableau':
       raise BadType('type Tableau attendu')
-    var = get_variable(self.var)
+    print('DEBUG', self.var)
+    var = get_variable(self.var.name)
     return map_type(var.get_item(*self.indexes))
   def __repr__(self):
-    return f'{self.var.name}[{", ".join(self.indexes)}]'
+    indexes = [str(index.eval()) for index in self.indexes]
+    return f'{self.var.name}[{", ".join(indexes)}]'
 
 class ArraySetItem:
   def __init__(self, var, value, *indexes):

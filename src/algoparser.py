@@ -235,7 +235,7 @@ def p_array_get_item(p):
   '''
   array_get_item : array_access
   '''
-  p[0] = Node(ArrayGetItem(p[1][0], *p[1][1]))
+  p[0] = ArrayGetItem(p[1][0], *p[1][1])
 
 def p_if_block(p):
   '''

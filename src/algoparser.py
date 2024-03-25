@@ -36,10 +36,11 @@ precedence = (
 
 def p_program(p):
   '''
-  program : START NEWLINE statements END
-          | var_declarations START NEWLINE statements END
+  program : var_declarations statements
           | var_declarations
-          | statements
+          | statement
+          | START NEWLINE statements END
+          | var_declarations START NEWLINE statements END
   '''
   root = Node()
   if len(p) == 5:
@@ -48,6 +49,9 @@ def p_program(p):
     root.append(p[1])
     root.append(p[4])
   # FOR FUTURE REPL
+  elif len(p) == 3:
+    root.append(p[1])
+    root.append(p[2])
   else:
     root.append(p[1])
 

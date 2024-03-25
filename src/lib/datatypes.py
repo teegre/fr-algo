@@ -97,7 +97,7 @@ class String(Base):
 class Array(Base):
   _type = 'Tableau'
   def __init__(self, datatype, *max_indexes):
-    self.size = len(max_indexes)
+    self.size = len(max_indexes) if list(max_indexes) != [-1] else 0
     self.max_indexes = list(max_indexes)
     self.datatype = datatype
     # http://cours.pise.info/algo/tableaux.htm
@@ -181,6 +181,4 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
-  if isinstance(value, list):
-    return Array(value)
   return value

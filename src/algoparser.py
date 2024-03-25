@@ -72,17 +72,18 @@ def p_var_declaration(p):
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
   '''
   if p[1].startswith('Tableau'):
+    # p[2] is a list of this form:
+    # ['name1', ['name2', [index1, index2, ..., indexN]], 'name3', ..., ['nameN', [index1, index2, indexN]]]
+    # name being the variable name and index being indexes.
     declarations = Node(lineno=p.lineno(1))
     for params in p[2]:
-      name, indexes = (params[0], params[1]) if len(params) > 1 else (params[0], [-1])
-      print('multi: name',name, 'indexes', indexes)
+      if not isinstance(params, list):
+        name = params
+        indexes = [-1]
+      else:
+        name, indexes = (params[0], params[1])
       declarations.append(DeclareArray(name, p[4], *indexes))
     p[0] = declarations
-  # elif p[1] == 'Tableau':
-  #   print(p[2])
-  #   name, indexes = (p[2][0], p[2][1]) if len(p[2]) > 1 else (p[2][0], [-1])
-  #   # print('single: name',name, 'indexes', indexes)
-  #   p[0] = Node(DeclareArray(name, p[4], *indexes), p.lineno(1))
   else:
     if isinstance(p[2], list):
       declarations = Node(lineno=p.lineno(1))

@@ -24,6 +24,7 @@ class Test(unittest.TestCase):
     t = sym.get_variable('T')
     self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(type(t), Array, 'should be Array')
+    print()
 
   def test_multidimensional_array_declaration(self):
     prog = '''Tableau T[2, 2] en Entier
@@ -36,7 +37,9 @@ class Test(unittest.TestCase):
     statements.eval()
     t = sym.get_variable('T')
     self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
+    self.assertEqual(t.size, 2, 'should be 2')
     self.assertEqual(type(t), Array, 'should be Array')
+    print()
 
   def test_arrays_declaration(self):
     prog = '''Tableaux T1[], T2[2, 2], T3[3] en Entier
@@ -56,7 +59,7 @@ class Test(unittest.TestCase):
     self.assertEqual(t1.size, 0, 'size should be 0')
     self.assertEqual(t2.size, 2, 'size should be 2')
     self.assertEqual(t3.size, 1, 'size should be 1')
-
+    print()
 
   def test_while(self):
 
@@ -76,6 +79,7 @@ class Test(unittest.TestCase):
     statements.eval()
     m = sym.get_variable('Marche')
     self.assertEqual(m.eval(), False, 'should be False')
+    print()
 
   def test_while_multable(self):
 
@@ -94,6 +98,7 @@ class Test(unittest.TestCase):
     statements.eval()
     n = sym.get_variable('N')
     self.assertEqual(n.eval(), 11, 'should be 11')
+    print()
 
   def test_for_loop_normal(self):
 
@@ -110,6 +115,7 @@ class Test(unittest.TestCase):
     statements.eval()
     i = sym.get_variable('I')
     self.assertEqual(i.eval(), 11, 'I should be 11')
+    print()
 
   def test_for_loop_reverse(self):
 

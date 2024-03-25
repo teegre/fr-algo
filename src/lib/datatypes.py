@@ -102,15 +102,15 @@ class Array(Base):
     self.datatype = datatype
     # http://cours.pise.info/algo/tableaux.htm
     if self.size == 0:
-      self.data = []
+      self.value = []
     else:
-      self.data = []
+      self.value = []
       for idx in max_indexes:
-        data = [None for _ in range(idx + 1)]
-        self.data += [data] if self.size > 1 else data
+        value = [None for _ in range(idx + 1)]
+        self.value += [value] if self.size > 1 else value
   def eval(self):
-    if self.data:
-      return self.data
+    if self.value:
+      return self.value
     raise VarUndefined('valeur indéfinie')
   def redim(self, size, *indexes):
     array = self.get_item(*indexes)
@@ -120,15 +120,15 @@ class Array(Base):
       raise VarUndefined('tableau non dimensionné')
     if size < self.size or size < 0:
       raise ArrayResizeFailed(f'{size} < {self.size} redimensionnement impossible')
-    data = [None for _ in range(len(array), size + 1)]
+    value = [None for _ in range(len(array), size + 1)]
     self.max_indexes[indexes[-1]] = Integer(size)
-    array += data
+    array += value
   def get_item(self, *indexes):
-    item = self.data
+    item = self.value
     if len(indexes) > 0:
       for index in indexes:
         try:
-          item = item[index]
+          item = item[index.eval()]
         except IndexError as e:
           raise IndexOutOfRange(f'{index}, indice hors limite') from e
         if item is None:
@@ -146,9 +146,12 @@ class Array(Base):
       array[args[-1].eval()] = typed_value
     except IndexError as e:
       raise IndexOutOfRange(f'{args[0]}, indice hors limite') from e
+  def __str__(self):
+    array = [item.eval() for item in self.value if item is not None]
+    return f'{array}'
   def __repr__(self):
-    data = ['?' if v is None else str(v) for v in self.data]
-    return f'{self.data_type}{self.max_indexes} en {self.datatype} ['+ ', '.join(data) + ']'
+    value = ['?' if v is None else v.eval() for v in self.value]
+    return f'{self.data_type}{self.max_indexes} en {self.datatype} {value}'
 
 class Boolean(Base):
   _type = 'Booléen'

@@ -48,6 +48,7 @@ def assign_value(name, value):
 def get_variable(name):
   var = __variables.get(name, None)
   if var is None:
+    print(name)
     raise ex.VarUndeclared(f'variable {name} non déclarée')
   return var
 

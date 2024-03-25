@@ -210,6 +210,7 @@ def p_statement(p):
             | for_block
             | PRINT sequence NEWLINE
             | READ ID NEWLINE
+            | expression NEWLINE
   '''
   if p[1] == 'Ecrire':
     p[0] = Node(Print(p[2]), p.lineno(1))
@@ -302,7 +303,6 @@ def p_expression(p):
              | FLOAT
              | INTEGER
              | STRING
-             | array_get_item
              | var
   '''
   p[0] = map_type(p[1])
@@ -377,6 +377,12 @@ def p_expression_not(p):
   a = p[3]
 
   p[0] = BinOp(p[1], a, None)
+
+def p_expression_array_get_item(p):
+  '''
+  expression : array_get_item
+  '''
+  p[0] = p[1]
 
 def p_expression_group(p):
   '''

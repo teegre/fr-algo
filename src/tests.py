@@ -61,6 +61,35 @@ class Test(unittest.TestCase):
     self.assertEqual(t3.size, 1, 'size should be 1')
     print()
 
+  def test_simple_array(self):
+    prog = '''Tableau T[7] en Entier
+    Variable I en Entier
+    Début
+      # Remplissage du tableau avec une boucle Pour
+      Pour I ← 0 à 8
+        T[I] ← I + 1
+      I Suivant
+      Si T[7] = 8 Alors
+        Ecrire "T[7] est bien égal à 8 !"
+      Sinon
+        Ecrire "T[7] = 8 est", T[7] = 8
+      FinSi
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('T')
+    self.assertEqual(t.value[0].eval(), 1, 'Should be 1')
+    self.assertEqual(t.value[1].eval(), 2, 'Should be 2')
+    self.assertEqual(t.value[2].eval(), 3, 'Should be 3')
+    self.assertEqual(t.value[3].eval(), 4, 'Should be 4')
+    self.assertEqual(t.value[4].eval(), 5, 'Should be 5')
+    self.assertEqual(t.value[5].eval(), 6, 'Should be 6')
+    self.assertEqual(t.value[6].eval(), 7, 'Should be 7')
+    self.assertEqual(t.value[7].eval(), 8, 'Should be 8')
+    print()
+
   def test_while(self):
 
     prog = '''Variable Marche en Booléen

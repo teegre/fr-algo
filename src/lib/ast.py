@@ -22,7 +22,7 @@
 
 import operator
 from lib.datatypes import map_type
-from lib.datatypes import Array, Boolean, Number, Float, Integer, String
+from lib.datatypes import Boolean, Number, Float, Integer, String
 from lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
@@ -81,11 +81,10 @@ class ArrayGetItem:
     self.var = var
     self.indexes = list(indexes)
   def eval(self):
-    if get_type(self.var) != 'Tableau':
+    if get_type(self.var.name) != 'Tableau':
       raise BadType('type Tableau attendu')
-    print('DEBUG', self.var)
-    var = get_variable(self.var.name)
-    return map_type(var.get_item(*self.indexes))
+    var = self.var.eval()
+    return var.get_item(*self.indexes)
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
     return f'{self.var.name}[{", ".join(indexes)}]'
@@ -95,11 +94,10 @@ class ArraySetItem:
     self.var = var
     self.value = value
     self.indexes = list(indexes)
-    print('SET', self.indexes)
   def eval(self):
     if get_type(self.var.name) != 'Tableau':
       raise BadType('type Tableau attendu')
-    var = get_variable(self.var.name)
+    var = self.var.eval()
     var.set_value(map_type(self.value.eval()), *self.indexes)
   def __repr__(self):
     return f'{self.var.name}[{", ".join(self.indexes)}]'
@@ -144,8 +142,6 @@ class Print:
           result.append(str(map_type(element.eval())))
           continue
       # here we want to use the str method of the evaluated class.
-      if isinstance(element, list):
-        print('PRINT', element)
       result.append(str(element.eval()))
     print(' '.join(result))
   def __repr__(self):
@@ -205,21 +201,20 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+      a = a.eval()
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+      b = b.eval()
     if self.op == 'dp':
-      return map_type(a.eval() % b.eval() == 0)
+      return map_type(a % b == 0)
     if self.op == '&':
       # evaluate expressions until we get a str.
-      while isinstance(a, (String, BinOp, Variable)):
-        a = a.eval()
-      while isinstance(b, (String, BinOp, Variable)):
-        b = b.eval()
       if isinstance(a, str) and isinstance(b, str):
         return a + b
       raise BadType('type Chaîne attendu')
     if self.b is None:
-      return op(a.eval())
-    return op(a.eval(), b.eval())
-    # return map_type(op(a.eval(), b.eval()))
+      return op(a)
+    return op(a, b)
   def __repr__(self):
     if self.b is None:
       return f'{self.op} {self.a}'
@@ -265,7 +260,6 @@ class While:
 
 class For:
   def __init__(self, v, b, e, dt, nv, s=Integer(1)):
-    # if v != nv:
     #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
     self.var = v.name
     self.start = b.eval()

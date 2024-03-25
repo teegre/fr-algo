@@ -336,9 +336,6 @@ def p_expression_binop_div(p):
   b = p[3]
 
   # Make sure we're dealing with numbers.
-  if not isinstance(a, Number) or not isinstance(b, Number):
-    raise BadType('type Entier ou Numérique attendu')
-  # Return an Integer if both value are int.
   if isinstance(a.eval(), int) and isinstance(b.eval(), int):
     binop = BinOp('//', a, b)
   # Return a Float if one of the value is a float.

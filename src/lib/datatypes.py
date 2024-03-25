@@ -143,7 +143,7 @@ class Array(Base):
     if typed_value.data_type != self.datatype:
       raise BadType(f'type {self.datatype} attendu')
     try:
-      array[args[-1]] = typed_value
+      array[args[-1].eval()] = typed_value
     except IndexError as e:
       raise IndexOutOfRange(f'{args[0]}, indice hors limite') from e
   def __repr__(self):

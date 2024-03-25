@@ -76,6 +76,32 @@ class DeclareArray:
       idx = ''
     return f'Tableau {self.name}[{idx}] en {self.var_type}'
 
+class ArrayGetItem:
+  def __init__(self, var, *indexes):
+    self.var = var
+    self.indexes = list(indexes)
+  def eval(self):
+    if get_type(self.var) != 'Tableau':
+      raise BadType('type Tableau attendu')
+    var = get_variable(self.var)
+    return map_type(var.get_item(*self.indexes))
+  def __repr__(self):
+    return f'{self.var.name}[{", ".join(self.indexes)}]'
+
+class ArraySetItem:
+  def __init__(self, var, value, *indexes):
+    self.var = var
+    self.value = value
+    self.indexes = list(indexes)
+    print('SET', self.indexes)
+  def eval(self):
+    if get_type(self.var.name) != 'Tableau':
+      raise BadType('type Tableau attendu')
+    var = get_variable(self.var.name)
+    var.set_value(map_type(self.value.eval()), *self.indexes)
+  def __repr__(self):
+    return f'{self.var.name}[{", ".join(self.indexes)}]'
+
 class Assign:
   def __init__(self, var, value):
     self.var = var
@@ -116,6 +142,8 @@ class Print:
           result.append(str(map_type(element.eval())))
           continue
       # here we want to use the str method of the evaluated class.
+      if isinstance(element, list):
+        print('PRINT', element)
       result.append(str(element.eval()))
     print(' '.join(result))
   def __repr__(self):

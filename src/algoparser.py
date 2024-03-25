@@ -1,5 +1,5 @@
-from lib.ast import Node, Declare, DeclareArray, Assign, Variable
-from lib.ast import Print, Read, BinOp, Neg, If, While, For
+from lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem
+from lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
 from lib.datatypes import map_type, Number
 from lib.symbols import reset_variables
 from lib.exceptions import BadType
@@ -168,6 +168,28 @@ def p_type(p):
   if len(p) == 2:
     p[0] = p[1]
 
+def p_array_access(p):
+  '''
+  array_access : var LBRACKET array_indexes RBRACKET
+  '''
+  p[0] = [p[1], p[3]]
+
+def p_array_indexes(p):
+  '''
+  array_indexes : array_indexes COMMA array_index
+                | array_index
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = [p[1]]
+
+def p_array_index(p):
+  '''
+  array_index : expression
+  '''
+  p[0] = map_type(p[1])
+
 def p_statements(p):
   '''
   statements : statements statement
@@ -182,6 +204,7 @@ def p_statements(p):
 def p_statement(p):
   '''
   statement : var_assignment
+            | array_assignment
             | if_block
             | while_block
             | for_block
@@ -201,6 +224,18 @@ def p_var_assignment(p):
   '''
   assignment = Assign(p[1], p[3])
   p[0] = Node(assignment, p.lineno(1))
+
+def p_array_assignment(p):
+  '''
+  array_assignment : array_access ARROW expression NEWLINE
+  '''
+  p[0] = Node(ArraySetItem(p[1][0], p[3], *p[1][1]), p.lineno(1))
+
+def p_array_get_item(p):
+  '''
+  array_get_item : array_access
+  '''
+  p[0] = Node(ArrayGetItem(p[1][0], *p[1][1]))
 
 def p_if_block(p):
   '''
@@ -267,6 +302,7 @@ def p_expression(p):
              | FLOAT
              | INTEGER
              | STRING
+             | array_get_item
              | var
   '''
   p[0] = map_type(p[1])

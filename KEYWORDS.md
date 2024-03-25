@@ -1,6 +1,6 @@
 # MOTS RESERVES
 
-`Variable, Variables, en, Numérique, Entier, Booléen, Chaîne`
+`Variable, Variables, Tableau, Tableaux, en, Numérique, Entier, Booléen, Chaîne`
 
 `Début, Fin`
 
@@ -9,6 +9,8 @@
 `=, <, <=, >, >=, <>, ET, OU, XOR`
 
 `+, -, \*, /, %, dp, ^, &`
+
+`[, ], (, )`
 
 `VRAI, FAUX`
 

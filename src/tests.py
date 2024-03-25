@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
     Variable I en Entier
     Début
       # Remplissage du tableau avec une boucle Pour
-      Pour I ← 0 à 8
+      Pour I ← 0 à 7
         T[I] ← I + 1
       I Suivant
       Si T[7] = 8 Alors

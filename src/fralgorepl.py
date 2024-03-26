@@ -3,6 +3,51 @@ import sys
 import readline
 from algoparser import parser, reset
 
+def repl():
+  loop = False
+  instructions = []
+
+  while True:
+    try:
+      if loop:
+        prompt = '... '
+      else:
+        prompt = '::> '
+      instruction = input(prompt)
+      if instruction:
+        inst = instruction.split()
+        if inst[0] in ('TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi'):
+          loop = True
+        if inst[-1] == 'Suivant' or inst[0] in ('FinTantQue', 'FinSi'):
+          loop = False
+          instructions.append(instruction)
+          instruction = '\n'.join(instructions)
+          instructions = []
+        if loop:
+          instructions.append(instruction)
+          continue
+        else:
+          result = parser.parse(instruction + '\n').eval()
+          if result:
+            print(result)
+      else:
+        loop = False
+        instructions = []
+        continue
+    except EOFError:
+      print()
+      print('*** Au revoir !')
+      sys.exit(0)
+    except KeyboardInterrupt:
+      try:
+        reset()
+      except:
+        pass
+      print()
+      print('*** les variables ont été détruites.')
+    except Exception as e:
+      print(e)
+
 if __name__ == '__main__':
   readline.parse_and_bind('"[" "\C-v[]\e[D"')
   readline.parse_and_bind('"(" "\C-v()\e[D"')
@@ -14,21 +59,4 @@ if __name__ == '__main__':
   print("ALGORITHMES      |___/ 500mg ")
   print()
   print('CTRL+d pour quitter.')
-
-  while True:
-    try:
-      instruction = input('::> ')
-      if instruction:
-        parser.parse(instruction + '\n').eval()
-      else:
-        continue
-    except EOFError:
-      print()
-      print('*** Au revoir !')
-      sys.exit(0)
-    except KeyboardInterrupt:
-      reset()
-      print()
-      print('*** les variables ont été détruites.')
-    except Exception as e:
-      print(e)
+  repl()

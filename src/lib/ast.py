@@ -34,13 +34,15 @@ class Node:
     if statement is not None:
       self.children.append(statement)
   def eval(self):
+    result = None
     for statement in self.children:
       try:
-        statement.eval()
+        result = statement.eval()
       except FralgoException as e:
         print('***', e.message)
         print('-v-', f'ligne {self.lineno}')
         break
+    return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
   def __iter__(self):

@@ -2,34 +2,45 @@
 import sys
 import readline
 from algoparser import parser, reset
+from lib.datatypes import map_type
+from lib.exceptions import FralgoException
 
 def repl():
   loop = False
   instructions = []
+  level = 0
 
   while True:
     try:
       if loop:
         prompt = '... '
       else:
-        prompt = '::> '
+        prompt = '>-> '
       instruction = input(prompt)
       if instruction:
         inst = instruction.split()
-        if inst[0] in ('TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi'):
+        if inst[0] in ('Début', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi'):
           loop = True
-        if inst[-1] == 'Suivant' or inst[0] in ('FinTantQue', 'FinSi'):
-          loop = False
-          instructions.append(instruction)
-          instruction = '\n'.join(instructions)
-          instructions = []
+        if  inst[0] in ('TantQue', 'Pour', 'Si'):
+          level += 1
+        if inst[-1] == 'Suivant' or inst[0] in ('FinTantQue', 'FinSi', 'Fin'):
+          level -= 1
+          if level == 0:
+            loop = False
+            instructions.append(instruction)
+            instruction = '\n'.join(instructions)
+            instructions = []
         if loop:
           instructions.append(instruction)
           continue
-        else:
+        try:
           result = parser.parse(instruction + '\n').eval()
-          if result:
+          if isinstance(result, bool):
+            print(map_type(result))
+          elif result is not None:
             print(result)
+        except FralgoException as e:
+          print(e.message)
       else:
         loop = False
         instructions = []
@@ -39,10 +50,6 @@ def repl():
       print('*** Au revoir !')
       sys.exit(0)
     except KeyboardInterrupt:
-      try:
-        reset()
-      except:
-        pass
       print()
       print('*** les variables ont été détruites.')
     except Exception as e:

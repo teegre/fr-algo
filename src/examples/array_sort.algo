@@ -1,0 +1,22 @@
+Tableau T[11] en Entier
+Variables I, J, TEMP en Entier
+Début
+  Pour I ← 0 à 11
+    Ecrire I + 1, "/ 12 : Entrer un Entier"
+    Lire J
+    T[I] ← J
+  I Suivant
+  Ecrire T
+  Ecrire "Tri en cours."
+  Pour I ← 0 à 10
+    Pour J ← (I + 1) à 11
+      Si T[J] < T[I] Alors
+        TEMP ← T[I]
+        T[I] ← T[J]
+        T[J] ← TEMP
+      FinSi
+    J Suivant
+  I Suivant
+  Ecrire "Tri terminé"
+  Ecrire T
+Fin

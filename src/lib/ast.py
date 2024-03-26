@@ -262,18 +262,19 @@ class For:
   def __init__(self, v, b, e, dt, nv, s=Integer(1)):
     #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
     self.var = v.name
-    self.start = b.eval()
-    self.end = e.eval()
-    self.step = s.eval()
+    self.start = b
+    self.end = e
+    self.step = s
     self.dothis = dt
   def eval(self):
-    i = self.start
-    end = self.end
+    i = self.start.eval()
+    end = self.end.eval()
+    step = self.step.eval()
     assign_value(self.var, i)
-    while i <= end if self.step > 0 else i >= end:
+    while i <= end if step > 0 else i >= end:
       for statement in self.dothis:
         statement.eval()
-      i += self.step
+      i += step
       assign_value(self.var, i)
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end}'

@@ -395,7 +395,10 @@ def p_expression_uminus(p):
 
 def p_error(p):
   if p:
-    value = p.value.replace('\n', '↵')
+    try:
+      value = p.value.replace('\n', '↵')
+    except:
+      value = p.value
     print(f'*** erreur de syntaxe >> {value} <<')
     print(f'-v- ligne {p.lineno}')
     print(f'->- position {p.lexpos+1}')

@@ -172,7 +172,8 @@ def p_array_access(p):
   '''
   array_access : var LBRACKET array_indexes RBRACKET
   '''
-  p[0] = [p[1], p[3]]
+  indexes = tuple(index for index in p[3])
+  p[0] = [p[1], indexes]
 
 def p_array_indexes(p):
   '''
@@ -182,13 +183,13 @@ def p_array_indexes(p):
   if len(p) == 4:
     p[0] = p[1] + p[3]
   else:
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_array_index(p):
   '''
   array_index : expression
   '''
-  p[0] = map_type(p[1])
+  p[0] = [map_type(p[1])]
 
 def p_statements(p):
   '''

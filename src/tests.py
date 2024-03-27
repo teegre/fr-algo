@@ -37,7 +37,7 @@ class Test(unittest.TestCase):
     statements.eval()
     t = sym.get_variable('T')
     self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
-    self.assertEqual(t.size, 2, 'should be 2')
+    self.assertEqual(t.sizes, (3,3), 'should be (3,3)')
     self.assertEqual(type(t), Array, 'should be Array')
     print()
 
@@ -56,9 +56,9 @@ class Test(unittest.TestCase):
     self.assertEqual(t1.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(t2.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(t3.data_type, 'Tableau', 'should be Tableau')
-    self.assertEqual(t1.size, 0, 'size should be 0')
-    self.assertEqual(t2.size, 2, 'size should be 2')
-    self.assertEqual(t3.size, 1, 'size should be 1')
+    self.assertEqual(t1.sizes, (0,), 'size should be 0')
+    self.assertEqual(t2.sizes, (3,3), 'size should be 3,3')
+    self.assertEqual(t3.sizes, (4,), 'size should be 4')
     print()
 
   def test_simple_array(self):
@@ -80,18 +80,17 @@ class Test(unittest.TestCase):
     statements = parser.parse(prog)
     statements.eval()
     t = sym.get_variable('T')
-    self.assertEqual(t.value[0].eval(), 1, 'Should be 1')
-    self.assertEqual(t.value[1].eval(), 2, 'Should be 2')
-    self.assertEqual(t.value[2].eval(), 3, 'Should be 3')
-    self.assertEqual(t.value[3].eval(), 4, 'Should be 4')
-    self.assertEqual(t.value[4].eval(), 5, 'Should be 5')
-    self.assertEqual(t.value[5].eval(), 6, 'Should be 6')
-    self.assertEqual(t.value[6].eval(), 7, 'Should be 7')
-    self.assertEqual(t.value[7].eval(), 8, 'Should be 8')
+    self.assertEqual(t.value[0], 1, 'Should be 1')
+    self.assertEqual(t.value[1], 2, 'Should be 2')
+    self.assertEqual(t.value[2], 3, 'Should be 3')
+    self.assertEqual(t.value[3], 4, 'Should be 4')
+    self.assertEqual(t.value[4], 5, 'Should be 5')
+    self.assertEqual(t.value[5], 6, 'Should be 6')
+    self.assertEqual(t.value[6], 7, 'Should be 7')
+    self.assertEqual(t.value[7], 8, 'Should be 8')
     print()
 
   def test_while(self):
-
     prog = '''Variable Marche en Booléen
     Début
       Marche ← VRAI
@@ -111,7 +110,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_while_multable(self):
-
     prog = '''Variable N en Entier
     Début
       N ← 1
@@ -130,7 +128,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_for_loop_normal(self):
-
     prog = '''Variable I en Entier
     Début
       Ecrire "Test de la boucle 'Pour I <- 1 à 10'"
@@ -147,7 +144,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_for_loop_reverse(self):
-
     prog = '''Variable I en Entier
     Début
       Ecrire "Test de la boucle 'Pour I <- 10 à 0 Pas -1'"
@@ -164,7 +160,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_for_step_two(self):
-
     prog = '''Variable I en Entier
     Début
       Ecrire "Test de la boucle 'Pour I <- 1 à 10 Pas 2'"
@@ -181,7 +176,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_for_step_negative_two(self):
-
     prog = '''Variable I en Entier
     Début
       Ecrire "Test de la boucle 'Pour I <- 0 à -10 Pas -2'"
@@ -198,7 +192,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_for_negative(self):
-
     prog = '''Variable I en Entier
     Début
       Ecrire "Test de la boucle 'Pour I <- 0 à -10'"
@@ -215,7 +208,6 @@ class Test(unittest.TestCase):
     print()
 
   def test_if_not(self):
-
     prog = '''Variables A, B en Booléen
     Début
       Ecrire "Test de 'NON(A)'"

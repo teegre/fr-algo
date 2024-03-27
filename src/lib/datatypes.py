@@ -108,8 +108,7 @@ class Array(Base):
       return []
     if len(sizes) == 1:
       return [None] * sizes[0]
-    else:
-      return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
+    return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
       raise VarUndefined('tableau non dimensionné')
@@ -120,39 +119,46 @@ class Array(Base):
     if self.value:
       return self.value
     raise VarUndefined('valeur indéfinie')
-  def get_item(self, index):
-    if isinstance(index, int):
-      self._validate_index((index,))
-      return self.value[index]
-    elif isinstance(index, tuple):
-      self._validate_index(index)
-      array = self.value
-      for i in index:
-        array = array[i]
-      return array
-    else:
-      raise BadType('type de données de l\'index invalide')
-  def set_value(self, index, value):
+  def _eval_indexes(self, *indexes):
+    '''Evaluate indexes until we get integers (int)'''
+    idxs = []
+    for index in indexes:
+      idx = index
+      while not isinstance(idx, int):
+        idx = idx.eval()
+      idxs.append(idx)
+    return tuple(idxs)
+  def get_item(self, indexes):
+    idxs = self._eval_indexes(indexes)
+    self._validate_index(idxs)
+    array = self.value
+    for i in idxs:
+      array = array[i]
+    return array
+  def set_value(self, indexes, value):
     if self.value == []:
       raise VarUndefined('tableau non dimensionné')
-    typed_value = map_type(value)
+    typed_value = map_type(value.eval())
+    while not isinstance(typed_value, (Boolean, Number, String)):
+      typed_value = map_type(typed_value)
     if typed_value.data_type != self.datatype:
       raise BadType(f'type {self.datatype} attendu')
-    self._validate_index(index)
+    idxs = self._eval_indexes(*indexes)
+    self._validate_index(idxs)
     array = self.value
-    for i in index[:-1]:
+    for i in idxs[:-1]:
       array = array[i]
-    array[index[-1]] = map_type(value)
+    array[idxs[-1]] = value.eval()
   def redim(self, *indexes):
     self.indexes = indexes
-    self.sizes = tuple(idx + 1 for idx in indexes)
+    idxs = self._eval_indexes(indexes)
+    self.sizes = tuple(idx + 1 for idx in idxs)
     self.value = self._new_array(*self.sizes)
   def __repr__(self):
     def recursive_repr(array):
       if isinstance(array, list):
         return '[' + ', '.join(recursive_repr(item) for item in array) + ']'
-      else:
-        return '?' if array is None else str(array)
+      return '?' if array is None else str(array)
     return recursive_repr(self.value)
   def __str__(self):
     return self.__repr__()

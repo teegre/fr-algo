@@ -98,7 +98,8 @@ class ArraySetItem:
     var = self.var.eval()
     var.set_value(self.indexes, self.value)
   def __repr__(self):
-    return f'{self.var.name}[{", ".join(self.indexes)}]'
+    indexes = (str(index) for index in self.indexes)
+    return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
 
 class Assign:
   def __init__(self, var, value):

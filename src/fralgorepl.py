@@ -15,7 +15,7 @@ def repl():
       if loop:
         prompt = '... '
       else:
-        prompt = '>-> '
+        prompt = '::>'
       instruction = input(prompt)
       if instruction:
         inst = instruction.split()

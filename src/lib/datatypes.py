@@ -96,11 +96,12 @@ class String(Base):
 
 class Array(Base):
   _type = 'Tableau'
+    # http://cours.pise.info/algo/tableaux.htm
+    # http://cours.pise.info/algo/tableauxmulti.htm
   def __init__(self, datatype, *max_indexes):
     self.size = len(max_indexes) if list(max_indexes) != [-1] else 0
     self.max_indexes = list(max_indexes)
     self.datatype = datatype
-    # http://cours.pise.info/algo/tableaux.htm
     if self.size == 0:
       self.value = []
     else:

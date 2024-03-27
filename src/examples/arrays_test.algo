@@ -1,0 +1,14 @@
+Tableaux t1[1], t2[1, 1] en Entier
+Variables i, j en Entier
+Début
+  t1[0] ← 1
+  t1[1] ← 2
+  Pour i ← 0 à 1
+    Pour j ← 0 à 1
+      t2[i, j] ← t1[0]
+      t1[0] ← t1[0] + 1
+    j Suivant
+  i Suivant
+  Ecrire t1
+  Ecrire t2
+Fin

@@ -7,6 +7,7 @@ from lib.exceptions import FralgoException
 
 def repl():
   loop = False
+  cancel = False
   instructions = []
   level = 0
 
@@ -14,6 +15,9 @@ def repl():
     try:
       if loop:
         prompt = '... '
+      elif cancel:
+        prompt = 'xx> '
+        cancel = False
       else:
         prompt = '::> '
       instruction = input(prompt)
@@ -42,7 +46,9 @@ def repl():
         except FralgoException as e:
           print(e.message)
       else:
+        cancel = loop
         loop = False
+        level = 0
         instructions = []
         continue
     except EOFError:
@@ -51,7 +57,6 @@ def repl():
       sys.exit(0)
     except KeyboardInterrupt:
       print()
-      print('*** les variables ont été détruites.')
     except Exception as e:
       print(e)
 

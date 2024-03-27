@@ -81,10 +81,8 @@ class DeclareArray:
 class ArrayGetItem:
   def __init__(self, var, *indexes):
     self.var = var
-    self.indexes = list(indexes)
+    self.indexes = indexes
   def eval(self):
-    if get_type(self.var.name) != 'Tableau':
-      raise BadType('type Tableau attendu')
     var = self.var.eval()
     return var.get_item(*self.indexes)
   def __repr__(self):
@@ -95,12 +93,10 @@ class ArraySetItem:
   def __init__(self, var, value, *indexes):
     self.var = var
     self.value = value
-    self.indexes = list(indexes)
+    self.indexes = indexes
   def eval(self):
-    if get_type(self.var.name) != 'Tableau':
-      raise BadType('type Tableau attendu')
     var = self.var.eval()
-    var.set_value(map_type(self.value.eval()), *self.indexes)
+    var.set_value(self.indexes, self.value)
   def __repr__(self):
     return f'{self.var.name}[{", ".join(self.indexes)}]'
 

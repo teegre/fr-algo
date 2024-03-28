@@ -1,3 +1,4 @@
+''' Algo data types '''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -151,7 +152,7 @@ class Array(Base):
     array[idxs[-1]] = value.eval()
   def redim(self, *indexes):
     self.indexes = indexes
-    idxs = self._eval_indexes(indexes)
+    idxs = self._eval_indexes(*indexes)
     self.sizes = tuple(idx + 1 for idx in idxs)
     self.value = self._new_array(*self.sizes)
   def __repr__(self):

@@ -26,6 +26,7 @@ reserved = {
   'Variables':  'VARS_DECL',
   'Tableau':    'ARRAY_DECL',
   'Tableaux':   'ARRAYS_DECL',
+  'Redim':      'RESIZE',
   'en':         'TYPE_DECL',
   'Booléen':    'TYPE_BOOLEAN',
   'Chaîne':     'TYPE_STRING',

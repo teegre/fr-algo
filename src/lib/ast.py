@@ -101,6 +101,17 @@ class ArraySetItem:
     indexes = (str(index) for index in self.indexes)
     return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
 
+class ArrayResize:
+  def __init__(self, var, *indexes):
+    self.var = var
+    self.indexes = indexes
+  def eval(self):
+    var = self.var.eval()
+    var.redim(*self.indexes)
+  def __repr__(self):
+    indexes = (str(index) for index in self.indexes)
+    return f'Redim {self.var.name}[{", ".join(indexes)}]'
+
 class Assign:
   def __init__(self, var, value):
     self.var = var

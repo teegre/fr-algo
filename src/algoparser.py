@@ -1,4 +1,4 @@
-from lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem
+from lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
 from lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
 from lib.datatypes import map_type, Number
 from lib.symbols import reset_variables
@@ -191,6 +191,13 @@ def p_array_index(p):
   '''
   p[0] = [map_type(p[1])]
 
+def p_array_resize(p):
+  '''
+  array_resize : RESIZE var LBRACKET array_indexes RBRACKET
+  '''
+  indexes = tuple(index for index in p[4])
+  p[0] = Node(ArrayResize(p[2], *indexes), p.lineno(1))
+
 def p_statements(p):
   '''
   statements : statements statement
@@ -206,6 +213,7 @@ def p_statement(p):
   '''
   statement : var_assignment
             | array_assignment
+            | array_resize NEWLINE
             | if_block
             | while_block
             | for_block

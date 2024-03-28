@@ -1,0 +1,26 @@
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = ['setuptools', 'wheel']
+
+[project]
+name = 'fralgo'
+version = '0.1.0'
+authors = [
+  { name = 'Stéphane MEYER (teegre)', email='stephane.meyer@afpa.fr' },
+]
+description = 'FRALGO est un interpréteur et un REPL pour le pseudo-langage de programmation ALGO.'
+readme = 'README.md'
+license = {text = "MIT"}
+classifiers = [
+  'Programming Language :: Python :: 3',
+]
+
+requires-python = '>=3.10'
+
+[project.scripts]
+fralgo = 'fralgo'
+fralgorepl = 'fralgorepl'
+
+[project.urls]
+Homepage = 'https://github.com/teegre/fralgo'
+Issues = 'https://github.com/teegre/fralgo/issues'

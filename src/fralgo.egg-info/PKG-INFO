@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: fralgo
+Version: 0.1.0
+Summary: FRALGO est un interpréteur et un REPL pour le pseudo-langage de programmation ALGO.
+Author-email: "Stéphane MEYER (teegre)" <stephane.meyer@afpa.fr>
+License: MIT
+Project-URL: Homepage, https://github.com/teegre/fralgo
+Project-URL: Issues, https://github.com/teegre/fralgo/issues
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# FRALGO
+
+**FRALGO** (prononcé *efferalgo*) est un interpréteur pour le pseudo-langage de programmation **Algo**.

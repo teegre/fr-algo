@@ -1,7 +1,0 @@
-__init__
-algoparser
-fralgo
-fralgorepl
-lexer
-lib
-ply

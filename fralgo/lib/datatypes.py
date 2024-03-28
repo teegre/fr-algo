@@ -20,7 +20,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
+from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
 
 class Base():
   _type = 'Base'

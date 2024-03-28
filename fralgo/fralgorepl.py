@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 import sys
 import readline
-from algoparser import parser, reset
-from lib.datatypes import map_type
-from lib.exceptions import FralgoException
+from fralgo.fralgoparse import parser, reset
+from fralgo.lib.datatypes import map_type
+from fralgo.lib.exceptions import FralgoException
 
 def repl():
   loop = False
@@ -60,7 +60,7 @@ def repl():
     except Exception as e:
       print(e)
 
-if __name__ == '__main__':
+def main():
   readline.parse_and_bind('"[" "\C-v[]\e[D"')
   readline.parse_and_bind('"(" "\C-v()\e[D"')
   print("  __           _             ")
@@ -72,3 +72,6 @@ if __name__ == '__main__':
   print()
   print('CTRL+d pour quitter.')
   repl()
+
+if __name__ == '__main__':
+  main()

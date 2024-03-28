@@ -27,9 +27,9 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
-from algoparser import parser
+from fralgo.fralgoparse import parser
 
-if __name__ == "__main__":
+def main():
   try:
     with open(sys.argv[1], 'r') as f:
       prog = f.read()
@@ -37,5 +37,12 @@ if __name__ == "__main__":
   except FileNotFoundError:
     print('*** fichier non trouvé')
     sys.exit(1)
+  except IndexError:
+    print('fralgo <chemin/fichier.algo>')
+    sys.exit(1)
+
   statements = parser.parse(prog)
   statements.eval()
+
+if __name__ == "__main__":
+  main()

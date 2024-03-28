@@ -1,3 +1,6 @@
 __pycache__
 .pylintrc
+build
+dist
 *.egg-info
+venv

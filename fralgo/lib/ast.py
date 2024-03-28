@@ -21,10 +21,10 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import operator
-from lib.datatypes import map_type
-from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
-from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
+from fralgo.lib.datatypes import map_type
+from fralgo.lib.datatypes import Boolean, Number, Float, Integer, String
+from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
+from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
 class Node:
   def __init__(self, statement=None, lineno=0):

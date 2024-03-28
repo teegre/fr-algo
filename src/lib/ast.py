@@ -276,4 +276,4 @@ class For:
       i += step
       assign_value(self.var, i)
   def __repr__(self):
-    return f'Pour {self.var} ← {self.start} à {self.end}'
+    return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'

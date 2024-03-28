@@ -165,11 +165,13 @@ class Read:
     '''... on evaluation'''
     var_type = get_type(self.var)
     try:
-      user_input = input(f'({self.var} ← {var_type[0]}) : ')
+      user_input = input(f':{var_type[0]}? ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:
       var = get_variable(self.var)
+      if isinstance(var, Boolean):
+        var.set_value(Boolean(user_input).eval())
       if isinstance(var, Integer):
         var.set_value(int(user_input))
       elif isinstance(var, Float):

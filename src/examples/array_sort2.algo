@@ -1,0 +1,22 @@
+Tableau T[19] en Entier
+Variables I, TEMP en Entier
+Variable Y en Booléen
+Début
+  Pour I ←  19 à 0 Pas -1
+    T[I] ← 19 - I
+  I Suivant
+  Ecrire T
+  Y ← VRAI
+  TantQue Y
+    Y ← FAUX
+    Pour I ← 0 à 18
+      Si T[I] > T[I+1] Alors
+        TEMP ← T[I]
+        T[I] ← T[I+1]
+        T[I+1] ← TEMP
+        Y ← VRAI
+      FinSi
+    I Suivant
+  FinTantQue
+  Ecrire T
+Fin

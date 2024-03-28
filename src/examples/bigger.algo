@@ -1,0 +1,17 @@
+Variables N, i, PG, IPG en Entier
+Début
+  N ← 1
+  i ← 0
+  PG ← 0
+  TantQue (N <> 0)
+    Ecrire "Entrez un nombre :"
+    Lire N
+    i ← i + 1
+    Si ((i = 1) OU (N > PG)) Alors
+      PG ← N
+      IPG ← i
+    FinSi
+  FinTantQue
+  Ecrire "Le nombre le plus grand était :", PG
+  Ecrire "Il a été saisi en position numéro", IPG
+Fin

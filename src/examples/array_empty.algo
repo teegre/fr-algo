@@ -1,0 +1,11 @@
+Tableau X[1,2] en Entier
+Variables i, j, val en Entier
+Début
+  val ← 1
+  Pour i ← 0 à 1
+    Pour j ← 0 à 2
+      X[i,j] ← val
+      val ← val + 1
+    j Suivant
+  i Suivant
+Fin

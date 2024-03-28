@@ -22,26 +22,29 @@
 from ply.lex import lex
 
 reserved = {
-  'Variable':  'VAR_DECL',
-  'Variables': 'VARS_DECL',
-  'en':        'TYPE_DECL',
-  'Booléen':   'TYPE_BOOLEAN',
-  'Entier':    'TYPE_INTEGER',
-  'Chaîne':    'TYPE_STRING',
-  'Numérique': 'TYPE_FLOAT',
-  'Début':     'START',
-  'Fin':       'END',
-  'Ecrire':    'PRINT',
-  'Lire':      'READ',
-  'dp':        'DIVBY',
-  'ET':        'AND',
-  'OU':        'OR',
-  'NON':       'NOT',
-  'Si':        'IF',
-  'Alors':     'THEN',
-  'Sinon':     'ELSE',
-  'SinonSi':   'ELSIF',
-  'FinSi':     'ENDIF',
+  'Variable':   'VAR_DECL',
+  'Variables':  'VARS_DECL',
+  'Tableau':    'ARRAY_DECL',
+  'Tableaux':   'ARRAYS_DECL',
+  'Redim':      'RESIZE',
+  'en':         'TYPE_DECL',
+  'Booléen':    'TYPE_BOOLEAN',
+  'Chaîne':     'TYPE_STRING',
+  'Entier':     'TYPE_INTEGER',
+  'Numérique':  'TYPE_FLOAT',
+  'Début':      'START',
+  'Fin':        'END',
+  'Ecrire':     'PRINT',
+  'Lire':       'READ',
+  'dp':         'DIVBY',
+  'ET':         'AND',
+  'OU':         'OR',
+  'NON':        'NOT',
+  'Si':         'IF',
+  'Alors':      'THEN',
+  'Sinon':      'ELSE',
+  'SinonSi':    'ELSIF',
+  'FinSi':      'ENDIF',
   'TantQue':    'WHILE',
   'FinTantQue': 'ENDWHILE',
   'Pour':       'FOR',
@@ -58,13 +61,14 @@ tokens = (
   'XOR',
   'MODULO',
   'LPAREN', 'RPAREN',
+  'LBRACKET', 'RBRACKET',
   'COMMA',
   'NEWLINE',
   'ID',
 ) + tuple(reserved.values())
 
 t_PLUS = r'\+'
-t_ARROW = '←'
+t_ARROW = '←' # AltGr + y
 t_MUL = r'\*'
 t_DIV = r'/'
 t_MODULO = r'\%'
@@ -79,6 +83,8 @@ t_POWER = r'\^'
 t_CONCAT = r'&'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 t_COMMA = r'\,'
 
 t_ignore = ' \t'

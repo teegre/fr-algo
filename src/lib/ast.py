@@ -23,7 +23,7 @@
 import operator
 from lib.datatypes import map_type
 from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_var, get_variable, get_type, assign_value
+from lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
 class Node:
@@ -34,13 +34,15 @@ class Node:
     if statement is not None:
       self.children.append(statement)
   def eval(self):
+    result = None
     for statement in self.children:
       try:
-        statement.eval()
+        result = statement.eval()
       except FralgoException as e:
         print('***', e.message)
         print('-v-', f'ligne {self.lineno}')
         break
+    return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
   def __iter__(self):
@@ -61,6 +63,54 @@ class Declare:
     declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
+
+class DeclareArray:
+  def __init__(self, name, var_type, *max_indexes):
+    self.name = name
+    self.var_type = var_type
+    self.max_indexes = max_indexes
+  def eval(self):
+    declare_array(self.name, self.var_type, *self.max_indexes)
+  def __repr__(self):
+    indexes = [str(n) for n in self.max_indexes]
+    idx = ', '.join(indexes)
+    if idx == '-1':
+      idx = ''
+    return f'Tableau {self.name}[{idx}] en {self.var_type}'
+
+class ArrayGetItem:
+  def __init__(self, var, *indexes):
+    self.var = var
+    self.indexes = indexes
+  def eval(self):
+    var = self.var.eval()
+    return var.get_item(*self.indexes)
+  def __repr__(self):
+    indexes = [str(index.eval()) for index in self.indexes]
+    return f'{self.var.name}[{", ".join(indexes)}]'
+
+class ArraySetItem:
+  def __init__(self, var, value, *indexes):
+    self.var = var
+    self.value = value
+    self.indexes = indexes
+  def eval(self):
+    var = self.var.eval()
+    var.set_value(self.indexes, self.value)
+  def __repr__(self):
+    indexes = (str(index) for index in self.indexes)
+    return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
+
+class ArrayResize:
+  def __init__(self, var, *indexes):
+    self.var = var
+    self.indexes = indexes
+  def eval(self):
+    var = self.var.eval()
+    var.redim(*self.indexes)
+  def __repr__(self):
+    indexes = (str(index) for index in self.indexes)
+    return f'Redim {self.var.name}[{", ".join(indexes)}]'
 
 class Assign:
   def __init__(self, var, value):
@@ -115,7 +165,7 @@ class Read:
     '''... on evaluation'''
     var_type = get_type(self.var)
     try:
-      user_input = input(f'({var_type[0]}) > ')
+      user_input = input(f'({self.var} ← {var_type[0]}) : ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:
@@ -161,21 +211,20 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+      a = a.eval()
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+      b = b.eval()
     if self.op == 'dp':
-      return map_type(a.eval() % b.eval() == 0)
+      return map_type(a % b == 0)
     if self.op == '&':
       # evaluate expressions until we get a str.
-      while isinstance(a, (String, BinOp, Variable)):
-        a = a.eval()
-      while isinstance(b, (String, BinOp, Variable)):
-        b = b.eval()
       if isinstance(a, str) and isinstance(b, str):
         return a + b
       raise BadType('type Chaîne attendu')
     if self.b is None:
-      return op(a.eval())
-    return op(a.eval(), b.eval())
-    # return map_type(op(a.eval(), b.eval()))
+      return op(a)
+    return op(a, b)
   def __repr__(self):
     if self.b is None:
       return f'{self.op} {self.a}'
@@ -221,21 +270,21 @@ class While:
 
 class For:
   def __init__(self, v, b, e, dt, nv, s=Integer(1)):
-    # if v != nv:
     #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
     self.var = v.name
-    self.start = b.eval()
-    self.end = e.eval()
-    self.step = s.eval()
+    self.start = b
+    self.end = e
+    self.step = s
     self.dothis = dt
   def eval(self):
-    i = self.start
-    end = self.end
+    i = self.start.eval()
+    end = self.end.eval()
+    step = self.step.eval()
     assign_value(self.var, i)
-    while i <= end if self.step > 0 else i >= end:
+    while i <= end if step > 0 else i >= end:
       for statement in self.dothis:
         statement.eval()
-      i += self.step
+      i += step
       assign_value(self.var, i)
   def __repr__(self):
-    return f'Pour {self.var} ← {self.start} à {self.end}'
+    return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'

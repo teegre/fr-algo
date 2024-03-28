@@ -1,0 +1,16 @@
+Tableau T[7] en Entier
+Variable I en Entier
+Début
+  Ecrire T
+  Ecrire "Remplissage du tableau..."
+  Pour I ← 0 à 7
+    T[I] ← I + 1
+  I Suivant
+  Ecrire "T maintenant contient", T
+  Ecrire "T[3] =", T[3]
+  Si T[7] = 8 Alors
+    Ecrire "T[7] est bien égal à 8 !"
+  Sinon
+    Ecrire T[7] = 8, "?"
+  FinSi
+Fin

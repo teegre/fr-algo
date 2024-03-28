@@ -36,3 +36,8 @@ class VarUndefined(FralgoException):
   # ... même tombée à terre !
 class InterruptedByUser(FralgoException):
   '''Le programme a été interrompu par l\'utilisateur. '''
+class IndexOutOfRange(FralgoException):
+  '''L\'indice du tableau n\'existe pas.'''
+class ArrayResizeFailed(FralgoException):
+  '''La taille d\'un tableau ne peut pas être inférieure à sa taille actuelle.'''
+  # A voir...

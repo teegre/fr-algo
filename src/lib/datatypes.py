@@ -1,3 +1,4 @@
+''' Algo data types '''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -19,7 +20,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from lib.exceptions import BadType, VarUndefined
+from lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
 
 class Base():
   _type = 'Base'
@@ -93,6 +94,75 @@ class String(Base):
     if self.value is None:
       return f'{self.data_type} → ?'
     return f'{self.data_type} → "{self.value}"'
+
+class Array(Base):
+  _type = 'Tableau'
+  def __init__(self, datatype, *indexes):
+    # http://cours.pise.info/algo/tableaux.htm
+    # http://cours.pise.info/algo/tableauxmulti.htm
+    self.datatype = datatype # array content type
+    self.indexes = indexes # max index(es)
+    self.sizes = tuple(idx + 1 for idx in indexes) # size(s)
+    self.value = self._new_array(*self.sizes)
+  def _new_array(self, *sizes):
+    if len(sizes) == 0:
+      return []
+    if len(sizes) == 1:
+      return [None] * sizes[0]
+    return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
+  def _validate_index(self, index):
+    if len(index) != len(self.sizes):
+      raise VarUndefined('tableau non dimensionné')
+    for i, size in enumerate(self.indexes):
+      if size < 0 or size >= self.indexes[i] + 1:
+        raise IndexOutOfRange('index hors limite')
+  def eval(self):
+    if self.value:
+      return self.value
+    raise VarUndefined('valeur indéfinie')
+  def _eval_indexes(self, *indexes):
+    '''Evaluate indexes until we get integers (int)'''
+    idxs = []
+    for index in indexes:
+      idx = index
+      while not isinstance(idx, int):
+        idx = idx.eval()
+      idxs.append(idx)
+    return tuple(idxs)
+  def get_item(self, *indexes):
+    idxs = self._eval_indexes(*indexes)
+    self._validate_index(idxs)
+    array = self.value
+    for i in idxs:
+      array = array[i]
+    return array
+  def set_value(self, indexes, value):
+    # TODO: check if array is empty
+      # raise VarUndefined('tableau non dimensionné')
+    typed_value = map_type(value.eval())
+    while not isinstance(typed_value, (Boolean, Number, String)):
+      typed_value = map_type(typed_value)
+    if typed_value.data_type != self.datatype:
+      raise BadType(f'type {self.datatype} attendu')
+    idxs = self._eval_indexes(*indexes)
+    self._validate_index(idxs)
+    array = self.value
+    for i in idxs[:-1]:
+      array = array[i]
+    array[idxs[-1]] = value.eval()
+  def redim(self, *indexes):
+    self.indexes = indexes
+    idxs = self._eval_indexes(*indexes)
+    self.sizes = tuple(idx + 1 for idx in idxs)
+    self.value = self._new_array(*self.sizes)
+  def __repr__(self):
+    def recursive_repr(array):
+      if isinstance(array, list):
+        return '[' + ', '.join(recursive_repr(item) for item in array) + ']'
+      return '?' if array is None else str(array)
+    return recursive_repr(self.value)
+  def __str__(self):
+    return self.__repr__()
 
 class Boolean(Base):
   _type = 'Booléen'

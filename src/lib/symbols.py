@@ -20,7 +20,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import lib.exceptions as ex
-from lib.datatypes import Boolean, Float, Integer, String
+from lib.datatypes import Array, Boolean, Float, Integer, String
 
 __variables = {}
 
@@ -36,6 +36,11 @@ def declare_var(name, data_type):
   elif data_type == 'Entier':
     __variables[name] = Integer(None)
 
+def declare_array(name, data_type, *max_indexes):
+  if __variables.get(name, None) is not None:
+    raise ex.VarRedeclared((f'redéclaration de la variable {name}'))
+  __variables[name] = Array(data_type, *max_indexes)
+
 def assign_value(name, value):
   var = get_variable(name)
   var.set_value(value)
@@ -43,6 +48,7 @@ def assign_value(name, value):
 def get_variable(name):
   var = __variables.get(name, None)
   if var is None:
+    print(name)
     raise ex.VarUndeclared(f'variable {name} non déclarée')
   return var
 

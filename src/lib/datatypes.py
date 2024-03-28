@@ -128,16 +128,16 @@ class Array(Base):
         idx = idx.eval()
       idxs.append(idx)
     return tuple(idxs)
-  def get_item(self, indexes):
-    idxs = self._eval_indexes(indexes)
+  def get_item(self, *indexes):
+    idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value
     for i in idxs:
       array = array[i]
     return array
   def set_value(self, indexes, value):
-    if self.value == []:
-      raise VarUndefined('tableau non dimensionné')
+    # TODO: check if array is empty
+      # raise VarUndefined('tableau non dimensionné')
     typed_value = map_type(value.eval())
     while not isinstance(typed_value, (Boolean, Number, String)):
       typed_value = map_type(typed_value)
@@ -162,64 +162,6 @@ class Array(Base):
     return recursive_repr(self.value)
   def __str__(self):
     return self.__repr__()
-
-# class Array(Base):
-#   _type = 'Tableau'
-#   def __init__(self, datatype, *max_indexes):
-#     self.size = len(max_indexes) if list(max_indexes) != [-1] else 0
-#     self.max_indexes = list(max_indexes)
-#     self.datatype = datatype
-#     if self.size == 0:
-#       self.value = []
-#     else:
-#       self.value = []
-#       for idx in max_indexes:
-#         value = [None for _ in range(idx + 1)]
-#         self.value += [value] if self.size > 1 else value
-#   def eval(self):
-#     if self.value:
-#       return self.value
-#     raise VarUndefined('valeur indéfinie')
-#   def redim(self, size, *indexes):
-#     array = self.get_item(*indexes)
-#     if not isinstance(array, list):
-#       raise BadType('type Tableau attendu')
-#     if len(array) == 0:
-#       raise VarUndefined('tableau non dimensionné')
-#     if size < self.size or size < 0:
-#       raise ArrayResizeFailed(f'{size} < {self.size} redimensionnement impossible')
-#     value = [None for _ in range(len(array), size + 1)]
-#     self.max_indexes[indexes[-1]] = Integer(size)
-#     array += value
-#   def get_item(self, *indexes):
-#     item = self.value
-#     if len(indexes) > 0:
-#       for index in indexes:
-#         try:
-#           item = item[index.eval()]
-#         except IndexError as e:
-#           raise IndexOutOfRange(f'{index}, indice hors limite') from e
-#         if item is None:
-#           raise VarUndefined('valeur indéfinie')
-#     return item
-#   def set_value(self, value, *args, **kwargs):
-#     '''set_value(value, list_index1, list_index2, ..., item_index)'''
-#     if self.size == 0:
-#       raise VarUndefined('tableau non dimensionné')
-#     array = self.get_item(*args[:-1])
-#     typed_value = map_type(value)
-#     if typed_value.data_type != self.datatype:
-#       raise BadType(f'type {self.datatype} attendu')
-#     try:
-#       array[args[-1].eval()] = typed_value
-#     except IndexError as e:
-#       raise IndexOutOfRange(f'{args[0]}, indice hors limite') from e
-#   def __str__(self):
-#     array = [item.eval() for item in self.value if item is not None]
-#     return f'{array}'
-#   def __repr__(self):
-#     value = ['?' if v is None else v.eval() for v in self.value]
-#     return f'{self.data_type}{self.max_indexes} en {self.datatype} {value}'
 
 class Boolean(Base):
   _type = 'Booléen'

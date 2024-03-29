@@ -18,6 +18,9 @@ classifiers = [
 
 requires-python = '>=3.10'
 
+[tool.setuptools.dynamic]
+version = {attr = 'fralgo.__version__'}
+
 [project.scripts]
 fralgo = 'fralgo.fralgocli:main'
 fralgorepl = 'fralgo.fralgorepl:main'

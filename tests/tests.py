@@ -1,9 +1,7 @@
 import os
 import sys
 
-child_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(child_dir, '..'))
-sys.path.append(parent_dir)
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
 from fralgo.fralgoparse import parser

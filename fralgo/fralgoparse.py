@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
 from fralgo.lib.datatypes import map_type, Number

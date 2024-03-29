@@ -1,5 +1,9 @@
 #! /usr/bin/env python
+import os
 import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import readline
 from fralgo.fralgoparse import parser, reset
 from fralgo.lib.datatypes import map_type

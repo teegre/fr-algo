@@ -1,10 +1,15 @@
-from lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
-from lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
-from lib.datatypes import map_type, Number
-from lib.symbols import reset_variables
-from lib.exceptions import BadType
-import lexer as lex
-from ply.yacc import yacc
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
+from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
+from fralgo.lib.datatypes import map_type, Number
+from fralgo.lib.symbols import reset_variables
+from fralgo.lib.exceptions import BadType
+import fralgo.fralgolex as lex
+from fralgo.ply.yacc import yacc
 
 
 # --> FOR DEBUGGING ONLY.

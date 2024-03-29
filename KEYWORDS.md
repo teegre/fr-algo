@@ -14,7 +14,7 @@
 
 `VRAI, FAUX`
 
-`Lire, Ecrire`
+`Lire, Ecrire, Redim`
 
 `Si, SinonSi, Sinon, FinSi`
 

@@ -19,7 +19,12 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from ply.lex import lex
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from fralgo.ply.lex import lex
 
 reserved = {
   'Variable':   'VAR_DECL',
@@ -68,7 +73,7 @@ tokens = (
 ) + tuple(reserved.values())
 
 t_PLUS = r'\+'
-t_ARROW = '←' # AltGr + y
+t_ARROW = r'←|<\-' # AltGr + y
 t_MUL = r'\*'
 t_DIV = r'/'
 t_MODULO = r'\%'

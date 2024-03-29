@@ -1,9 +1,14 @@
 #! /usr/bin/env python
+import os
 import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import readline
-from algoparser import parser, reset
-from lib.datatypes import map_type
-from lib.exceptions import FralgoException
+from fralgo.version import get_version
+from fralgo.fralgoparse import parser, reset
+from fralgo.lib.datatypes import map_type
+from fralgo.lib.exceptions import FralgoException
 
 def repl():
   loop = False
@@ -53,22 +58,26 @@ def repl():
         continue
     except EOFError:
       print()
-      print('*** Au revoir !')
+      print('*** ')
       sys.exit(0)
     except KeyboardInterrupt:
       print()
     except Exception as e:
       print(e)
 
-if __name__ == '__main__':
+def main():
   readline.parse_and_bind('"[" "\C-v[]\e[D"')
   readline.parse_and_bind('"(" "\C-v()\e[D"')
-  print("  __           _             ")
-  print(" / _|_ __ __ _| | __ _  ___  ")
-  print("| |_| '__/ _` | |/ _` |/ _ \ ")
-  print("|  _| | | (_| | | (_| | (_) |")
-  print("|_| |_|  \__,_|_|\__, |\___/ ")
-  print("ALGORITHMES      |___/ 500mg ")
+  print(' _______ ______ _______ _____   _______ _______ ')
+  print('|    ___|   __ \   _   |     |_|     __|       |')
+  print('|    ___|      <       |       |    |  |   -   |')
+  print('|___|   |___|__|___|___|_______|_______|_______|')
+  print(f'A L G O R I T H M E S                    {get_version()}mg')
   print()
-  print('CTRL+d pour quitter.')
+  print('[ ctrl+d pour quitter ]')
+  print('En attente de vos instructions.')
+  print()
   repl()
+
+if __name__ == '__main__':
+  main()

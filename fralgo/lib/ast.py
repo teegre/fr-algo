@@ -21,10 +21,10 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import operator
-from lib.datatypes import map_type
-from lib.datatypes import Boolean, Number, Float, Integer, String
-from lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
-from lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
+from fralgo.lib.datatypes import map_type
+from fralgo.lib.datatypes import Boolean, Number, Float, Integer, String
+from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
+from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -165,11 +165,13 @@ class Read:
     '''... on evaluation'''
     var_type = get_type(self.var)
     try:
-      user_input = input(f'({self.var} ← {var_type[0]}) : ')
+      user_input = input(f':{var_type[0]}? ')
     except KeyboardInterrupt as e:
       raise InterruptedByUser("interrompu par l'utilisateur") from e
     try:
       var = get_variable(self.var)
+      if isinstance(var, Boolean):
+        var.set_value(Boolean(user_input).eval())
       if isinstance(var, Integer):
         var.set_value(int(user_input))
       elif isinstance(var, Float):
@@ -211,9 +213,9 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
       b = b.eval()
     if self.op == 'dp':
       return map_type(a % b == 0)

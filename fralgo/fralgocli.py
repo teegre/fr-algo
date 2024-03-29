@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 #   __           _
 #  / _|_ __ __ _| | __ _  ___
 # | |_| '__/ _` | |/ _` |/ _ \
@@ -26,10 +25,14 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import sys
-from algoparser import parser
 
-if __name__ == "__main__":
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from fralgo.fralgoparse import parser
+
+def main():
   try:
     with open(sys.argv[1], 'r') as f:
       prog = f.read()
@@ -37,5 +40,12 @@ if __name__ == "__main__":
   except FileNotFoundError:
     print('*** fichier non trouvé')
     sys.exit(1)
+  except IndexError:
+    print('fralgo <chemin/fichier.algo>')
+    sys.exit(1)
+
   statements = parser.parse(prog)
   statements.eval()
+
+if __name__ == "__main__":
+  main()

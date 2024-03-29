@@ -20,7 +20,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
+from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
 
 class Base():
   _type = 'Base'
@@ -167,7 +167,10 @@ class Array(Base):
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
-    self.value = value
+    if value in ('VRAI', 'FAUX'):
+      self.value = value == 'VRAI'
+    else:
+      self.value = value
   def set_value(self, value):
     if value not in (True, False):
       raise BadType(f'type {self.data_type} attendu [{self.value}]')

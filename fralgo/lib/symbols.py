@@ -19,8 +19,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import lib.exceptions as ex
-from lib.datatypes import Array, Boolean, Float, Integer, String
+import fralgo.lib.exceptions as ex
+from fralgo.lib.datatypes import Array, Boolean, Float, Integer, String
 
 __variables = {}
 

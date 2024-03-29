@@ -73,7 +73,7 @@ tokens = (
 ) + tuple(reserved.values())
 
 t_PLUS = r'\+'
-t_ARROW = '←' # AltGr + y
+t_ARROW = r'←|<\-' # AltGr + y
 t_MUL = r'\*'
 t_DIV = r'/'
 t_MODULO = r'\%'

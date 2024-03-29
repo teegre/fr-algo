@@ -213,9 +213,9 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Number, String, Variable)):
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
       b = b.eval()
     if self.op == 'dp':
       return map_type(a % b == 0)

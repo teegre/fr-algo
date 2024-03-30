@@ -48,7 +48,6 @@ def assign_value(name, value):
 def get_variable(name):
   var = __variables.get(name, None)
   if var is None:
-    print(name)
     raise ex.VarUndeclared(f'variable {name} non déclarée')
   return var
 
@@ -57,7 +56,7 @@ def is_variable(name):
 
 def get_type(name):
   var = get_variable(name)
-  return  var.data_type
+  return var.datatype if isinstance(var, Array) else var.data_type
 
 def delete_variable(name):
   __variables.pop(name)

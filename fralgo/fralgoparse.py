@@ -223,12 +223,17 @@ def p_statement(p):
             | for_block
             | PRINT sequence NEWLINE
             | READ ID NEWLINE
+            | READ array_access NEWLINE
             | expression NEWLINE
   '''
   if p[1] == 'Ecrire':
     p[0] = Node(Print(p[2]), p.lineno(1))
   elif p[1] == 'Lire':
-    p[0] = Node(Read(p[2]), p.lineno(1))
+    if isinstance(p[2], list):
+      # Array!
+      p[0] = Node(Read(p[2][0].name, *p[2][1]), p.lineno(1))
+    else:
+      p[0] = Node(Read(p[2]), p.lineno(1))
   else:
     p[0] = Node(p[1], p.lineno(1))
 

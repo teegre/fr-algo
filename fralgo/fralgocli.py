@@ -31,6 +31,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.fralgoparse import parser
+from fralgo.lib.exceptions import FatalError
 
 def main():
   try:
@@ -43,9 +44,11 @@ def main():
   except IndexError:
     print('fralgo <chemin/fichier.algo>')
     sys.exit(1)
-
-  statements = parser.parse(prog)
-  statements.eval()
+  try:
+    statements = parser.parse(prog)
+    statements.eval()
+  except FatalError:
+    sys.exit(666)
 
 if __name__ == "__main__":
   main()

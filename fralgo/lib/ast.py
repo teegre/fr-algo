@@ -22,9 +22,10 @@
 
 import operator
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.datatypes import Boolean, Number, Float, Integer, String
+from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
+from fralgo.lib.exceptions import FatalError
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -41,7 +42,7 @@ class Node:
       except FralgoException as e:
         print('***', e.message)
         print('-v-', f'ligne {self.lineno}')
-        break
+        raise FatalError('!!! erreur fatale') from e
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -107,7 +108,7 @@ class ArrayResize:
     self.indexes = indexes
   def eval(self):
     var = self.var.eval()
-    var.redim(*self.indexes)
+    var.resize(*self.indexes)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
     return f'Redim {self.var.name}[{", ".join(indexes)}]'
@@ -138,8 +139,9 @@ class Variable:
 
 class Print:
   '''Print statement. Display one or several elements'''
-  def __init__(self, data):
+  def __init__(self, data, newline=True):
     self.data = data
+    self.newline = newline
   def eval(self):
     '''Print data'''
     result = []
@@ -153,17 +155,24 @@ class Print:
           continue
       # here we want to use the str method of the evaluated class.
       result.append(str(element.eval()))
-    print(' '.join(result))
+    if self.newline:
+      print(' '.join(result))
+    else:
+      print(' '.join(result), end='')
   def __repr__(self):
     return f'Ecrire {self.data}'
 
 class Read:
-  '''Read user input and assign value to a variable...'''
-  def __init__(self, var):
+  '''
+  Read user input and assign value to a variable...
+  '''
+  def __init__(self, var, *args):
     self.var = var
+    self.args = args
   def eval(self):
     '''... on evaluation'''
     var_type = get_type(self.var)
+    print(var_type)
     try:
       user_input = input(f':{var_type[0]}? ')
     except KeyboardInterrupt as e:
@@ -178,6 +187,16 @@ class Read:
         var.set_value(float(user_input))
       elif isinstance(var, String):
         var.set_value(user_input)
+      elif isinstance(var, Array):
+        match var.datatype:
+          case 'Booléen':
+            var.set_value(self.args, Boolean(user_input))
+          case 'Chaîne':
+            var.set_value(self.args, String(user_input))
+          case 'Entier':
+            var.set_value(self.args, Integer(int(user_input)))
+          case 'Numérique':
+            var.set_value(self.args, Float(float(user_input)))
     except ValueError as e:
       raise BadType(f'type {var.data_type} attendu') from e
   def __repr__(self):
@@ -272,13 +291,15 @@ class While:
 
 class For:
   def __init__(self, v, b, e, dt, nv, s=Integer(1)):
-    #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
     self.var = v.name
     self.start = b
     self.end = e
     self.step = s
     self.dothis = dt
+    self.var_next = nv.name
   def eval(self):
+    if self.var != self.var_next:
+      raise FralgoException(f'Pour >>{self.var}<< ... >>{self.var_next}<< Suivant')
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()

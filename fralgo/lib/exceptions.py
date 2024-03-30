@@ -39,5 +39,6 @@ class InterruptedByUser(FralgoException):
 class IndexOutOfRange(FralgoException):
   '''L\'indice du tableau n\'existe pas.'''
 class ArrayResizeFailed(FralgoException):
-  '''La taille d\'un tableau ne peut pas être inférieure à sa taille actuelle.'''
-  # A voir...
+  '''La taille d\'un tableau ne peut pas être inférieure à sa taille initiale.'''
+class FatalError(FralgoException):
+  ''' ERREUR FATALE '''

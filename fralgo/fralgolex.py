@@ -68,6 +68,7 @@ tokens = (
   'LPAREN', 'RPAREN',
   'LBRACKET', 'RBRACKET',
   'COMMA',
+  'BACKSLASH',
   'NEWLINE',
   'ID',
 ) + tuple(reserved.values())
@@ -91,6 +92,7 @@ t_RPAREN = r'\)'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r'\,'
+t_BACKSLASH = r'\\'
 
 t_ignore = ' \t'
 

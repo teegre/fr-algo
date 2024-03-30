@@ -27,8 +27,6 @@ class Base():
   value = None
   def eval(self):
     raise NotImplementedError
-  def set_value(self, value):
-    raise NotImplementedError
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type}'
@@ -92,8 +90,8 @@ class String(Base):
     return self.value
   def __repr__(self):
     if self.value is None:
-      return f'{self.data_type} → ?'
-    return f'{self.data_type} → "{self.value}"'
+      return '?'
+    return f'"{self.value}"'
 
 class Array(Base):
   _type = 'Tableau'
@@ -113,7 +111,7 @@ class Array(Base):
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
       raise VarUndefined('tableau non dimensionné')
-    for i, size in enumerate(self.indexes):
+    for i, size in enumerate(index):
       if size < 0 or size >= self.indexes[i] + 1:
         raise IndexOutOfRange('index hors limite')
   def eval(self):
@@ -137,8 +135,6 @@ class Array(Base):
       array = array[i]
     return array
   def set_value(self, indexes, value):
-    # TODO: check if array is empty
-      # raise VarUndefined('tableau non dimensionné')
     typed_value = map_type(value.eval())
     while not isinstance(typed_value, (Boolean, Number, String)):
       typed_value = map_type(typed_value)
@@ -150,19 +146,46 @@ class Array(Base):
     for i in idxs[:-1]:
       array = array[i]
     array[idxs[-1]] = value.eval()
-  def redim(self, *indexes):
-    self.indexes = indexes
+  def _indexes_to_copy(self, old, new):
+    '''
+    Generator yielding indexes for copying values
+    into a resized Array.
+    '''
+    if len(old) == 1:
+      for size in range(min(old[0], new[0])):
+        yield (size,)
+    else:
+      for size in range(min(old[0], new[0])):
+        for sizes in self._indexes_to_copy(old[1:], new[1:]):
+          yield (size,) + sizes
+  def resize(self, *indexes):
+    ''' Resize an Array '''
     idxs = self._eval_indexes(*indexes)
-    self.sizes = tuple(idx + 1 for idx in idxs)
-    self.value = self._new_array(*self.sizes)
+    for i, idx in enumerate(self.indexes):
+      if idxs[i] < 0:
+        raise ArrayResizeFailed('redimensionnement impossible')
+    sizes = tuple(idx + 1 for idx in idxs)
+    new_array = Array(self.datatype, *idxs)
+    for idx in self._indexes_to_copy(self.sizes, sizes):
+      value = self.get_item(*idx)
+      if value is None:
+        continue
+      new_array.set_value(idx, map_type(value))
+    self.indexes = idxs
+    self.sizes = sizes
+    self.indexes = idxs
+    self.value = new_array.value
   def __repr__(self):
     def recursive_repr(array):
       if isinstance(array, list):
         return '[' + ', '.join(recursive_repr(item) for item in array) + ']'
-      return '?' if array is None else str(array)
+      return '?' if array is None else str(map_type(array))
     return recursive_repr(self.value)
   def __str__(self):
     return self.__repr__()
+  @property
+  def size(self):
+    return self.sizes
 
 class Boolean(Base):
   _type = 'Booléen'

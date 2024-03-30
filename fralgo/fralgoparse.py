@@ -122,7 +122,6 @@ def p_array(p):
   else:
     p[0] = [[p[1], p[3]]]
 
-
 def p_array_max_indexes(p):
   '''
   array_max_indexes : array_max_indexes COMMA array_max_index

@@ -222,12 +222,14 @@ def p_statement(p):
             | while_block
             | for_block
             | PRINT sequence NEWLINE
+            | PRINT sequence BACKSLASH NEWLINE
             | READ ID NEWLINE
             | READ array_access NEWLINE
             | expression NEWLINE
   '''
   if p[1] == 'Ecrire':
-    p[0] = Node(Print(p[2]), p.lineno(1))
+    newline = len(p) < 5
+    p[0] = Node(Print(p[2], newline), p.lineno(1))
   elif p[1] == 'Lire':
     if isinstance(p[2], list):
       # Array!

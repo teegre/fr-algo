@@ -139,8 +139,9 @@ class Variable:
 
 class Print:
   '''Print statement. Display one or several elements'''
-  def __init__(self, data):
+  def __init__(self, data, newline=True):
     self.data = data
+    self.newline = newline
   def eval(self):
     '''Print data'''
     result = []
@@ -154,7 +155,10 @@ class Print:
           continue
       # here we want to use the str method of the evaluated class.
       result.append(str(element.eval()))
-    print(' '.join(result))
+    if self.newline:
+      print(' '.join(result))
+    else:
+      print(' '.join(result), end='')
   def __repr__(self):
     return f'Ecrire {self.data}'
 

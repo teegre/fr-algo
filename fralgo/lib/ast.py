@@ -272,13 +272,15 @@ class While:
 
 class For:
   def __init__(self, v, b, e, dt, nv, s=Integer(1)):
-    #   raise ForLoopVariablesNotMatching(f'{v} ne correspond pas à {nv}')
     self.var = v.name
     self.start = b
     self.end = e
     self.step = s
     self.dothis = dt
+    self.var_next = nv.name
   def eval(self):
+    if self.var != self.var_next:
+      raise FralgoException(f'Pour >>{self.var}<< ... >>{self.var_next}<< Suivant')
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()

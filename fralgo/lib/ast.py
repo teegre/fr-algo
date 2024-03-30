@@ -107,7 +107,7 @@ class ArrayResize:
     self.indexes = indexes
   def eval(self):
     var = self.var.eval()
-    var.redim(*self.indexes)
+    var.resize(*self.indexes)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
     return f'Redim {self.var.name}[{", ".join(indexes)}]'

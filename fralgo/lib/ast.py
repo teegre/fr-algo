@@ -174,10 +174,8 @@ class Read:
     self.args = args
   def eval(self):
     '''... on evaluation'''
-    var_type = get_type(self.var)
-    print(var_type)
     try:
-      user_input = input(f':{var_type[0]}? ')
+      user_input = input()
     except KeyboardInterrupt as e:
       raise InterruptedByUser("Interrompu par l'utilisateur") from e
     try:
@@ -234,9 +232,9 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
       b = b.eval()
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):

@@ -20,12 +20,13 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import operator
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FatalError, ZeroDivide
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -41,8 +42,10 @@ class Node:
         result = statement.eval()
       except FralgoException as e:
         print('***', e.message)
-        print('-v-', f'ligne {self.lineno}')
-        raise FatalError('!!! erreur fatale') from e
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          raise FatalError('Erreur fatale') from e
+        return None
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -176,7 +179,7 @@ class Read:
     try:
       user_input = input(f':{var_type[0]}? ')
     except KeyboardInterrupt as e:
-      raise InterruptedByUser("interrompu par l'utilisateur") from e
+      raise InterruptedByUser("Interrompu par l'utilisateur") from e
     try:
       var = get_variable(self.var)
       if isinstance(var, Boolean):
@@ -198,7 +201,7 @@ class Read:
           case 'Numérique':
             var.set_value(self.args, Float(float(user_input)))
     except ValueError as e:
-      raise BadType(f'type {var.data_type} attendu') from e
+      raise BadType(f'Type {var.data_type} attendu') from e
   def __repr__(self):
     return f'Lire {self.var}'
 
@@ -207,8 +210,7 @@ class BinOp:
       '+'   : operator.add,
       '-'   : operator.sub,
       '*'   : operator.mul,
-      '/'   : operator.truediv,
-      '//'  : operator.floordiv,
+      '/'   : 'dummy',
       '%'   : operator.mod,
       'dp'  : 'dummy',
       '^'   : operator.pow,
@@ -232,17 +234,28 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
       b = b.eval()
+    if self.op == '/':
+      if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
+        raise BadType('Type Entier ou Numérique attendu')
+      if isinstance(a, int) and isinstance(b, int):
+        if b == 0:
+          raise ZeroDivide('Division par zéro')
+        op = operator.floordiv
+      elif isinstance(a, float) or isinstance(b, float):
+        if b == 0:
+          raise ZeroDivide('Division par zéro')
+        op = operator.truediv
     if self.op == 'dp':
       return map_type(a % b == 0)
     if self.op == '&':
       # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
         return a + b
-      raise BadType('type Chaîne attendu')
+      raise BadType('Type Chaîne attendu')
     if self.b is None:
       return op(a)
     return op(a, b)
@@ -257,7 +270,7 @@ class Neg:
   def eval(self):
     value = self.value.eval()
     if not isinstance(value, (int, float)):
-      raise BadType('type Entier ou Numérique attendu')
+      raise BadType('Type Entier ou Numérique attendu')
     return -value
   def __repr__(self):
     return f'-{self.value}'
@@ -311,3 +324,29 @@ class For:
       assign_value(self.var, i)
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'
+
+class Len:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    try:
+      return len(self.value.eval())
+    except TypeError:
+      raise BadType('Type Chaîne attendu')
+  def __repr__(self):
+    return f'Len({self.value})'
+
+class Mid:
+  def __init__(self, exp, start, end):
+    self.exp = exp
+    self.start = start
+    self.end = end
+  def eval(self):
+    exp = self.exp.eval()
+    start = self.start.eval()
+    end = self.end.eval()
+    if not isinstance(exp, str):
+      raise BadType('Type Chaîne attendu')
+    return exp[start-1:start-1+end]
+  def __repr__(self):
+    return f'Mid({self.exp, self.start, self.end})'

@@ -1,0 +1,13 @@
+Variables alpha, omega, zeta en Entier
+Début
+  Pour alpha <- 1 à 9
+    Pour omega <- 1 à 9
+      zeta <- alpha * omega
+      TantQue zeta > 9
+        zeta <- zeta / 10 + zeta % 10
+      FinTantQue
+      Ecrire zeta, " " \
+    omega Suivant
+    Ecrire ""
+  alpha Suivant
+Fin

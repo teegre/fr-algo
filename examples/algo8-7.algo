@@ -1,0 +1,73 @@
+# Écrire un algorithme de jeu de dames très simplifié.
+# L’ordinateur demande à l’utilisateur dans quelle case se trouve son pion
+# (quelle ligne, quelle colonne). On met en place un contrôle de saisie afin
+# de vérifier la validité des valeurs entrées.
+# Ensuite, on demande à l’utilisateur quel mouvement il veut effectuer : 
+# 0 (en haut à gauche), 
+# 1 (en haut à droite),
+# 2 (en bas à gauche),
+# 3 (en bas à droite).
+# Si le mouvement est impossible (i.e. on sort du damier ), on le signale à l’utilisateur
+# et on s’arrête là . Sinon, on déplace le pion et on affiche le damier résultant, 
+# en affichant un « O » pour une case vide et un « X » pour la case où se trouve le pion.
+Variables i, j, posi, posj, i2, j2, Dep en Entier
+Variables Correct, MoveOK en Booléen
+Tableau Damier[7, 7] en Booléen
+Tableau Mouv[3, 1] en Entier
+Début
+  Mouv[0, 0] ← -1
+  Mouv[0, 1] ← -1
+  Mouv[1, 0] ← -1
+  Mouv[1, 1] ← 1
+  Mouv[2, 0] ← 1
+  Mouv[2, 1] ← -1
+  Mouv[3, 0] ← 1
+  Mouv[3, 1] ← 1
+  Pour i ← 0 à 7
+    Pour j ← 0 à 7
+      Damier[i, j] ← FAUX
+    j Suivant
+  i Suivant
+  Correct ← FAUX
+  TantQue NON(Correct)
+    Ecrire "Entrez la ligne de votre pion: "
+    Lire posi
+    Correct ← posi >= 0 ET posi <= 7
+  FinTantQue
+  Correct ← FAUX
+  TantQue NON(Correct)
+    Ecrire "Entrez la colonne de votre pion: "
+    Lire posj
+    Correct ← posj >= 0 ET posj <= 7
+  FinTantQue
+  Damier[posi, posj] ← VRAI
+  Ecrire "Quel déplacement ?"
+  Ecrire " - 0: en haut à gauche"
+  Ecrire " - 1: en haut à droite"
+  Ecrire " - 2: en bas à gauche"
+  Ecrire " - 3: en bas à droite"
+  Correct ← FAUX
+  TantQue NON(Correct)
+    Lire Dep
+    Correct ← Dep >= 0 ET Dep <= 3
+  FinTantQue
+  i2 ← posi + Mouv[Dep, 0]
+  j2 ← posj + Mouv[Dep, 1]
+  MoveOK ← i2 >= 0 ET i2 <= 7 ET j2 >= 0 ET j2 <= 7
+  Si MoveOK Alors
+    Damier[posi, posj] ← FAUX
+    Damier[i2, j2] ← VRAI
+    Pour i ← 0 à 7
+      Pour j ← 0 à 7
+        Si Damier[i, j] Alors
+          Ecrire " O " \
+        Sinon
+          Ecrire " X " \
+        FinSi
+      j Suivant
+      Ecrire ""
+    i Suivant
+  Sinon
+    Ecrire "Mouvement impossible"
+  FinSi
+Fin

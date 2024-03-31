@@ -40,11 +40,11 @@ class Number(Base):
     raise NotImplementedError
   def eval(self):
     if self.value is None:
-      raise VarUndefined('valeur indéfinie')
+      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __str__(self):
     if self.value is None:
-      raise VarUndefined('valeur indéfinie')
+      raise VarUndefined('Valeur indéfinie')
     return f'{self.value}'
   def __repr__(self):
     if self.value is None:
@@ -61,7 +61,7 @@ class Integer(Number):
     elif isinstance(value, Integer):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu [{self.value}]')
+      raise BadType(f'Type {self.data_type} attendu [{value}]')
 
 class Float(Number):
   _type = 'Numérique'
@@ -73,7 +73,7 @@ class Float(Number):
     elif isinstance(value, Float):
       self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu [{self.value}]')
+      raise BadType(f'Type {self.data_type} attendu [{value}]')
 
 class String(Base):
   _type = 'Chaîne'
@@ -82,12 +82,16 @@ class String(Base):
   def set_value(self, value):
     if isinstance(value, str):
       self.value = value
+    elif isinstance(value, String):
+      self.value = value.eval()
     else:
-      raise BadType(f'type {self.data_type} attendu [{self.value}]')
+      raise BadType(f'Type {self.data_type} attendu [{value}]')
   def eval(self):
     if self.value is None:
-      raise VarUndefined('valeur indéfinie')
+      raise VarUndefined('Valeur indéfinie')
     return self.value
+  def __len__(self):
+    return len(self.value)
   def __repr__(self):
     if self.value is None:
       return '?'
@@ -110,14 +114,14 @@ class Array(Base):
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
-      raise VarUndefined('tableau non dimensionné')
+      raise VarUndefined('Tableau non dimensionné')
     for i, size in enumerate(index):
       if size < 0 or size >= self.indexes[i] + 1:
-        raise IndexOutOfRange('index hors limite')
+        raise IndexOutOfRange('Index hors limite')
   def eval(self):
     if self.value:
       return self.value
-    raise VarUndefined('valeur indéfinie')
+    raise VarUndefined('Valeur indéfinie')
   def _eval_indexes(self, *indexes):
     '''Evaluate indexes until we get integers (int)'''
     idxs = []
@@ -139,7 +143,7 @@ class Array(Base):
     while not isinstance(typed_value, (Boolean, Number, String)):
       typed_value = map_type(typed_value)
     if typed_value.data_type != self.datatype:
-      raise BadType(f'type {self.datatype} attendu')
+      raise BadType(f'Type {self.datatype} attendu')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value
@@ -163,7 +167,7 @@ class Array(Base):
     idxs = self._eval_indexes(*indexes)
     for i, idx in enumerate(self.indexes):
       if idxs[i] < 0:
-        raise ArrayResizeFailed('redimensionnement impossible')
+        raise ArrayResizeFailed('Redimensionnement impossible')
     sizes = tuple(idx + 1 for idx in idxs)
     new_array = Array(self.datatype, *idxs)
     for idx in self._indexes_to_copy(self.sizes, sizes):
@@ -196,11 +200,11 @@ class Boolean(Base):
       self.value = value
   def set_value(self, value):
     if value not in (True, False):
-      raise BadType(f'type {self.data_type} attendu [{self.value}]')
+      raise BadType(f'Type {self.data_type} attendu [{value}]')
     self.value = value
   def eval(self):
     if self.value is None:
-      raise VarUndefined('valeur indéfinie')
+      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __str__(self):
     if self.value is not None:

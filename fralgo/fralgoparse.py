@@ -4,10 +4,11 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
-from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
-from fralgo.lib.datatypes import map_type, Number
+from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
+from fralgo.lib.ast import If, While, For, Len, Mid
+from fralgo.lib.datatypes import map_type
 from fralgo.lib.symbols import reset_variables
-from fralgo.lib.exceptions import BadType
+from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
 from fralgo.ply.yacc import yacc
 
@@ -32,7 +33,7 @@ precedence = (
     ('left', 'EQ', 'GT', 'LT', 'GE', 'LE'),
     ('left', 'CONCAT'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'MUL', 'DIV'),
+    ('left', 'MUL', 'DIV', 'MODULO'),
     ('left', 'POWER'),
     ('right', 'UMINUS')
 )
@@ -332,6 +333,7 @@ def p_expression_binop(p):
   expression : expression PLUS expression
              | expression MINUS expression
              | expression MUL expression
+             | expression DIV expression
              | expression DIVBY expression
              | expression MODULO expression
              | expression POWER expression
@@ -348,22 +350,6 @@ def p_expression_binop(p):
 
   p[0] = BinOp(p[2], a, b)
 
-def p_expression_binop_div(p):
-  '''
-  expression : expression DIV expression
-  '''
-  a = p[1]
-  b = p[3]
-
-  # Make sure we're dealing with numbers.
-  if isinstance(a.eval(), int) and isinstance(b.eval(), int):
-    binop = BinOp('//', a, b)
-  # Return a Float if one of the value is a float.
-  elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
-    binop = BinOp(p[2], a, b)
-
-  p[0] = binop
-
 def p_expression_logical(p):
   '''
   expression : expression AND expression
@@ -372,9 +358,6 @@ def p_expression_logical(p):
   '''
   a = p[1]
   b = p[3]
-
-  # if not isinstance(a, Boolean) or not isinstance(b, Boolean):
-  #   raise BadType('type Booléen attendu')
 
   p[0] = BinOp(p[2], a, b)
 
@@ -401,6 +384,18 @@ def p_expression_array_get_item(p):
   '''
   p[0] = p[1]
 
+def p_expression_len(p):
+  '''
+  expression : LEN LPAREN expression RPAREN
+  '''
+  p[0] = Len(p[3])
+
+def p_expression_mid(p):
+  '''
+  expression : MID LPAREN expression COMMA expression COMMA expression RPAREN
+  '''
+  p[0] = Mid(p[3], p[5], p[7])
+
 def p_expression_group(p):
   '''
   expression : LPAREN expression RPAREN
@@ -419,10 +414,11 @@ def p_error(p):
       value = p.value.replace('\n', '↵')
     except:
       value = p.value
-    print(f'*** erreur de syntaxe >> {value} <<')
-    print(f'-v- ligne {p.lineno}')
-    print(f'->- position {p.lexpos+1}')
+    print(f'*** Erreur de syntaxe >> {value} <<')
+    if 'FRALGOREPL' not in os.environ:
+      print(f'-v- ligne {p.lineno}')
+      raise FatalError('*** Erreur fatale')
   else:
-    print('*** fin de fichier prématurée.')
+    print('*** Fin de fichier prématurée.')
 
 parser = yacc()

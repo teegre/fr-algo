@@ -44,6 +44,7 @@ reserved = {
   'dp':         'DIVBY',
   'ET':         'AND',
   'OU':         'OR',
+  'OUX':        'XOR',
   'NON':        'NOT',
   'Si':         'IF',
   'Alors':      'THEN',
@@ -56,6 +57,8 @@ reserved = {
   'à':          'TO',
   'Pas':        'STEP',
   'Suivant':    'NEXT',
+  'Longueur':   'LEN',
+  'Extraire':   'MID',
 }
 
 tokens = (
@@ -63,7 +66,6 @@ tokens = (
   'EQ', 'NE', 'GT', 'GE', 'LT', 'LE',
   'ARROW',
   'BOOL_TRUE', 'BOOL_FALSE', 'FLOAT', 'INTEGER', 'STRING',
-  'XOR',
   'MODULO',
   'LPAREN', 'RPAREN',
   'LBRACKET', 'RBRACKET',
@@ -84,7 +86,6 @@ t_LE = r'<='
 t_NE = r'<>'
 t_GT = r'>'
 t_LT = r'<'
-t_XOR = r'XOR'
 t_POWER = r'\^'
 t_CONCAT = r'&'
 t_LPAREN = r'\('

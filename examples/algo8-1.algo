@@ -1,0 +1,11 @@
+# Écrivez un algorithme remplissant un tableau de 6 sur 13, avec des zéros.
+Tableau t[5,12] en Entier
+Variables i,j en Entier
+Début
+  Pour i <- 0 à 5
+    Pour j <- 0 à 12
+      t[i,j] <- 0
+    j Suivant
+  i Suivant
+  Ecrire t
+Fin

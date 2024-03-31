@@ -42,8 +42,10 @@ class Node:
         result = statement.eval()
       except FralgoException as e:
         print('***', e.message)
-        print('-v-', f'ligne {self.lineno}')
-        raise FatalError('!!! erreur fatale') from e
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          raise FatalError('Erreur fatale') from e
+        return
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -177,7 +179,7 @@ class Read:
     try:
       user_input = input(f':{var_type[0]}? ')
     except KeyboardInterrupt as e:
-      raise InterruptedByUser("interrompu par l'utilisateur") from e
+      raise InterruptedByUser("Interrompu par l'utilisateur") from e
     try:
       var = get_variable(self.var)
       if isinstance(var, Boolean):
@@ -199,7 +201,7 @@ class Read:
           case 'Numérique':
             var.set_value(self.args, Float(float(user_input)))
     except ValueError as e:
-      raise BadType(f'type {var.data_type} attendu') from e
+      raise BadType(f'Type {var.data_type} attendu') from e
   def __repr__(self):
     return f'Lire {self.var}'
 

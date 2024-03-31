@@ -7,7 +7,7 @@ from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetIt
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
 from fralgo.lib.datatypes import map_type, Number
 from fralgo.lib.symbols import reset_variables
-from fralgo.lib.exceptions import BadType
+from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
 from fralgo.ply.yacc import yacc
 
@@ -401,10 +401,11 @@ def p_error(p):
       value = p.value.replace('\n', '↵')
     except:
       value = p.value
-    print(f'*** erreur de syntaxe >> {value} <<')
-    print(f'-v- ligne {p.lineno}')
-    print(f'->- position {p.lexpos+1}')
+    print(f'*** Erreur de syntaxe >> {value} <<')
+    if 'FRALGOREPL' not in os.environ:
+      print(f'-v- ligne {p.lineno}')
+      raise FatalError('*** Erreur fatale')
   else:
-    print('*** fin de fichier prématurée.')
+    print('*** Fin de fichier prématurée.')
 
 parser = yacc()

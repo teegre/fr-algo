@@ -10,6 +10,8 @@ from fralgo.fralgoparse import parser, reset
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException
 
+os.environ['FRALGOREPL'] = "1"
+
 def repl():
   loop = False
   cancel = False
@@ -43,7 +45,11 @@ def repl():
           instructions.append(instruction)
           continue
         try:
-          result = parser.parse(instruction + '\n').eval()
+          result = parser.parse(instruction + '\n')
+          if result is not None:
+            result = result.eval()
+          else:
+            continue
           if isinstance(result, bool):
             print(map_type(result))
           elif result is not None:
@@ -62,6 +68,10 @@ def repl():
       sys.exit(0)
     except KeyboardInterrupt:
       print()
+      cancel = loop
+      loop = False
+      level = 0
+      instructions = []
     except Exception as e:
       print(e)
 

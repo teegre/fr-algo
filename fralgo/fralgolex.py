@@ -44,7 +44,7 @@ reserved = {
   'dp':         'DIVBY',
   'ET':         'AND',
   'OU':         'OR',
-  'XOR':        'XOR',
+  'OUX':        'XOR',
   'NON':        'NOT',
   'Si':         'IF',
   'Alors':      'THEN',
@@ -57,8 +57,8 @@ reserved = {
   'à':          'TO',
   'Pas':        'STEP',
   'Suivant':    'NEXT',
-  'Len':        'LEN',
-  'Mid':        'MID',
+  'Longueur':   'LEN',
+  'Extraire':   'MID',
 }
 
 tokens = (

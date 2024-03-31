@@ -254,7 +254,7 @@ class BinOp:
     if self.op == '&':
       # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
-        return map_type(a + b)
+        return a + b
       raise BadType('Type Chaîne attendu')
     if self.b is None:
       return op(a)
@@ -345,6 +345,8 @@ class Mid:
     exp = self.exp.eval()
     start = self.start.eval()
     end = self.end.eval()
-    return map_type(exp[start-1:start-1+end])
+    if not isinstance(exp, str):
+      raise BadType('Type Chaîne attendu')
+    return exp[start-1:start-1+end]
   def __repr__(self):
     return f'Mid({self.exp, self.start, self.end})'

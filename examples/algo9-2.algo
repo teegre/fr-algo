@@ -1,0 +1,15 @@
+Variables mot, lettres en Chaîne
+Début
+  Ecrire "Entrez un mot : " \
+  Lire mot
+  Si mot <> "" Alors
+    Si Longueur(mot) > 1 Alors
+      lettres <- "caractères"
+    Sinon
+      lettres <- "caractère"
+    FinSi
+    Ecrire "Le mot", mot, "contient", Longueur(mot), lettres
+  Sinon
+    Ecrire "Vous ne voulez pas jouer le jeu..."
+  FinSi
+Fin

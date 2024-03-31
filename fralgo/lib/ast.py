@@ -20,12 +20,13 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
 import operator
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FatalError, ZeroDivide
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -207,8 +208,7 @@ class BinOp:
       '+'   : operator.add,
       '-'   : operator.sub,
       '*'   : operator.mul,
-      '/'   : operator.truediv,
-      '//'  : operator.floordiv,
+      '/'   : 'dummy',
       '%'   : operator.mod,
       'dp'  : 'dummy',
       '^'   : operator.pow,
@@ -236,13 +236,24 @@ class BinOp:
       a = a.eval()
     while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
       b = b.eval()
+    if self.op == '/':
+      if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
+        raise BadType('Type Entier ou Numérique attendu')
+      if isinstance(a, int) and isinstance(b, int):
+        if b == 0:
+          raise ZeroDivide('Division par zéro')
+        op = operator.floordiv
+      elif isinstance(a, float) or isinstance(b, float):
+        if b == 0:
+          raise ZeroDivide('Division par zéro')
+        op = operator.truediv
     if self.op == 'dp':
       return map_type(a % b == 0)
     if self.op == '&':
       # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
         return a + b
-      raise BadType('type Chaîne attendu')
+      raise BadType('Type Chaîne attendu')
     if self.b is None:
       return op(a)
     return op(a, b)
@@ -257,7 +268,7 @@ class Neg:
   def eval(self):
     value = self.value.eval()
     if not isinstance(value, (int, float)):
-      raise BadType('type Entier ou Numérique attendu')
+      raise BadType('Type Entier ou Numérique attendu')
     return -value
   def __repr__(self):
     return f'-{self.value}'

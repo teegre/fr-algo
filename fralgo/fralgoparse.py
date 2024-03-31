@@ -32,7 +32,7 @@ precedence = (
     ('left', 'EQ', 'GT', 'LT', 'GE', 'LE'),
     ('left', 'CONCAT'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'MUL', 'DIV'),
+    ('left', 'MUL', 'DIV', 'MODULO'),
     ('left', 'POWER'),
     ('right', 'UMINUS')
 )
@@ -332,6 +332,7 @@ def p_expression_binop(p):
   expression : expression PLUS expression
              | expression MINUS expression
              | expression MUL expression
+             | expression DIV expression
              | expression DIVBY expression
              | expression MODULO expression
              | expression POWER expression
@@ -348,22 +349,6 @@ def p_expression_binop(p):
 
   p[0] = BinOp(p[2], a, b)
 
-def p_expression_binop_div(p):
-  '''
-  expression : expression DIV expression
-  '''
-  a = p[1]
-  b = p[3]
-
-  # Make sure we're dealing with numbers.
-  if isinstance(a.eval(), int) and isinstance(b.eval(), int):
-    binop = BinOp('//', a, b)
-  # Return a Float if one of the value is a float.
-  elif isinstance(a.eval(), float) or isinstance(b.eval(), float):
-    binop = BinOp(p[2], a, b)
-
-  p[0] = binop
-
 def p_expression_logical(p):
   '''
   expression : expression AND expression
@@ -372,9 +357,6 @@ def p_expression_logical(p):
   '''
   a = p[1]
   b = p[3]
-
-  # if not isinstance(a, Boolean) or not isinstance(b, Boolean):
-  #   raise BadType('type Booléen attendu')
 
   p[0] = BinOp(p[2], a, b)
 

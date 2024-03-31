@@ -42,3 +42,5 @@ class ArrayResizeFailed(FralgoException):
   '''La taille d\'un tableau ne peut pas être inférieure à sa taille initiale.'''
 class FatalError(FralgoException):
   ''' ERREUR FATALE '''
+class ZeroDivide(FralgoException):
+  ''' Division par 0 ! '''

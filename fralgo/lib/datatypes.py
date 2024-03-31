@@ -82,6 +82,8 @@ class String(Base):
   def set_value(self, value):
     if isinstance(value, str):
       self.value = value
+    elif isinstance(value, String):
+      self.value = value.eval()
     else:
       raise BadType(f'Type {self.data_type} attendu [{value}]')
   def eval(self):

@@ -45,7 +45,7 @@ class Node:
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           raise FatalError('Erreur fatale') from e
-        return
+        return None
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -234,9 +234,9 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
+    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable)):
+    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid)):
       b = b.eval()
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
@@ -254,7 +254,7 @@ class BinOp:
     if self.op == '&':
       # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
-        return a + b
+        return map_type(a + b)
       raise BadType('Type Chaîne attendu')
     if self.b is None:
       return op(a)
@@ -335,3 +335,16 @@ class Len:
       raise BadType('Type Chaîne attendu')
   def __repr__(self):
     return f'Len({self.value})'
+
+class Mid:
+  def __init__(self, exp, start, end):
+    self.exp = exp
+    self.start = start
+    self.end = end
+  def eval(self):
+    exp = self.exp.eval()
+    start = self.start.eval()
+    end = self.end.eval()
+    return map_type(exp[start-1:start-1+end])
+  def __repr__(self):
+    return f'Mid({self.exp, self.start, self.end})'

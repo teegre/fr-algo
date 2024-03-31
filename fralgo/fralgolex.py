@@ -58,6 +58,7 @@ reserved = {
   'Pas':        'STEP',
   'Suivant':    'NEXT',
   'Len':        'LEN',
+  'Mid':        'MID',
 }
 
 tokens = (

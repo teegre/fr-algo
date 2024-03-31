@@ -324,3 +324,14 @@ class For:
       assign_value(self.var, i)
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'
+
+class Len:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    try:
+      return len(self.value.eval())
+    except TypeError:
+      raise BadType('Type Chaîne attendu')
+  def __repr__(self):
+    return f'Len({self.value})'

@@ -4,8 +4,9 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
-from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg, If, While, For
-from fralgo.lib.datatypes import map_type, Number
+from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
+from fralgo.lib.ast import If, While, For, Len
+from fralgo.lib.datatypes import map_type
 from fralgo.lib.symbols import reset_variables
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
@@ -382,6 +383,12 @@ def p_expression_array_get_item(p):
   expression : array_get_item
   '''
   p[0] = p[1]
+
+def p_expression_len(p):
+  '''
+  expression : LEN LPAREN expression RPAREN
+  '''
+  p[0] = Len(p[3])
 
 def p_expression_group(p):
   '''

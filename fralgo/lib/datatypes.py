@@ -88,6 +88,8 @@ class String(Base):
     if self.value is None:
       raise VarUndefined('Valeur indéfinie')
     return self.value
+  def __len__(self):
+    return len(self.value)
   def __repr__(self):
     if self.value is None:
       return '?'

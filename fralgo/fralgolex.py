@@ -57,6 +57,7 @@ reserved = {
   'à':          'TO',
   'Pas':        'STEP',
   'Suivant':    'NEXT',
+  'Len':        'LEN',
 }
 
 tokens = (

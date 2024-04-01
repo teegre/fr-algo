@@ -2,7 +2,9 @@ Variables mot, lettres en Chaîne
 Début
   Ecrire "Entrez un mot : " \
   Lire mot
-  Si mot <> "" Alors
+  Si mot = "un mot" Alors
+    Ecrire "C'était ce qui était demandé ! Bravo !"
+  SinonSi mot Alors
     Si Longueur(mot) > 1 Alors
       lettres <- "caractères"
     Sinon

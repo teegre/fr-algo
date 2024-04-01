@@ -39,7 +39,7 @@ def main():
       prog = f.read()
       prog = prog[:-1]
   except FileNotFoundError:
-    print('*** fichier non trouvé')
+    print('*** Fichier non trouvé')
     sys.exit(1)
   except IndexError:
     print('fralgo <chemin/fichier.algo>')

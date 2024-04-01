@@ -26,7 +26,7 @@ __variables = {}
 
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
-    raise ex.VarRedeclared(f'redéclaration de la variable {name}')
+    raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   if data_type == 'Booléen':
     __variables[name] = Boolean(None)
   elif data_type == 'Chaîne':
@@ -38,7 +38,7 @@ def declare_var(name, data_type):
 
 def declare_array(name, data_type, *max_indexes):
   if __variables.get(name, None) is not None:
-    raise ex.VarRedeclared((f'redéclaration de la variable {name}'))
+    raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
   __variables[name] = Array(data_type, *max_indexes)
 
 def assign_value(name, value):
@@ -48,7 +48,7 @@ def assign_value(name, value):
 def get_variable(name):
   var = __variables.get(name, None)
   if var is None:
-    raise ex.VarUndeclared(f'variable {name} non déclarée')
+    raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
   return var
 
 def is_variable(name):

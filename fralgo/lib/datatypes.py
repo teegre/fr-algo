@@ -117,7 +117,7 @@ class Array(Base):
       raise VarUndefined('Tableau non dimensionné')
     for i, size in enumerate(index):
       if size < 0 or size >= self.indexes[i] + 1:
-        raise IndexOutOfRange('Index hors limite')
+        raise IndexOutOfRange(f'Index hors limite : {size}')
   def eval(self):
     if self.value:
       return self.value

@@ -21,10 +21,11 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import sys
 import operator
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.symbols import declare_array, declare_var, get_variable, get_type, assign_value
+from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
 
@@ -40,11 +41,14 @@ class Node:
     for statement in self.children:
       try:
         result = statement.eval()
+      except FatalError as e:
+        print(f'*** {e.message}')
       except FralgoException as e:
         print('***', e.message)
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
-          raise FatalError('Erreur fatale') from e
+          print('*** Erreur fatale')
+          sys.exit(666)
         return None
     return result
   def __getitem__(self, start=0, end=0):
@@ -176,8 +180,9 @@ class Read:
     '''... on evaluation'''
     try:
       user_input = input()
-    except KeyboardInterrupt as e:
-      raise InterruptedByUser("Interrompu par l'utilisateur") from e
+    except (KeyboardInterrupt, EOFError):
+      print()
+      raise InterruptedByUser('Interrompu par l\'utilisateur')
     try:
       var = get_variable(self.var)
       if isinstance(var, Boolean):
@@ -198,8 +203,8 @@ class Read:
             var.set_value(self.args, Integer(int(user_input)))
           case 'Numérique':
             var.set_value(self.args, Float(float(user_input)))
-    except ValueError as e:
-      raise BadType(f'Type {var.data_type} attendu') from e
+    except ValueError:
+      raise BadType(f'Type {var.data_type} attendu')
   def __repr__(self):
     return f'Lire {self.var}'
 
@@ -232,13 +237,14 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
+    types = (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len, Trim)
+    while isinstance(a, types):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
+    while isinstance(b, types):
       b = b.eval()
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
-        raise BadType('Type Entier ou Numérique attendu')
+        raise BadType('E|N/E|N : Type Entier ou Numérique attendu')
       if isinstance(a, int) and isinstance(b, int):
         if b == 0:
           raise ZeroDivide('Division par zéro')
@@ -253,7 +259,7 @@ class BinOp:
       # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
         return a + b
-      raise BadType('Type Chaîne attendu')
+      raise BadType('C & C : Type Chaîne attendu')
     if self.b is None:
       return op(a)
     return op(a, b)
@@ -268,7 +274,7 @@ class Neg:
   def eval(self):
     value = self.value.eval()
     if not isinstance(value, (int, float)):
-      raise BadType('Type Entier ou Numérique attendu')
+      raise BadType('-E|N : Type Entier ou Numérique attendu')
     return -value
   def __repr__(self):
     return f'-{self.value}'
@@ -295,8 +301,13 @@ class While:
     self.dothis = dothis
   def eval(self):
     while self.condition.eval():
-      for statement in self.dothis:
-        statement.eval()
+      try:
+        for statement in self.dothis:
+          statement.eval()
+      except KeyboardInterrupt:
+        raise InterruptedByUser('Interrompu par l\'utilisateur')
+      except FralgoException as e:
+        raise e
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
 
@@ -316,8 +327,13 @@ class For:
     step = self.step.eval()
     assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
-      for statement in self.dothis:
-        statement.eval()
+      try:
+        for statement in self.dothis:
+          statement.eval()
+      except FralgoException as e:
+        raise e
+      except KeyboardInterrupt:
+        raise InterruptedByUser('Interrompu par l\'utilisateur')
       i += step
       assign_value(self.var, i)
   def __repr__(self):
@@ -330,21 +346,47 @@ class Len:
     try:
       return len(self.value.eval())
     except TypeError:
-      raise BadType('Type Chaîne attendu')
+      raise BadType('Longueur(>C<) : Type Chaîne attendu')
   def __repr__(self):
-    return f'Len({self.value})'
+    return f'Longueur({self.value})'
 
 class Mid:
-  def __init__(self, exp, start, end):
+  def __init__(self, exp, start, length):
     self.exp = exp
     self.start = start
-    self.end = end
+    self.length = length
   def eval(self):
     exp = self.exp.eval()
     start = self.start.eval()
-    end = self.end.eval()
+    length = self.length.eval()
     if not isinstance(exp, str):
-      raise BadType('Type Chaîne attendu')
-    return exp[start-1:start-1+end]
+      raise BadType('Extraire(>C<, E, E) : Type Chaîne attendu')
+    if not isinstance(start, int):
+      raise BadType('Extraire(C, >E<, E) : Type Entier attendu')
+    if not isinstance(length, int):
+      raise BadType('Extraire(C, E, >E<) : Type Entier attendu')
+    return exp[start-1:start-1+length]
   def __repr__(self):
-    return f'Mid({self.exp, self.start, self.end})'
+    return f'Extraire({self.exp, self.start, self.length})'
+
+class Trim:
+  def __init__(self, exp, length, right=False):
+    self.exp = exp
+    self.length = length
+    self.right = right
+    if right:
+      self.cmd = 'Gauche'
+    else:
+      self.cmd = 'Droite'
+  def eval(self):
+    exp = self.exp.eval()
+    length = self.length.eval()
+    if not isinstance(exp, str):
+      raise BadType(f'{self.cmd}(>C<, E) : Type Chaîne attendu')
+    if not isinstance(length, int):
+      raise BadType(f'{self.cmd}(C, >E<) : Type Entier attendu')
+    if not self.right:
+      return exp[:length]
+    return exp[len(exp) - length:]
+  def __repr__(self):
+    return f'{self.cmd}({self.exp}, {self.length})'

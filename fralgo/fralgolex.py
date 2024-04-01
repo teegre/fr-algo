@@ -59,6 +59,8 @@ reserved = {
   'Suivant':    'NEXT',
   'Longueur':   'LEN',
   'Extraire':   'MID',
+  'Gauche':     'LTRIM',
+  'Droite':     'RTRIM',
 }
 
 tokens = (

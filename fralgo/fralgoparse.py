@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
-from fralgo.lib.ast import If, While, For, Len, Mid
+from fralgo.lib.ast import If, While, For, Len, Mid, Trim
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.symbols import reset_variables
 from fralgo.lib.exceptions import FatalError
@@ -83,8 +83,8 @@ def p_var_declaration(p):
   '''
   if p[1].startswith('Tableau'):
     # p[2] is a list of this form:
-    # ['name1', ['name2', [index1, index2, ..., indexN]], 'name3', ..., ['nameN', [index1, index2, indexN]]]
-    # name being the variable name and index being indexes.
+    # ['name1', ['name2', [x1, x2, ..., xN]], 'name3', ..., ['nameN', [x1, x2, ..., xN]]]
+    # name being the variable name and x being indexes.
     declarations = Node(lineno=p.lineno(1))
     for params in p[2]:
       if not isinstance(params, list):
@@ -395,6 +395,13 @@ def p_expression_mid(p):
   expression : MID LPAREN expression COMMA expression COMMA expression RPAREN
   '''
   p[0] = Mid(p[3], p[5], p[7])
+
+def p_expression_trim(p):
+  '''
+  expression : LTRIM LPAREN expression COMMA expression RPAREN
+             | RTRIM LPAREN expression COMMA expression RPAREN
+  '''
+  p[0] = Trim(p[3], p[5], right=p[1] == 'Droite')
 
 def p_expression_group(p):
   '''

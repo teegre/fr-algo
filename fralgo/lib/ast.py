@@ -237,9 +237,10 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    while isinstance(a, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
+    types = (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len, Trim)
+    while isinstance(a, types):
       a = a.eval()
-    while isinstance(b, (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len)):
+    while isinstance(b, types):
       b = b.eval()
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
@@ -345,21 +346,47 @@ class Len:
     try:
       return len(self.value.eval())
     except TypeError:
-      raise BadType('Type Chaîne attendu')
+      raise BadType('Longueur(>C<) : Type Chaîne attendu')
   def __repr__(self):
-    return f'Len({self.value})'
+    return f'Longueur({self.value})'
 
 class Mid:
-  def __init__(self, exp, start, end):
+  def __init__(self, exp, start, length):
     self.exp = exp
     self.start = start
-    self.end = end
+    self.length = length
   def eval(self):
     exp = self.exp.eval()
     start = self.start.eval()
-    end = self.end.eval()
+    length = self.length.eval()
     if not isinstance(exp, str):
-      raise BadType('Type Chaîne attendu')
-    return exp[start-1:start-1+end]
+      raise BadType('Extraire(>C<, E, E) : Type Chaîne attendu')
+    if not isinstance(start, int):
+      raise BadType('Extraire(C, >E<, E) : Type Entier attendu')
+    if not isinstance(length, int):
+      raise BadType('Extraire(C, E, >E<) : Type Entier attendu')
+    return exp[start-1:start-1+length]
   def __repr__(self):
-    return f'Mid({self.exp, self.start, self.end})'
+    return f'Extraire({self.exp, self.start, self.length})'
+
+class Trim:
+  def __init__(self, exp, length, right=False):
+    self.exp = exp
+    self.length = length
+    self.right = right
+    if right:
+      self.cmd = 'Gauche'
+    else:
+      self.cmd = 'Droite'
+  def eval(self):
+    exp = self.exp.eval()
+    length = self.length.eval()
+    if not isinstance(exp, str):
+      raise BadType(f'{self.cmd}(>C<, E) : Type Chaîne attendu')
+    if not isinstance(length, int):
+      raise BadType(f'{self.cmd}(C, >E<) : Type Entier attendu')
+    if not self.right:
+      return exp[:length]
+    return exp[len(exp) - length:]
+  def __repr__(self):
+    return f'{self.cmd}({self.exp}, {self.length})'

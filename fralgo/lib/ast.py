@@ -237,7 +237,18 @@ class BinOp:
     a = self.a
     b = self.b
     op = self.__op.get(self.op, None)
-    types = (ArrayGetItem, BinOp, Boolean, Neg, Number, String, Variable, Mid, Len, Trim)
+    types = (
+        ArrayGetItem,
+        BinOp, Boolean,
+        Chr,
+        Len,
+        Neg, Number,
+        Ord,
+        Mid,
+        String,
+        Trim,
+        Variable,
+    )
     while isinstance(a, types):
       a = a.eval()
     while isinstance(b, types):
@@ -390,3 +401,27 @@ class Trim:
     return exp[len(exp) - length:]
   def __repr__(self):
     return f'{self.cmd}({self.exp}, {self.length})'
+
+class Chr:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    if not isinstance(value, int):
+      raise BadType('Car(>E<) : Type Entier attendu')
+    return chr(value)
+  def __repr__(self):
+    return f'Car({self.value})'
+
+class Ord:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    if not isinstance(value, str):
+      raise BadType('CodeCar(>C<) : Type Chaîne attendu')
+    if len(value) != 1:
+      raise BadType('CodeCar(>C<) : Chaîne de longueur 1 attendue')
+    return ord(value)
+  def __repr__(self):
+    return f'CodeCar({self.value})'

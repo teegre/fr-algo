@@ -20,7 +20,6 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.file import FileDescriptor, File
 from fralgo.lib.datatypes import Array, Boolean, Float, Integer, String
 
 __variables = {}

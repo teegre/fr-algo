@@ -65,6 +65,14 @@ reserved = {
   'Car':        'CHR',
   'CodeCar':    'ORD',
   'Aléa':       'RANDOM',
+  'Ouvrir':     'OPEN',
+  'Fermer':     'CLOSE',
+  'LireFichier': 'READFILE',
+  'sur':         'FD_ON',
+  'Lecture':     'MODE_READ',
+  'Ecriture':    'MODE_WRITE',
+  'Ajout':       'MODE_APPEND',
+  'FDF':         'EOF',
 }
 
 tokens = (

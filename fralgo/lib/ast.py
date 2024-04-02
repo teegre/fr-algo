@@ -27,7 +27,7 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
-from fralgo.lib.file import FileDescriptor
+from fralgo.lib.file import new_file_descriptor, get_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
 
@@ -399,14 +399,17 @@ class Find:
       result = str1.find(str2)
       return result + 1
     except AttributeError:
-      raise BadType(f'Trouve(>C<, C) : Type Chaîne attendu')
+      raise BadType('Trouve(>C<, C) : Type Chaîne attendu')
     except TypeError:
-      raise BadType(f'Trouve(C, >C<) : Type Chaîne attendu')
+      raise BadType('Trouve(C, >C<) : Type Chaîne attendu')
+  def __repr__(self):
+    return f'Trouve({self.str1}, {self.str2})'
 
 class OpenFile:
   def __init__(self, filename, fd, access_mode):
     self.filename = filename
-    self.fd = fd
+    self.fd_number = fd
+    self.access_mode_str = access_mode
     match access_mode:
       case 'Lecture':
         self.access_mode = 1
@@ -415,9 +418,40 @@ class OpenFile:
       case 'Ajout':
         self.access_mode = 3
   def eval(self):
-    raise NotImplementedError
+    fd = new_file_descriptor(self.fd_number.eval())
+    fd.open_file(self.filename.eval(), self.access_mode)
   def __repr__(self):
-    return f'Ouvrir "{self.name}", {self.fd} en {self.access}'
+    return f'Ouvrir "{self.filename}", {self.fd_number} en {self.access_mode_str}'
+
+class ReadFile:
+  def __init__(self, fd, var):
+    self.fd_number = fd
+    self.var = var
+  def eval(self):
+    fd = get_file_descriptor(self.fd_number.eval())
+    var = get_variable(self.var)
+    value = fd.read()
+    var.set_value(value)
+  def __repr__(self):
+    return f'LireFichier {self.fd_number}, {self.var}'
+
+class EOF:
+  def __init__(self, fd):
+    self.fd_number = fd
+  def eval(self):
+    fd = get_file_descriptor(self.fd_number.eval())
+    return map_type(fd.eof)
+  def __repr__(self):
+    return f'FDF({self.fd_number})'
+
+class CloseFile:
+  def __init__(self, fd):
+    self.fd_number = fd
+  def eval(self):
+    fd = get_file_descriptor(self.fd_number.eval())
+    fd.close_file()
+  def __repr__(self):
+    return f'Fermer {self.fd_number}'
 
 class Chr:
   def __init__(self, value):
@@ -493,6 +527,7 @@ def algo_to_python(expression):
       ArrayGetItem,
       BinOp, Boolean,
       Chr,
+      EOF,
       Find,
       Len,
       Neg, Number,

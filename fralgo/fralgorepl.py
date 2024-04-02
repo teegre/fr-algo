@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import readline
 from fralgo.version import get_version
-from fralgo.fralgoparse import parser, reset
+from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException
 

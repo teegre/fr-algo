@@ -1,21 +1,19 @@
-from exceptions import FatalError
+from fralgo.lib.exceptions import FatalError
 
-__file_descriptors = [
-    None,
-    FileDescriptor(1),
-    FileDescriptor(2),
-    FileDescriptor(3),
-    FileDescriptor(4),
-    FileDescriptor(5),
-    FileDescriptor(6),
-    FileDescriptor(7),
-    FileDescriptor(8),
-    FileDescriptor(9),
-    FileDescriptor(10),
-]
+__file_descriptors = [None,None,None,None,None,None,None,None,None,None,None]
 
 def get_file_descriptor(fd):
   return __file_descriptors[fd]
+
+def new_file_descriptor(fd):
+  try:
+    if __file_descriptors[fd] is not None:
+      raise FatalError(f'Canal {fd} déjà utilisé')
+  except IndexError:
+    raise FatalError(f'Numéro de canal invalide : {fd}')
+  new_fd = FileDescriptor(fd)
+  __file_descriptors[fd] = new_fd
+  return new_fd
 
 class FileDescriptor:
   def __init__(self, fd):
@@ -27,17 +25,23 @@ class FileDescriptor:
       raise FatalError(f'Un fichier est déjà affecté au canal {self.fd}')
     self.filename = filename
     self.__file = File()
-    self.__file.open(self.filename, fd, access_mode)
+    self.__file.open(self.filename, access_mode)
   def close_file(self):
     if self.__file is None:
       raise FatalError(f'Aucun fichier affecté au canal {self.fd}')
-    if self.__file.state == 0:
-      raise FatalError(f'Fichier non ouvert')
     self.__file.close()
-    delete(self.__file)
+    del self.__file
     self.__file = None
+  def read(self):
+    return self.__file.read()
+  def __repr__(self):
+    return f'Canal {self.fd}'
+  @property
   def eof(self):
     return self.__file.eof
+  @property
+  def state(self):
+    return self.__file.state
 
 class File:
   __mode = [None, 'r', 'w', 'a']
@@ -45,11 +49,10 @@ class File:
     self.__file = None
     self.__state = 0
     self.__access_mode = 0
-    self.__eof = False
     self.__buffer = []
-  def open(self, filename, fd, access_mode):
+  def open(self, filename, access_mode):
     try:
-      self.__file = open(filename, self.__mode[access_mode])
+      self.__file = open(filename, self.__mode[access_mode], encoding='UTF-8')
     except FileNotFoundError:
       raise FatalError(f'Fichier non trouvé : {filename}')
     self.__access_mode = access_mode
@@ -62,18 +65,18 @@ class File:
         self.__state = 0
       except AttributeError:
         raise FatalError('Le fichier n\'a pas pu être fermé.')
-    raise FatalError('Le fichier n\'est pas ouvert')
-
+    else:
+      raise FatalError('Le fichier n\'est pas ouvert')
   def read(self):
     if self.__access_mode in (2, 3):
       raise FatalError('Le fichier n\'est pas en mode Lecture')
     try:
       return self.__buffer.pop(0)
     except IndexError:
-      self.__eof = True
+      raise FatalError('La fin du fichier a été atteinte')
   @property
   def state(self):
     return self.__state
   @property
   def eof(self):
-    return self.__eof
+    return len(self.__buffer) == 0

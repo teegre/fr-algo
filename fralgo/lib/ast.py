@@ -27,6 +27,7 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
+from fralgo.lib.file import FileDescriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
 
@@ -401,6 +402,22 @@ class Find:
       raise BadType(f'Trouve(>C<, C) : Type Chaîne attendu')
     except TypeError:
       raise BadType(f'Trouve(C, >C<) : Type Chaîne attendu')
+
+class OpenFile:
+  def __init__(self, filename, fd, access_mode):
+    self.filename = filename
+    self.fd = fd
+    match access_mode:
+      case 'Lecture':
+        self.access_mode = 1
+      case 'Ecriture':
+        self.access_mode = 2
+      case 'Ajout':
+        self.access_mode = 3
+  def eval(self):
+    raise NotImplementedError
+  def __repr__(self):
+    return f'Ouvrir "{self.name}", {self.fd} en {self.access}'
 
 class Chr:
   def __init__(self, value):

@@ -8,7 +8,7 @@ Il existe deux programmes en ligne de commande : **fralgo** et **fralgorepl**.
 
 Le premier permet d'exécuter un programme **Algo** préalablement enregistré dans un fichier.
 
-Le second est un **REPL** (**R**ead-**E**val-**P**rint-**L**oop) , en français *boucle de lecture, d'évaluation et d'affichage*. C'est un __environnement interactif__ qui permet d'exécuter des expressions écrites en **Algo**.
+Le second est un **REPL** (**R**ead-**E**val-**P**rint-**L**oop) , en français : *boucle de lecture, d'évaluation et d'affichage*. C'est un __environnement interactif__ qui permet d'exécuter des expressions écrites en **Algo**.
 
 ### fralgo
 
@@ -82,21 +82,35 @@ La syntaxe est globalement similaire à celle du cours à quelques exceptions pr
 
 Elle doit être scrupuleusement appliquée sous peine d'avoir des erreurs lors de l'exécution des programmes !
 
-Les <u>mots-clefs</u> sont <u>sensibles à la casse</u> et aux <u>accents</u>, par exemple :
+Les <u>mots reservés</u> sont <u>sensibles à la casse</u> et aux <u>accents</u>, par exemple :
 
-`Debut`, `debut`, `Début` seront traîtés différemment par l'interpréteur. En effet, si `Début` est un mot-clef indiquant le commencement d'un programme **Algo**, `Debut` et `debut` sont considérés comme des <u>variables</u>.
+`Debut`, `debut`, `Début` seront traîtés différemment par l'interpréteur. En effet, si `Début` est un mot reservé indiquant le commencement d'un programme **Algo**, `Debut` et `debut` sont considérés comme des <u>variables</u>.
 
-Il est à noter que **chaque instruction d'un programme Algo**, s'il se trouve dans un fichier, **doit être suivie d'un et un seul retour à la ligne** et les éventuels sauts de ligne après le mot-clef `Fin` provoquent une erreur de syntaxe.
+Il est à noter que **chaque instruction d'un programme Algo**, s'il se trouve dans un fichier, **doit être suivie d'un et un seul retour à la ligne** et les éventuels sauts de ligne après le mot réservé `Fin` provoquent une erreur de syntaxe.
+
+Il est possible d'ajouter des commentaires comme suit :
+
+```
+# Ceci est commentaire.
+Variable c en Chaîne
+# Ceci est un autre commentaire.
+Début
+  # Encore un commentaire.
+  Ecrire "Bonjour le monde !"
+Fin
+```
+
+Les commentaires en fin de ligne ne sont pas acceptés.
 
 ## Types de données
 
 **Algo** comprend en tout 4 **types de données** :
 
-`Entier` : un nombre entier `0`, `72`, `-29`, `133`.
+`Entier` : un nombre entier `0`, `72`, `-5`, `33`.
 
 `Numérique` : un nombre à virgule flottante `0.1`, `-32.45`, `9.99`
 
-`Chaîne` : une chaîne de caractères `"Chaîne de vélo"`, `"Chaîne hi-fi"`
+`Chaîne` : une chaîne de caractères `"Marchandise"`, `"Spectacle"`
 
 `Booléen`: `VRAI` ou `FAUX`.
 
@@ -104,20 +118,84 @@ Il est à noter que **chaque instruction d'un programme Algo**, s'il se trouve d
 
 ### Déclaration
 
-Toute variable doit être au préalable déclarée avant de pouvoir être utilisée. Il existe deux manières de déclarer des variables :
+Toute variable doit être préalablement déclarée avant de pouvoir être utilisée. Il existe deux manières de déclarer des variables :
 
 `Variable a en Entier` : déclare une variable `a` de type `Entier`.
 
 `Variables c1, c2, c3 en Chaîne` : déclare 3 variables `c1`, `c2` et `c3` de type `Chaîne`.
 
-### Assigner une valeur à une variable
+### Affecter une valeur à une variable
 
-Pour assigner une valeur à une variable, on utilise l'opérateur `←` ou `<-`, par exemple :
+Pour affecter une valeur à une variable, on utilise l'opérateur `←` ou `<-` indifféremment. Par exemple :
 
 `a <- 12`
 
 `c1 <- "Algo"`
 
-Il est bien évidemment possible d'assigner le résultat d'une expression à une variable :
+Il est bien évidemment possible d'affecter le résultat d'une expression à une variable :
 
 `a ← b + 10`
+
+## Lecture / Ecriture
+
+### Ecrire
+
+Pour afficher à l'écran des expressions, des variables ou simplement du texte, on utilise l'instruction `Ecrire`.
+
+Exemple :
+
+```
+Ecrire "Bonjour le monde !"
+```
+
+Pour afficher plusieurs éléments à la fois, on les sépare par des virgules :
+
+```
+Variables nom, prenom en Chaîne
+Début
+  nom <- "Croisille"
+  prenom <- "Nicole"
+  Ecrire "Bonjour,", prenom, nom, "!"
+Fin
+```
+
+Un espace est automatiquement ajouté entre les éléments affichés.
+
+De plus l'instruction `Ecrire` ajoute un saut de ligne à la fin de la chaîne affichée.
+
+```
+Bonjour, Nicole Croisille
+_
+```
+
+Dans certaines situations il sera nécessaire de ne pas afficher le saut de ligne.
+
+Pour ce faire, il suffira d'ajouter le caractère `\` à la fin de l'instruction `Ecrire` :
+
+```
+Ecrire "Bonjour,", prenom, nom, ", " \
+Ecrire "ravi de vous rencontrer."
+```
+
+Ce qui aura pour résultat :
+
+```
+Bonjour, Nicole Croisille, ravi de vous rencontrer.
+_
+```
+
+### Lire
+
+L'instruction `Lire` permet d'affecter à une variable des données saisies par un utilisateur.
+
+```
+Lire n
+```
+
+Les données saisies étant systématiquement de type `Chaîne`, **Fralgo** essaiera automatiquement de convertir ce qui a été saisi dans le type attendu par la variable.
+
+```
+Variable n en Entier
+...
+Lire n
+```

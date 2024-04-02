@@ -1,0 +1,14 @@
+Variables Bla, Voy en Chaîne
+Variables Nb, i, j en Entier
+Début
+  Ecrire "Entrez une phrase : " \
+  Lire Bla
+  Nb ← 0
+  Voy ← "aeiouy"
+  Pour i ← 1 à Longueur(Bla)
+    Si Trouve(Voy, Extraire(Bla, i, 1)) <> 0 Alors
+      Nb ← Nb + 1
+    FinSi
+  i Suivant
+  Ecrire "Cette phrase compte", Nb, "voyelles"
+Fin

@@ -1,0 +1,13 @@
+Variable Bla en Chaîne
+Variables Nb, i en Entier
+Début
+  Ecrire "Entrez une phrase : " \
+  Lire Bla
+  Nb ← 0
+  Pour i ← 1 à Longueur(Bla)
+    Si Extraire(Bla, i , 1) = " " Alors
+      Nb ← Nb + 1
+    FinSi
+  i Suivant
+  Ecrire "Cette phrase compte", Nb + 1, "mots"
+Fin

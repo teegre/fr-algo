@@ -1,0 +1,14 @@
+# Demande à l'utilisateur un nombre Entier
+# qui sera la longueur d'une chaîne générée aléatoirement.
+Variable n en Entier
+Variable mot en Chaîne
+Début
+  Ecrire "Entrer la longueur de la chaîne : " \
+  Lire n
+  mot <- ""
+  TantQue n > 0
+    mot <- mot & Car(Entier(Aléa()*25+65))
+    n <- n - 1
+  FinTantQue
+  Ecrire mot, ", longueur", Longueur(mot)
+Fin

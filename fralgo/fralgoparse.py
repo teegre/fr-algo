@@ -5,7 +5,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
-from fralgo.lib.ast import If, While, For, Len, Mid, Trim
+from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.symbols import reset_variables
 from fralgo.lib.exceptions import FatalError
@@ -402,6 +403,43 @@ def p_expression_trim(p):
              | RTRIM LPAREN expression COMMA expression RPAREN
   '''
   p[0] = Trim(p[3], p[5], right=p[1] == 'Droite')
+
+def p_expression_find(p):
+  '''
+  expression : FIND LPAREN expression COMMA expression RPAREN
+  '''
+  p[0] = Find(p[3], p[5])
+
+def p_expression_chr_ord(p):
+  '''
+  expression : CHR LPAREN expression RPAREN
+             | ORD LPAREN expression RPAREN
+  '''
+  if p[1] == 'Car':
+    p[0] = Chr(p[3])
+  else:
+    p[0] = Ord(p[3])
+
+def p_expression_type_conv(p):
+  '''
+  expression : TYPE_INTEGER LPAREN expression RPAREN
+             | TYPE_FLOAT LPAREN expression RPAREN
+             | TYPE_STRING LPAREN expression RPAREN
+  '''
+  match p[1]:
+    case 'Entier':
+      p[0] = ToInteger(p[3])
+    case 'Numérique':
+      p[0] = ToFloat(p[3])
+    case 'Chaîne':
+      p[0] = ToString(p[3])
+
+
+def p_expression_random(p):
+  '''
+  expression : RANDOM LPAREN RPAREN
+  '''
+  p[0] = Random()
 
 def p_expression_group(p):
   '''

@@ -227,7 +227,7 @@ class BinOp:
       '<>'  : operator.ne,
       'ET'  : operator.and_,
       'OU'  : operator.or_,
-      'XOR' : operator.xor,
+      'OUX' : operator.xor,
       'NON' : operator.not_,
   }
   def __init__(self, op, a, b):

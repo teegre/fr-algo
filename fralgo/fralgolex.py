@@ -61,8 +61,10 @@ reserved = {
   'Extraire':   'MID',
   'Gauche':     'LTRIM',
   'Droite':     'RTRIM',
+  'Trouve':     'FIND',
   'Car':        'CHR',
   'CodeCar':    'ORD',
+  'Aléa':       'RANDOM',
 }
 
 tokens = (

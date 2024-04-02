@@ -23,6 +23,7 @@
 import os
 import sys
 import operator
+from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
@@ -234,25 +235,9 @@ class BinOp:
     self.b = b
     self.op = op
   def eval(self):
-    a = self.a
-    b = self.b
+    a = algo_to_python(self.a)
+    b = algo_to_python(self.b)
     op = self.__op.get(self.op, None)
-    types = (
-        ArrayGetItem,
-        BinOp, Boolean,
-        Chr,
-        Len,
-        Neg, Number,
-        Ord,
-        Mid,
-        String,
-        Trim,
-        Variable,
-    )
-    while isinstance(a, types):
-      a = a.eval()
-    while isinstance(b, types):
-      b = b.eval()
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
         raise BadType('E|N/E|N : Type Entier ou Numérique attendu')
@@ -367,9 +352,9 @@ class Mid:
     self.start = start
     self.length = length
   def eval(self):
-    exp = self.exp.eval()
-    start = self.start.eval()
-    length = self.length.eval()
+    exp = algo_to_python(self.exp)
+    start = algo_to_python(self.start)
+    length = algo_to_python(self.length)
     if not isinstance(exp, str):
       raise BadType('Extraire(>C<, E, E) : Type Chaîne attendu')
     if not isinstance(start, int):
@@ -390,8 +375,8 @@ class Trim:
     else:
       self.cmd = 'Droite'
   def eval(self):
-    exp = self.exp.eval()
-    length = self.length.eval()
+    exp = algo_to_python(self.exp)
+    length = algo_to_python(self.length)
     if not isinstance(exp, str):
       raise BadType(f'{self.cmd}(>C<, E) : Type Chaîne attendu')
     if not isinstance(length, int):
@@ -401,6 +386,21 @@ class Trim:
     return exp[len(exp) - length:]
   def __repr__(self):
     return f'{self.cmd}({self.exp}, {self.length})'
+
+class Find:
+  def __init__(self, str1, str2):
+    self.str1 = str1
+    self.str2 = str2
+  def eval(self):
+    try:
+      str1 = algo_to_python(self.str1)
+      str2 = algo_to_python(self.str2)
+      result = str1.find(str2)
+      return result + 1
+    except AttributeError:
+      raise BadType(f'Trouve(>C<, C) : Type Chaîne attendu')
+    except TypeError:
+      raise BadType(f'Trouve(C, >C<) : Type Chaîne attendu')
 
 class Chr:
   def __init__(self, value):
@@ -425,3 +425,68 @@ class Ord:
     return ord(value)
   def __repr__(self):
     return f'CodeCar({self.value})'
+
+class ToInteger:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    try:
+      return int(value)
+    except ValueError:
+      raise BadType(f'Entier(>N|C<) : Conversion de >{value}< impossible')
+  def __repr__(self):
+    return f'Entier({self.value})'
+
+class ToFloat:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = self.value.eval()
+    try:
+      return float(value)
+    except ValueError:
+      raise BadType(f'Entier(>E|C<) : Conversion de >{value}< impossible')
+  def __repr__(self):
+    return f'Numérique({self.value})'
+
+class ToString:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = algo_to_python(self.value)
+    try:
+      return str(value)
+    except ValueError:
+      raise BadType(f'Chaîne(>E|N<) : Conversion de >{value}< impossible')
+  def __repr__(self):
+    return f'Chaîne({self.value})'
+
+class Random:
+  def eval(self):
+    return random()
+  def __repr__(self):
+    return 'Aléa()'
+
+def algo_to_python(expression):
+  '''
+  Evaluate an Algo expression to a Python type
+  '''
+  types = (
+      ArrayGetItem,
+      BinOp, Boolean,
+      Chr,
+      Find,
+      Len,
+      Neg, Number,
+      Ord,
+      Mid,
+      Random,
+      String,
+      ToFloat, ToInteger, ToString, Trim,
+      Variable,
+  )
+  exp = expression
+  while isinstance(exp, types):
+    exp = exp.eval()
+  return exp

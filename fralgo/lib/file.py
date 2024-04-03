@@ -12,14 +12,22 @@ def get_file_descriptor(fd_number):
 def new_file_descriptor(fd_number):
   fd = __file_descriptors[fd_number]
   if fd is not None:
-    # if 
-    raise FatalError(f'Canal {fd} déjà utilisé')
-  new_fd = FileDescriptor(fd)
-  __file_descriptors[fd] = new_fd
+    if fd.state != -1:
+      raise FatalError(f'Canal {fd} déjà utilisé')
+  new_fd = FileDescriptor(fd_number)
+  __file_descriptors[fd_number] = new_fd
   return new_fd
 
-# def clear_file_descriptor(fd):
-
+def clear_file_descriptor(fd_number):
+  fd = __file_descriptors[fd_number]
+  if fd is not None:
+    if fd.state == -1:
+      del __file_descriptors[fd_number]
+      __file_descriptors[fd_number] = None
+    else:
+      raise FatalError(f'Fichier ouvert sur le canal {fd_number}')
+  else:
+    raise FatalError(f'Canal {fd_number} non utilisé')
 
 class FileDescriptor:
   def __init__(self, fd):
@@ -36,7 +44,6 @@ class FileDescriptor:
     except FatalError as e:
       del self.__file
       self.__file = None
-      __file_descriptors[self.fd] = None
       raise e
   def close_file(self):
     if self.__file is None:

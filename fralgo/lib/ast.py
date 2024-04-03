@@ -27,7 +27,7 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
-from fralgo.lib.file import new_file_descriptor, get_file_descriptor
+from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
 
@@ -458,6 +458,7 @@ class CloseFile:
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     fd.close_file()
+    clear_file_descriptor(self.fd_number.eval())
   def __repr__(self):
     return f'Fermer {self.fd_number}'
 

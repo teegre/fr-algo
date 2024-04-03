@@ -2,18 +2,24 @@ from fralgo.lib.exceptions import FatalError
 
 __file_descriptors = [None,None,None,None,None,None,None,None,None,None,None]
 
-def get_file_descriptor(fd):
-  return __file_descriptors[fd]
-
-def new_file_descriptor(fd):
+def get_file_descriptor(fd_number):
   try:
-    if __file_descriptors[fd] is not None:
-      raise FatalError(f'Canal {fd} déjà utilisé')
+    fd = __file_descriptors[fd_number]
   except IndexError:
-    raise FatalError(f'Numéro de canal invalide : {fd}')
+    raise FatalError(f'Numéro de canal invalide : {fd_number}')
+  return fd
+
+def new_file_descriptor(fd_number):
+  fd = __file_descriptors[fd_number]
+  if fd is not None:
+    # if 
+    raise FatalError(f'Canal {fd} déjà utilisé')
   new_fd = FileDescriptor(fd)
   __file_descriptors[fd] = new_fd
   return new_fd
+
+# def clear_file_descriptor(fd):
+
 
 class FileDescriptor:
   def __init__(self, fd):
@@ -25,7 +31,13 @@ class FileDescriptor:
       raise FatalError(f'Un fichier est déjà affecté au canal {self.fd}')
     self.filename = filename
     self.__file = File()
-    self.__file.open(self.filename, access_mode)
+    try:
+      self.__file.open(self.filename, access_mode)
+    except FatalError as e:
+      del self.__file
+      self.__file = None
+      __file_descriptors[self.fd] = None
+      raise e
   def close_file(self):
     if self.__file is None:
       raise FatalError(f'Aucun fichier affecté au canal {self.fd}')
@@ -41,7 +53,9 @@ class FileDescriptor:
     return self.__file.eof
   @property
   def state(self):
-    return self.__file.state
+    if self.__file is not None:
+      return self.__file.state
+    return -1
 
 class File:
   __mode = [None, 'r', 'w', 'a']

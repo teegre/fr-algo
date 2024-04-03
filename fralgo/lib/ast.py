@@ -419,6 +419,8 @@ class OpenFile:
         self.access_mode = 3
   def eval(self):
     fd = new_file_descriptor(self.fd_number.eval())
+    if fd is None:
+      raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     fd.open_file(self.filename.eval(), self.access_mode)
   def __repr__(self):
     return f'Ouvrir "{self.filename}", {self.fd_number} en {self.access_mode_str}'
@@ -429,6 +431,8 @@ class ReadFile:
     self.var = var
   def eval(self):
     fd = get_file_descriptor(self.fd_number.eval())
+    if fd is None:
+      raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     var = get_variable(self.var)
     value = fd.read()
     var.set_value(value)
@@ -440,6 +444,8 @@ class EOF:
     self.fd_number = fd
   def eval(self):
     fd = get_file_descriptor(self.fd_number.eval())
+    if fd is None:
+      raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     return map_type(fd.eof)
   def __repr__(self):
     return f'FDF({self.fd_number})'
@@ -449,6 +455,8 @@ class CloseFile:
     self.fd_number = fd
   def eval(self):
     fd = get_file_descriptor(self.fd_number.eval())
+    if fd is None:
+      raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     fd.close_file()
   def __repr__(self):
     return f'Fermer {self.fd_number}'

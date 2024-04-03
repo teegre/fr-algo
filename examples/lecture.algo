@@ -1,0 +1,24 @@
+# Ajouter dans un tableau multi-dimensionnel les noms et prénoms
+# contenus dans le fichier fichier_lecture.txt, puis les afficher
+Variables fichier, ligne en Chaîne
+Variables indice_max, i, j en Entier
+Tableau info[] en Chaîne
+Début
+  fichier <- "../examples/fichier_lecture.txt"
+  indice_max <- 0
+  Ouvrir fichier sur 1 en Lecture
+  TantQue NON(FDF(1))
+    LireFichier 1, ligne
+    Redim info[indice_max,1]
+    info[indice_max,0] <- Extraire(ligne, 1, 19)
+    info[indice_max,1] <- Extraire(ligne, 20, 15)
+    indice_max <- indice_max + 1
+  FinTantQue
+  Fermer 1
+  Pour i <- 0 à indice_max - 1
+    Pour j <- 0 à 1
+      Ecrire info[i,j] \
+    j Suivant
+    Ecrire ""
+  i Suivant
+Fin

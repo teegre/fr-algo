@@ -20,7 +20,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Array, Boolean, Float, Integer, String
+from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
 
 __variables = {}
 
@@ -29,6 +29,8 @@ def declare_var(name, data_type):
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   if data_type == 'Booléen':
     __variables[name] = Boolean(None)
+  elif data_type == 'Caractère':
+    __variables[name] = Char(None)
   elif data_type == 'Chaîne':
     __variables[name] = String(None)
   elif data_type == 'Numérique':
@@ -40,6 +42,11 @@ def declare_array(name, data_type, *max_indexes):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
   __variables[name] = Array(data_type, *max_indexes)
+
+def declare_sized_char(name, size):
+  if __variables.get(name, None) is not None:
+    raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
+  __variables[name] = Char(None, size)
 
 def assign_value(name, value):
   var = get_variable(name)

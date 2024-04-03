@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import readline
 from fralgo.version import get_version
-from fralgo.fralgoparse import parser, reset
+from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException
 
@@ -23,10 +23,10 @@ def repl():
       if loop:
         prompt = '... '
       elif cancel:
-        prompt = 'xx> '
+        prompt = ':x: '
         cancel = False
       else:
-        prompt = '::> '
+        prompt = '::: '
       instruction = input(prompt)
       if instruction:
         inst = instruction.split()
@@ -64,7 +64,7 @@ def repl():
         continue
     except EOFError:
       print()
-      print('*** ')
+      print('*** A+')
       sys.exit(0)
     except KeyboardInterrupt:
       print()

@@ -3,30 +3,16 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
+from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareSizedChar
+from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random
+from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.symbols import reset_variables
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
 from fralgo.ply.yacc import yacc
-
-
-# --> FOR DEBUGGING ONLY.
-
-def parse_prog(name):
-  with open(name, 'r') as f:
-    prog = f.read()
-    prog = prog[:-1]
-  return parser.parse(prog)
-
-def reset():
-  parser.restart()
-  reset_variables()
-
-# <--
 
 tokens = lex.tokens
 
@@ -104,6 +90,36 @@ def p_var_declaration(p):
     else:
       p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
+def p_sized_char_var_declaration(p):
+  '''
+  var_declaration : VAR_DECL sized_char TYPE_DECL TYPE_CHAR NEWLINE
+                  | VARS_DECL sized_char_list TYPE_DECL TYPE_CHAR NEWLINE
+  '''
+  if isinstance(p[2], list):
+    declarations = Node(lineno=p.lineno(1))
+    for name, size in p[2]:
+      declarations.append(DeclareSizedChar(name, size))
+    p[0] = declarations
+  else:
+    print('-')
+    p[0] = Node(DeclareSizedChar(p[2][0], p[2][1]), p.lineno(1))
+
+def p_sized_char_list(p):
+  '''
+  sized_char_list : sized_char_list COMMA sized_char
+                  | sized_char
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[3]
+
+def p_sized_char(p):
+  '''
+  sized_char : ID MUL INTEGER
+  '''
+  p[0] = [(p[1], p[3])]
+
 def p_array_list(p):
   '''
   array_list : array_list COMMA array
@@ -167,12 +183,20 @@ def p_var(p):
 def p_type(p):
   '''
   type : TYPE_BOOLEAN
+       | TYPE_CHAR
        | TYPE_FLOAT
        | TYPE_INTEGER
        | TYPE_STRING
   '''
-  if len(p) == 2:
-    p[0] = p[1]
+  p[0] = p[1]
+
+def p_mode(p):
+  '''
+  mode : MODE_READ
+       | MODE_WRITE
+       | MODE_APPEND
+  '''
+  p[0] = p[1]
 
 def p_array_access(p):
   '''
@@ -233,13 +257,40 @@ def p_statement(p):
     newline = len(p) < 5
     p[0] = Node(Print(p[2], newline), p.lineno(1))
   elif p[1] == 'Lire':
-    if isinstance(p[2], list):
-      # Array!
+    if isinstance(p[2], list): # Array!
       p[0] = Node(Read(p[2][0].name, *p[2][1]), p.lineno(1))
     else:
       p[0] = Node(Read(p[2]), p.lineno(1))
   else:
     p[0] = Node(p[1], p.lineno(1))
+
+def p_statement_open(p):
+  '''
+  statement : OPEN expression FD_ON expression TYPE_DECL mode NEWLINE
+  '''
+  p[0] = Node(OpenFile(p[2], p[4], p[6]), p.lineno(1))
+
+def p_statement_close(p):
+  '''
+  statement : CLOSE expression NEWLINE
+  '''
+  p[0] = Node(CloseFile(p[2]), p.lineno(1))
+
+def p_statement_readfile(p):
+  '''
+  statement : READFILE expression COMMA ID NEWLINE
+            | READFILE expression COMMA array_access NEWLINE
+  '''
+  if isinstance(p[4], list): # Array!
+    p[0] = Node(ReadFile(p[4][0].name, *p[4][1]), p.lineno(1))
+  else:
+    p[0] = Node(ReadFile(p[2], p[4]), p.lineno(1))
+
+def p_statement_writefile(p):
+  '''
+  statement : WRITEFILE expression COMMA expression NEWLINE
+  '''
+  p[0] = Node(WriteFile(p[2], p[4]), p.lineno(1))
 
 def p_var_assignment(p):
   '''
@@ -440,6 +491,12 @@ def p_expression_random(p):
   expression : RANDOM LPAREN RPAREN
   '''
   p[0] = Random()
+
+def p_expression_eof(p):
+  '''
+  expression : EOF LPAREN expression RPAREN
+  '''
+  p[0] = EOF(p[3])
 
 def p_expression_group(p):
   '''

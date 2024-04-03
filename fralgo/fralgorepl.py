@@ -23,10 +23,10 @@ def repl():
       if loop:
         prompt = '... '
       elif cancel:
-        prompt = 'xx> '
+        prompt = ':x: '
         cancel = False
       else:
-        prompt = '::> '
+        prompt = '::: '
       instruction = input(prompt)
       if instruction:
         inst = instruction.split()
@@ -64,7 +64,7 @@ def repl():
         continue
     except EOFError:
       print()
-      print('*** ')
+      print('*** A+')
       sys.exit(0)
     except KeyboardInterrupt:
       print()

@@ -3,7 +3,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from fralgo.lib.ast import Node, Declare, DeclareArray, ArrayGetItem, ArraySetItem, ArrayResize
+from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareSizedChar
+from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random
@@ -89,6 +90,36 @@ def p_var_declaration(p):
     else:
       p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
+def p_sized_char_var_declaration(p):
+  '''
+  var_declaration : VAR_DECL sized_char TYPE_DECL TYPE_CHAR NEWLINE
+                  | VARS_DECL sized_char_list TYPE_DECL TYPE_CHAR NEWLINE
+  '''
+  if isinstance(p[2], list):
+    declarations = Node(lineno=p.lineno(1))
+    for name, size in p[2]:
+      declarations.append(DeclareSizedChar(name, size))
+    p[0] = declarations
+  else:
+    print('-')
+    p[0] = Node(DeclareSizedChar(p[2][0], p[2][1]), p.lineno(1))
+
+def p_sized_char_list(p):
+  '''
+  sized_char_list : sized_char_list COMMA sized_char
+                  | sized_char
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = p[1] + p[3]
+
+def p_sized_char(p):
+  '''
+  sized_char : ID MUL INTEGER
+  '''
+  p[0] = [(p[1], p[3])]
+
 def p_array_list(p):
   '''
   array_list : array_list COMMA array
@@ -152,6 +183,7 @@ def p_var(p):
 def p_type(p):
   '''
   type : TYPE_BOOLEAN
+       | TYPE_CHAR
        | TYPE_FLOAT
        | TYPE_INTEGER
        | TYPE_STRING

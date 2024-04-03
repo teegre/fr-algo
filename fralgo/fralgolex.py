@@ -34,6 +34,7 @@ reserved = {
   'Redim':      'RESIZE',
   'en':         'TYPE_DECL',
   'Booléen':    'TYPE_BOOLEAN',
+  'Caractère':  'TYPE_CHAR',
   'Chaîne':     'TYPE_STRING',
   'Entier':     'TYPE_INTEGER',
   'Numérique':  'TYPE_FLOAT',
@@ -141,7 +142,7 @@ def t_MINUS(t):
   return t
 
 def t_ID(t):
-  r'[A-Za-zàéî\_][A-Za-zàéî0-9\_]*'
+  r'[A-Za-zàéèî\_][A-Za-zàéèî0-9\_]*'
   t.type = reserved.get(t.value, 'ID')
   return t
 

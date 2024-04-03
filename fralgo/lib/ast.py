@@ -26,7 +26,7 @@ import operator
 from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.symbols import declare_array, declare_var, get_variable, assign_value
+from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
@@ -87,6 +87,15 @@ class DeclareArray:
     if idx == '-1':
       idx = ''
     return f'Tableau {self.name}[{idx}] en {self.var_type}'
+
+class DeclareSizedChar:
+  def __init__(self, name, size):
+    self.name = name
+    self.size = size
+  def eval(self):
+    declare_sized_char(self.name, self.size)
+  def __repr__(self):
+    return f'Variable {self.name}*{self.size}'
 
 class ArrayGetItem:
   def __init__(self, var, *indexes):
@@ -423,7 +432,7 @@ class OpenFile:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     fd.open_file(self.filename.eval(), self.access_mode)
   def __repr__(self):
-    return f'Ouvrir "{self.filename}", {self.fd_number} en {self.access_mode_str}'
+    return f'Ouvrir {self.filename} sur {self.fd_number} en {self.access_mode_str}'
 
 class ReadFile:
   def __init__(self, fd, var):

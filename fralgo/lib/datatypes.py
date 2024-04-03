@@ -97,6 +97,32 @@ class String(Base):
       return '?'
     return f'"{self.value}"'
 
+class Char(String):
+  _type = 'Caractère'
+  def __init__(self, value, size=Integer(1)):
+    self.value = value
+    self.size = map_type(size)
+  def set_value(self, value):
+    size = self.size.eval()
+    val = value
+    if isinstance(value, (Char, String)):
+      val = value.eval()
+    try:
+      if len(val) < size:
+        self.value = val.ljust(size, ' ')
+      else:
+        self.value = val[:size]
+    except TypeError:
+      raise BadType('Type Caractère attendu')
+  def eval(self):
+    if self.value is None:
+      raise VarUndefined('Valeur indéfinie')
+    return self.value
+  def __repr__(self):
+    if self.value is None:
+      return '?'
+    return f'"{self.value}"'
+
 class Array(Base):
   _type = 'Tableau'
   def __init__(self, datatype, *indexes):

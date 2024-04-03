@@ -8,7 +8,7 @@ from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random
-from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, EOF
+from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
@@ -285,6 +285,12 @@ def p_statement_readfile(p):
     p[0] = Node(ReadFile(p[4][0].name, *p[4][1]), p.lineno(1))
   else:
     p[0] = Node(ReadFile(p[2], p[4]), p.lineno(1))
+
+def p_statement_writefile(p):
+  '''
+  statement : WRITEFILE expression COMMA expression NEWLINE
+  '''
+  p[0] = Node(WriteFile(p[2], p[4]), p.lineno(1))
 
 def p_var_assignment(p):
   '''

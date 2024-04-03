@@ -69,6 +69,7 @@ reserved = {
   'Ouvrir':     'OPEN',
   'Fermer':     'CLOSE',
   'LireFichier': 'READFILE',
+  'EcrireFichier': 'WRITEFILE',
   'sur':         'FD_ON',
   'Lecture':     'MODE_READ',
   'Ecriture':    'MODE_WRITE',

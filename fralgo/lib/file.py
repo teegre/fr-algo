@@ -53,6 +53,8 @@ class FileDescriptor:
     self.__file = None
   def read(self):
     return self.__file.read()
+  def write(self, buffer):
+    return self.__file.write(buffer)
   def __repr__(self):
     return f'Canal {self.fd}'
   @property
@@ -78,7 +80,8 @@ class File:
       raise FatalError(f'Fichier non trouvé : {filename}')
     self.__access_mode = access_mode
     self.__state = 1
-    self.__buffer = self.__file.readlines()
+    if access_mode == 1:
+      self.__buffer = self.__file.readlines()
   def close(self):
     if self.__state == 1:
       try:
@@ -95,6 +98,10 @@ class File:
       return self.__buffer.pop(0)
     except IndexError:
       raise FatalError('La fin du fichier a été atteinte')
+  def write(self, buffer):
+    if self.__access_mode == 1:
+      raise FatalError('Impossible d\'écrire dans un fichier en mode Lecture')
+    return self.__file.write(buffer)
   @property
   def state(self):
     return self.__state

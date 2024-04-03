@@ -448,6 +448,18 @@ class ReadFile:
   def __repr__(self):
     return f'LireFichier {self.fd_number}, {self.var}'
 
+class WriteFile:
+  def __init__(self, fd, var):
+    self.fd_number = fd
+    self.var = var
+  def eval(self):
+    fd = get_file_descriptor(self.fd_number.eval())
+    if fd is None:
+      raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
+    return fd.write(str(self.var.eval()))
+  def __repr__(self):
+    return f'EcrireFichier {self.fd_number}, {self.var}'
+
 class EOF:
   def __init__(self, fd):
     self.fd_number = fd

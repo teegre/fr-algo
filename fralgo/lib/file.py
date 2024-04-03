@@ -78,7 +78,7 @@ class File:
       raise FatalError(f'Fichier non trouvé : {filename}')
     self.__access_mode = access_mode
     self.__state = 1
-    self.__buffer = self.__file.read().splitlines()
+    self.__buffer = self.__file.readlines()
   def close(self):
     if self.__state == 1:
       try:

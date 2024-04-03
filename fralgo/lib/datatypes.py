@@ -20,7 +20,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange, ArrayResizeFailed
+from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange
+from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
 
 class Base():
   _type = 'Base'
@@ -102,6 +103,9 @@ class Char(String):
   def __init__(self, value, size=Integer(1)):
     self.value = value
     self.size = map_type(size)
+    sz = self.size.eval()
+    if sz > 255 or sz < 1:
+      raise InvalidCharacterSize(f'Taille invalide : {sz}')
   def set_value(self, value):
     size = self.size.eval()
     val = value

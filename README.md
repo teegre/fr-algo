@@ -1,6 +1,6 @@
 # FRALGO
 
-**FRALGO** (prononcé *efferalgo*) est un interpréteur et REPL pour le pseudo-langage de programmation **Algo**.
+**FRALGO** (prononcé *F-R-ALGO*) est un interpréteur et REPL pour le pseudo-langage de programmation **Algo**.
 
 ## Utilisation
 
@@ -48,12 +48,12 @@ $ fralgorepl
 |    ___|   __ \   _   |     |_|     __|       |
 |    ___|      <       |       |    |  |   -   |
 |___|   |___|__|___|___|_______|_______|_______|
-A L G O R I T H M E S                    0.1.0mg
+A L G O R I T H M E S                   0.10.4mg
 
 [ ctrl+d pour quitter ]
 En attente de vos instructions.
 
-::>
+:::
 ```
 
 Chaque expression sera evaluée après l'appui sur la touche <kbd>Entrée</kbd>
@@ -66,14 +66,14 @@ $ fralgorepl
 |    ___|   __ \   _   |     |_|     __|       |
 |    ___|      <       |       |    |  |   -   |
 |___|   |___|__|___|___|_______|_______|_______|
-A L G O R I T H M E S                    0.1.0mg
+A L G O R I T H M E S                   0.10.4mg
 
 [ ctrl+d pour quitter ]
 En attente de vos instructions.
 
-::> Ecrire "Bonjour le monde !"
+::: Ecrire "Bonjour le monde !"
 Bonjour le monde !
-::>
+:::
 ```
 
 ## Syntaxe
@@ -112,6 +112,9 @@ Les commentaires en fin de ligne ne sont pas acceptés.
 
 `Chaîne` : une chaîne de caractères `"Marchandise"`, `"Spectacle"`
 
+`Caractère` : un caractère `"A"`, `"z"`  
+Il est également possible d'en spécifier la longueur (voir plus bas).
+
 `Booléen`: `VRAI` ou `FAUX`.
 
 ## Variables
@@ -123,6 +126,18 @@ Toute variable doit être préalablement déclarée avant de pouvoir être utili
 `Variable a en Entier` : déclare une variable `a` de type `Entier`.
 
 `Variables c1, c2, c3 en Chaîne` : déclare 3 variables `c1`, `c2` et `c3` de type `Chaîne`.
+
+### Déclaration d'une variable de type Caractère
+
+Comme indiqué plus haut, les variables de type `Caractère` peuvent être dimensionnées. Par défaut, ce type de variable ne peut contenir qu'un unique caractère :
+
+`Variable car en Caractère`
+
+Pour déclarer une variable d'une longueur prédéfinie, la syntaxe est la suivante :
+
+`Variable car*12 en Caractère`
+
+**Avertissement** : une variable de type `Caractère` aura toujours la même longueur. Par exemple, si l'on affecte `"Bonjour"` à la variable `car`, son contenu sera égal à `"Bonjour     "`. De même que si on lui affecte `"BonjourBonjour"`, soit <u>15 caractères</u>, son contenu sera **tronqué** en `"BonjourBonjo"`, soit <u>exactement 12 caractères</u>.
 
 ### Affecter une valeur à une variable
 
@@ -136,11 +151,15 @@ Il est bien évidemment possible d'affecter le résultat d'une expression à une
 
 `a ← b + 10`
 
+## Tableaux (variables indexées)
+
+
+
 ## Lecture / Ecriture
 
 ### Ecrire
 
-Pour afficher à l'écran des expressions, des variables ou simplement du texte, on utilise l'instruction `Ecrire`.
+Pour afficher à l'écran des expressions, le contenu de variables ou simplement du texte, on utilise l'instruction `Ecrire`.
 
 Exemple :
 
@@ -168,7 +187,7 @@ Bonjour, Nicole Croisille
 _
 ```
 
-Dans certaines situations il sera nécessaire de ne pas afficher le saut de ligne.
+Dans certaines situations il sera nécessaire de ne pas afficher ce saut de ligne.
 
 Pour ce faire, il suffira d'ajouter le caractère `\` à la fin de l'instruction `Ecrire` :
 

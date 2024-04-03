@@ -101,7 +101,6 @@ def p_sized_char_var_declaration(p):
       declarations.append(DeclareSizedChar(name, size))
     p[0] = declarations
   else:
-    print('-')
     p[0] = Node(DeclareSizedChar(p[2][0], p[2][1]), p.lineno(1))
 
 def p_sized_char_list(p):

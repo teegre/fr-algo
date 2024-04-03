@@ -1,33 +1,54 @@
+# This file is part of FRALGO
+# Copyright © 2024 Stéphane MEYER (Teegre)
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 from fralgo.lib.exceptions import FatalError
 
-__file_descriptors = [None,None,None,None,None,None,None,None,None,None,None]
+__file_descriptors = [None,None,None,None,None,None,None,None,None,None]
 
 def get_file_descriptor(fd_number):
   try:
-    fd = __file_descriptors[fd_number]
+    fd = __file_descriptors[fd_number-1]
   except IndexError:
     raise FatalError(f'Numéro de canal invalide : {fd_number}')
   return fd
 
 def new_file_descriptor(fd_number):
-  fd = __file_descriptors[fd_number]
+  fd = __file_descriptors[fd_number-1]
   if fd is not None:
     if fd.state != -1:
-      raise FatalError(f'Canal {fd} déjà utilisé')
-  new_fd = FileDescriptor(fd_number)
-  __file_descriptors[fd_number] = new_fd
+      raise FatalError(f'Canal {fd_number} déjà utilisé')
+  new_fd = FileDescriptor(fd_number-1)
+  __file_descriptors[fd_number-1] = new_fd
   return new_fd
 
 def clear_file_descriptor(fd_number):
-  fd = __file_descriptors[fd_number]
+  fd = __file_descriptors[fd_number-1]
   if fd is not None:
     if fd.state == -1:
-      del __file_descriptors[fd_number]
+      del __file_descriptors[fd_number-1]
       __file_descriptors[fd_number] = None
     else:
-      raise FatalError(f'Fichier ouvert sur le canal {fd_number}')
+      raise FatalError(f'Fichier ouvert sur le canal {fd_number-1}')
   else:
-    raise FatalError(f'Canal {fd_number} non utilisé')
+    raise FatalError(f'Canal {fd_number-1} non utilisé')
 
 class FileDescriptor:
   def __init__(self, fd):
@@ -75,13 +96,13 @@ class File:
     self.__buffer = []
   def open(self, filename, access_mode):
     try:
-      self.__file = open(filename, self.__mode[access_mode], encoding='UTF-8')
+      self.__file = open(filename, self.__mode[access_mode], encoding='utf-8')
     except FileNotFoundError:
       raise FatalError(f'Fichier non trouvé : {filename}')
     self.__access_mode = access_mode
     self.__state = 1
     if access_mode == 1:
-      self.__buffer = self.__file.readlines()
+      self.__buffer = self.__file.read().splitlines()
   def close(self):
     if self.__state == 1:
       try:
@@ -101,7 +122,7 @@ class File:
   def write(self, buffer):
     if self.__access_mode == 1:
       raise FatalError('Impossible d\'écrire dans un fichier en mode Lecture')
-    return self.__file.write(buffer)
+    return self.__file.write(buffer + '\n')
   @property
   def state(self):
     return self.__state

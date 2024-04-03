@@ -82,7 +82,7 @@ def main():
   print('|    ___|   __ \   _   |     |_|     __|       |')
   print('|    ___|      <       |       |    |  |   -   |')
   print('|___|   |___|__|___|___|_______|_______|_______|')
-  print(f'A L G O R I T H M E S                    {get_version()}mg')
+  print(f'A L G O R I T H M E S                   {get_version()}mg')
   print()
   print('[ ctrl+d pour quitter ]')
   print('En attente de vos instructions.')

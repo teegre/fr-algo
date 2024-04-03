@@ -1,0 +1,23 @@
+Variables c*1, alphabet*52 en Caractère
+Variables clef, message, chiffre en Chaîne
+Variables i, longueur_clef, a, k, v en Entier
+Début
+  alphabet ← "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+  Ecrire "Entrer la clef : " \
+  Lire clef
+  Ecrire "Entrer le message : " \
+  Lire message
+  chiffre ← ""
+  Pour i ← 0 à Longueur(message) - 1
+    c <- Extraire(message, i + 1, 1)
+    a <- Trouve(alphabet, c)
+    Si a Alors
+      k ← Trouve(alphabet, Extraire(clef, i % Longueur(clef), 1))
+      v ← a + k
+      chiffre ← chiffre & Extraire(alphabet, v % Longueur(alphabet), 1)
+    Sinon
+      chiffre ← chiffre & c
+    FinSi
+  i Suivant
+  Ecrire chiffre
+Fin

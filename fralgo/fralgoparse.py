@@ -29,11 +29,10 @@ precedence = (
 
 def p_program(p):
   '''
-  program : var_declarations statements
+  program : var_declarations START NEWLINE statements END
+          | START NEWLINE statements END
           | var_declarations
           | statement
-          | START NEWLINE statements END
-          | var_declarations START NEWLINE statements END
   '''
   root = Node()
   if len(p) == 5:
@@ -41,7 +40,6 @@ def p_program(p):
   elif len(p) == 6:
     root.append(p[1])
     root.append(p[4])
-  # FOR FUTURE REPL
   elif len(p) == 3:
     root.append(p[1])
     root.append(p[2])
@@ -90,10 +88,10 @@ def p_var_declaration(p):
     else:
       p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
-def p_sized_char_var_declaration(p):
+def p_char_declaration(p):
   '''
-  var_declaration : VAR_DECL sized_char TYPE_DECL TYPE_CHAR NEWLINE
-                  | VARS_DECL sized_char_list TYPE_DECL TYPE_CHAR NEWLINE
+  var_declaration : VAR_DECL char TYPE_DECL TYPE_CHAR NEWLINE
+                  | VARS_DECL char_list TYPE_DECL TYPE_CHAR NEWLINE
   '''
   if isinstance(p[2], list):
     declarations = Node(lineno=p.lineno(1))
@@ -103,21 +101,24 @@ def p_sized_char_var_declaration(p):
   else:
     p[0] = Node(DeclareSizedChar(p[2][0], p[2][1]), p.lineno(1))
 
-def p_sized_char_list(p):
+def p_char_list(p):
   '''
-  sized_char_list : sized_char_list COMMA sized_char
-                  | sized_char
+  char_list : char_list COMMA char
+            | char
   '''
   if len(p) == 2:
     p[0] = p[1]
   else:
     p[0] = p[1] + p[3]
 
-def p_sized_char(p):
+def p_char(p):
   '''
-  sized_char : ID MUL INTEGER
+  char : ID MUL INTEGER
   '''
-  p[0] = [(p[1], p[3])]
+  if len(p) == 2:
+    p[0] = [(p[1], map_type(1))]
+  else:
+    p[0] = [(p[1], p[3])]
 
 def p_array_list(p):
   '''

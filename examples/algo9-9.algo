@@ -1,8 +1,12 @@
-Variables c*1, alphabet*52 en Caractère
+Variables action*1, c*1, alphabet*52 en Caractère
 Variables clef, message, chiffre en Chaîne
 Variables i, longueur_clef, a, k, v en Entier
+Variable dechiffre en Booléen
 Début
   alphabet ← "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
+  Ecrire "Chiffrer/Déchiffrer (C/d) ? " \
+  Lire action
+  dechiffre <- action = "d" OU action = "D"
   Ecrire "Entrer la clef : " \
   Lire clef
   Ecrire "Entrer le message : " \
@@ -13,7 +17,11 @@ Début
     a <- Trouve(alphabet, c)
     Si a Alors
       k ← Trouve(alphabet, Extraire(clef, i % Longueur(clef), 1))
-      v ← a + k
+      Si NON(dechiffre) Alors
+        v ← a + k
+      Sinon
+        v ← a - k
+      FinSi
       chiffre ← chiffre & Extraire(alphabet, v % Longueur(alphabet), 1)
     Sinon
       chiffre ← chiffre & c

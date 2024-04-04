@@ -1,6 +1,6 @@
 Variables action*1, c*1, alphabet*52 en Caractère
 Variables clef, message, chiffre en Chaîne
-Variables i, longueur_clef, a, k, v en Entier
+Variables i, a, k, v en Entier
 Variable dechiffre en Booléen
 Début
   alphabet ← "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"

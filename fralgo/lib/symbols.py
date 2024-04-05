@@ -23,6 +23,7 @@ import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
 
 __variables = {}
+__structures = {}
 
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
@@ -70,3 +71,8 @@ def delete_variable(name):
 
 def reset_variables():
   __variables.clear()
+
+def declare_structure(structure):
+  if __structures.get(structure.name, None) is not None:
+    raise ex.VarRedeclared(f'Redéclaration de la structure >{name}<')
+  __structures[structure.name] = structure

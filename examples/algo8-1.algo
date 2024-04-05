@@ -7,5 +7,10 @@ Début
       t[i,j] <- 0
     j Suivant
   i Suivant
-  Ecrire t
+  Pour i <- 0 à 5
+    Pour j <- 0 à 12
+      Ecrire t[i,j] \
+    j Suivant
+    Ecrire ""
+  i Suivant
 Fin

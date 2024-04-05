@@ -8,7 +8,8 @@ Pour k ← 0 à 3
 k Suivant
 Pour k ← 0 à 3
   Pour m ← 0 à 1
-    Ecrire T[k, m]
+    Ecrire T[k, m], "" \
   m Suivant
+  Ecrire ""
 k Suivant
 Fin

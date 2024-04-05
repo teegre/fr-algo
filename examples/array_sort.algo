@@ -2,7 +2,7 @@ Tableau T[11] en Entier
 Variables I, J, TEMP en Entier
 Début
   Pour I ← 0 à 11
-    Ecrire I + 1, "/ 12 : Entrer un Entier"
+    Ecrire "(" & Chaîne(I + 1) & "/12) Entrer un Entier : " \
     Lire J
     T[I] ← J
   I Suivant

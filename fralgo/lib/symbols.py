@@ -74,5 +74,5 @@ def reset_variables():
 
 def declare_structure(structure):
   if __structures.get(structure.name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la structure >{name}<')
+    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
   __structures[structure.name] = structure

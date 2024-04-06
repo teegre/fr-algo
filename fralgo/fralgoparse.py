@@ -88,37 +88,15 @@ def p_var_declaration(p):
     else:
       p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
-def p_char_declaration(p):
-  '''
-  var_declaration : VAR_DECL char TYPE_DECL TYPE_CHAR NEWLINE
-                  | VARS_DECL char_list TYPE_DECL TYPE_CHAR NEWLINE
-  '''
-  if isinstance(p[2], list):
-    declarations = Node(lineno=p.lineno(1))
-    for name, size in p[2]:
-      declarations.append(DeclareSizedChar(name, size))
-    p[0] = declarations
-  else:
-    p[0] = Node(DeclareSizedChar(p[2][0], p[2][1]), p.lineno(1))
-
-def p_char_list(p):
-  '''
-  char_list : char_list COMMA char
-            | char
-  '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = p[1] + p[3]
-
 def p_char(p):
   '''
-  char : ID MUL INTEGER
+  sized_char : TYPE_CHAR MUL INTEGER
+             | TYPE_CHAR
   '''
   if len(p) == 2:
-    p[0] = [(p[1], map_type(1))]
+    p[0] = (p[1], map_type(1))
   else:
-    p[0] = [(p[1], p[3])]
+    p[0] = (p[1], p[3])
 
 def p_array_list(p):
   '''
@@ -183,10 +161,10 @@ def p_var(p):
 def p_type(p):
   '''
   type : TYPE_BOOLEAN
-       | TYPE_CHAR
        | TYPE_FLOAT
        | TYPE_INTEGER
        | TYPE_STRING
+       | sized_char
   '''
   p[0] = p[1]
 

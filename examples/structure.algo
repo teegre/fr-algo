@@ -1,0 +1,25 @@
+# 2024-04-06 8:51PM
+# Structure
+# Déclaration de la structure Point
+Structure Point
+  x en Numérique
+  y en Numérique
+FinStructure
+# Déclaration des variables p1 et p2 de type Point
+Variables p1, p2 en Point
+# Début du programme
+Début
+  # Affectation de valeurs
+  p1.x ← Aléa()
+  p1.y ← Aléa()
+  p2.x ← Aléa()
+  p2.y ← Aléa()
+  # Affichage
+  Ecrire "p1 : x =", p1.x, "y =", p1.y
+  Ecrire "p2 : x =", p2.x, "y =", p2.y
+  # Expression
+  Ecrire "p1.x + p2.x : x =", p1.x + p2.x
+  Ecrire "p1.y + p2.y : y =", p1.y + p2.y
+  # Fin
+  Ecrire "Merci de votre attention."
+Fin

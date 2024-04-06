@@ -70,7 +70,10 @@ class Declare:
     self.name = name
     self.var_type = var_type
   def eval(self):
-    declare_var(self.name, self.var_type)
+    if isinstance(self.var_type, tuple): # sized char
+      declare_sized_char(self.name, self.var_type[1])
+    else:
+      declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
 

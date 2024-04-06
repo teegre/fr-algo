@@ -101,11 +101,14 @@ class String(Base):
 class Char(String):
   _type = 'Caractère'
   def __init__(self, value, size=Integer(1)):
-    self.value = value
+    super().__init__(value)
     self.size = map_type(size)
     sz = self.size.eval()
     if sz > 255 or sz < 1:
       raise InvalidCharacterSize(f'Taille invalide : {sz}')
+    self._type = 'Caractère*'+str(sz)
+    if self.value is not None:
+      self.set_value(value)
   def set_value(self, value):
     size = self.size.eval()
     val = value
@@ -169,17 +172,20 @@ class Array(Base):
       array = array[i]
     return array
   def set_value(self, indexes, value):
-    typed_value = map_type(value.eval())
-    while not isinstance(typed_value, (Boolean, Number, String)):
-      typed_value = map_type(typed_value)
-    if typed_value.data_type != self.datatype:
-      raise BadType(f'Type {self.datatype} attendu')
+    datatype = self.datatype
+    if isinstance(datatype, tuple): # sized char
+      typed_value = Char(value.eval(), datatype[1])
+      datatype = self.datatype[0] + '*' + str(self.datatype[1])
+    else:
+      typed_value = map_type(value.eval())
+    if typed_value.data_type != datatype:
+      raise BadType(f'Type {datatype} attendu ({typed_value.data_type})')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value
     for i in idxs[:-1]:
       array = array[i]
-    array[idxs[-1]] = value.eval()
+    array[idxs[-1]] = typed_value.eval()
   def _indexes_to_copy(self, old, new):
     '''
     Generator yielding indexes for copying values

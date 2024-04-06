@@ -30,13 +30,13 @@ Début
   i Suivant
   Correct ← FAUX
   TantQue NON(Correct)
-    Ecrire "Entrez la ligne de votre pion: "
+    Ecrire "Entrez la ligne de votre pion : " \
     Lire posi
     Correct ← posi >= 0 ET posi <= 7
   FinTantQue
   Correct ← FAUX
   TantQue NON(Correct)
-    Ecrire "Entrez la colonne de votre pion: "
+    Ecrire "Entrez la colonne de votre pion : " \
     Lire posj
     Correct ← posj >= 0 ET posj <= 7
   FinTantQue
@@ -45,7 +45,7 @@ Début
   Ecrire " - 0: en haut à gauche"
   Ecrire " - 1: en haut à droite"
   Ecrire " - 2: en bas à gauche"
-  Ecrire " - 3: en bas à droite"
+  Ecrire " - 3: en bas à droite : " \
   Correct ← FAUX
   TantQue NON(Correct)
     Lire Dep
@@ -60,9 +60,9 @@ Début
     Pour i ← 0 à 7
       Pour j ← 0 à 7
         Si Damier[i, j] Alors
-          Ecrire " O " \
+          Ecrire " o " \
         Sinon
-          Ecrire " X " \
+          Ecrire " x " \
         FinSi
       j Suivant
       Ecrire ""

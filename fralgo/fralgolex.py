@@ -75,6 +75,8 @@ reserved = {
   'Ecriture':    'MODE_WRITE',
   'Ajout':       'MODE_APPEND',
   'FDF':         'EOF',
+  'Structure':   'STRUCT',
+  'FinStructure': 'ENDSTRUCT',
 }
 
 tokens = (
@@ -86,6 +88,7 @@ tokens = (
   'LPAREN', 'RPAREN',
   'LBRACKET', 'RBRACKET',
   'COMMA',
+  'DOT',
   'BACKSLASH',
   'NEWLINE',
   'ID',
@@ -109,6 +112,7 @@ t_RPAREN = r'\)'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r'\,'
+t_DOT = r'\.'
 t_BACKSLASH = r'\\'
 
 t_ignore = ' \t'

@@ -3,7 +3,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareSizedChar
+from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareStruct
+from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
@@ -48,10 +49,45 @@ def p_program(p):
 
   p[0] = root
 
+def p_structure_declarations(p):
+  '''
+  struct_declarations : struct_declarations struct_declaration
+                      | struct_declaration
+  '''
+  if len(p) == 2:
+    p[0] = Node(p[1], p.lineno(1))
+  else:
+    p[1].append(p[2])
+    p[0] = p[1]
+
+def p_structure_declaraction(p):
+  '''
+  struct_declaration : STRUCT ID NEWLINE struct_fields ENDSTRUCT NEWLINE
+  '''
+  p[0] = DeclareStruct(p[2], p[4])
+
+def p_structure_fields(p):
+  '''
+  struct_fields : struct_fields struct_field
+                | struct_field
+  '''
+  if len(p) == 3:
+    p[0] = p[1] + [p[2]]
+  else:
+    p[0] = [p[1]]
+
+def p_struct_field(p):
+  '''
+  struct_field : ID TYPE_DECL type NEWLINE
+               | ID TYPE_DECL ID NEWLINE
+  '''
+  p[0] = [p[1], p[3]]
+
 def p_var_declarations(p):
   '''
   var_declarations : var_declarations var_declaration
                    | var_declaration
+                   | struct_declarations
   '''
   if len(p) == 2:
     p[0] = Node(p[1], p.lineno(1))
@@ -165,6 +201,7 @@ def p_type(p):
        | TYPE_INTEGER
        | TYPE_STRING
        | sized_char
+       | ID
   '''
   p[0] = p[1]
 
@@ -175,6 +212,12 @@ def p_mode(p):
        | MODE_APPEND
   '''
   p[0] = p[1]
+
+def p_structure_access(p):
+  '''
+  structure_access : ID DOT ID
+  '''
+  p[0] = (p[1], p[3])
 
 def p_array_access(p):
   '''
@@ -221,6 +264,7 @@ def p_statement(p):
   '''
   statement : var_assignment
             | array_assignment
+            | structure_assignment
             | array_resize NEWLINE
             | if_block
             | while_block
@@ -283,11 +327,23 @@ def p_array_assignment(p):
   '''
   p[0] = Node(ArraySetItem(p[1][0], p[3], *p[1][1]), p.lineno(1))
 
+def p_structure_assignment(p):
+  '''
+  structure_assignment : structure_access ARROW expression NEWLINE
+  '''
+  p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3]), p.lineno(1))
+
 def p_array_get_item(p):
   '''
   array_get_item : array_access
   '''
   p[0] = ArrayGetItem(p[1][0], *p[1][1])
+
+def p_structure_get_item(p):
+  '''
+  structure_get_item : structure_access
+  '''
+  p[0] = StructureGetItem(p[1][0], p[1][1])
 
 def p_if_block(p):
   '''
@@ -411,6 +467,12 @@ def p_expression_not(p):
 def p_expression_array_get_item(p):
   '''
   expression : array_get_item
+  '''
+  p[0] = p[1]
+
+def p_expression_structure_get_item(p):
+  '''
+  expression : structure_get_item
   '''
   p[0] = p[1]
 

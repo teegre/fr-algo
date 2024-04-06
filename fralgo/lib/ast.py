@@ -26,7 +26,9 @@ import operator
 from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, get_variable, assign_value
+from fralgo.lib.structure import Structure, StructureData
+from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
+from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import FatalError, ZeroDivide
@@ -100,6 +102,15 @@ class DeclareSizedChar:
   def __repr__(self):
     return f'Variable {self.name}*{self.size}'
 
+class DeclareStruct:
+  def __init__(self, name, fields):
+    self.name = name
+    self.fields = fields
+  def eval(self):
+    declare_structure(Structure(self.name, self.fields))
+  def __repr__(self):
+    return f'Structure {self.name} {self.fields}'
+
 class ArrayGetItem:
   def __init__(self, var, *indexes):
     self.var = var
@@ -133,6 +144,27 @@ class ArrayResize:
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
     return f'Redim {self.var.name}[{", ".join(indexes)}]'
+
+class StructureGetItem:
+  def __init__(self, var, field):
+    self.var = var
+    self.field = field
+  def eval(self):
+    var = get_variable(self.var)
+    return var.get_item(self.field)
+  def __repr__(self):
+    return f'{self.var.name}.{self.field}'
+
+class StructureSetItem:
+  def __init__(self, var, field, value):
+    self.var = var
+    self.field = field
+    self.value = value
+  def eval(self):
+    var = get_variable(self.var)
+    var.set_value(self.value, self.field)
+  def __repr__(self):
+    return f'{self.var}.{self.field} ← {self.value}'
 
 class Assign:
   def __init__(self, var, value):
@@ -568,6 +600,7 @@ def algo_to_python(expression):
       Mid,
       Random,
       String,
+      StructureGetItem,
       ToFloat, ToInteger, ToString, Trim,
       Variable,
   )

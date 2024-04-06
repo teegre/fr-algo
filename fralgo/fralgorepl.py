@@ -30,11 +30,11 @@ def repl():
       instruction = input(prompt)
       if instruction:
         inst = instruction.split()
-        if inst[0] in ('Début', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi'):
+        if inst[0] in ('Début', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure'):
           loop = True
-        if  inst[0] in ('TantQue', 'Pour', 'Si'):
+        if  inst[0] in ('TantQue', 'Pour', 'Si', 'Structure'):
           level += 1
-        if inst[-1] == 'Suivant' or inst[0] in ('FinTantQue', 'FinSi', 'Fin'):
+        if inst[-1] == 'Suivant' or inst[0] in ('FinTantQue', 'FinSi', 'Fin', 'FinStructure'):
           level -= 1
           if level == 0:
             loop = False

@@ -1,4 +1,5 @@
-Variables action*1, c*1, alphabet*52 en Caractère
+Variables action, c en Caractère
+Variable alphabet en Caractère*52
 Variables clef, message, chiffre en Chaîne
 Variables i, a, k, v en Entier
 Variable dechiffre en Booléen

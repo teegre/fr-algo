@@ -162,7 +162,7 @@ class StructureSetItem:
     self.value = value
   def eval(self):
     var = get_variable(self.var)
-    var.set_value(self.value, self.field)
+    var.set_value(self.value.eval(), self.field)
   def __repr__(self):
     return f'{self.var}.{self.field} ← {self.value}'
 
@@ -580,7 +580,7 @@ class ToString:
 
 class Random:
   def eval(self):
-    return random()
+    return map_type(random())
   def __repr__(self):
     return 'Aléa()'
 

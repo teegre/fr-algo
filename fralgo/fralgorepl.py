@@ -5,6 +5,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import readline
+import traceback
 from fralgo.version import get_version
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
@@ -15,6 +16,7 @@ os.environ['FRALGOREPL'] = "1"
 def repl():
   loop = False
   cancel = False
+  tb = False
   instructions = []
   level = 0
 
@@ -28,6 +30,10 @@ def repl():
       else:
         prompt = '::: '
       instruction = input(prompt)
+      if instruction == 'trace':
+        tb = not tb
+        print('*** TRACE est', map_type(tb))
+        continue
       if instruction:
         inst = instruction.split()
         if inst[0] in ('Début', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure'):
@@ -55,6 +61,8 @@ def repl():
           elif result is not None:
             print(result)
         except FralgoException as e:
+          if tb:
+            traceback.print_exc()
           print(e.message)
       else:
         cancel = loop
@@ -73,6 +81,9 @@ def repl():
       level = 0
       instructions = []
     except Exception as e:
+      if tb:
+        traceback.print_exc()
+      parser.restart()
       print(e)
 
 def main():

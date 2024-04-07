@@ -161,7 +161,10 @@ class StructureSetItem:
     self.field = field
     self.value = value
   def eval(self):
-    var = get_variable(self.var)
+    if isinstance(self.var, ArrayGetItem):
+      var = self.var.eval()
+    else:
+      var = get_variable(self.var)
     var.set_value(self.value.eval(), self.field)
   def __repr__(self):
     return f'{self.var}.{self.field} ← {self.value}'

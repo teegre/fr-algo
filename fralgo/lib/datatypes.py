@@ -143,7 +143,10 @@ class Array(Base):
     if len(sizes) == 0:
       return []
     if len(sizes) == 1:
-      return [None] * sizes[0]
+      datatype = get_type(self.datatype)
+      if isinstance(datatype, (list, tuple)):
+        return [datatype[0](None, datatype[1])] * sizes[0]
+      return [datatype(None)] * sizes[0]
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
@@ -227,6 +230,57 @@ class Array(Base):
   def size(self):
     return self.sizes
 
+class Structure(Base):
+  '''Structure skeleton'''
+  _type = 'Structure'
+  def __init__(self, name, fields):
+    self.name =  name
+    self.fields = fields # list of names and types
+    self._type = name
+  def eval(self):
+    return NotImplemented
+  def __iter__(self):
+    return iter(self.fields)
+  def __repr__(self):
+    return f'{self.name} {", ".join(str(field) for field in self.fields)}'
+  @property
+  def data_type(self):
+    return self.name
+
+class StructureData(Base):
+  ''' A Structure instance '''
+  _type = 'StructureData'
+  def __init__(self, structure):
+    self.structure = structure
+    self.name = structure.name
+    self.data = self._new_structure_data()
+  def eval(self):
+    return self
+  def set_value(self, value, fieldname=None):
+    if fieldname is not None:
+      self.data[fieldname].set_value(value)
+    else:
+      for i, name in enumerate(self.data):
+        self.data[name].set_value(value[i])
+  def get_item(self, name):
+    if name in self.data.keys():
+      return self.data[name]
+    raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
+  def _new_structure_data(self):
+    data = {}
+    for name, datatype in self.structure:
+      if isinstance(datatype, (list, tuple)):
+        if datatype[0] == 'Caractère':
+          data[name] = Char(None, datatype[1])
+      else:
+        data[name] = get_type(datatype)(None)
+    return data
+  def __repr__(self):
+    return f'{self.name} {", ".join(k+" "+str(v) for k,v in self.data.items())}'
+  @property
+  def data_type(self):
+    return self.name
+
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
@@ -262,3 +316,17 @@ def map_type(value):
   if isinstance(value, str):
     return String(value)
   return value
+
+def get_type(datatype):
+  match datatype:
+    case 'Booléen':
+      return Boolean
+    case 'Chaîne':
+      return String
+    case 'Entier':
+      return Integer
+    case 'Numérique':
+      return Float
+  if isinstance(datatype, (list, tuple)):
+    if datatype[0] == 'Caractère':
+      return (Char, datatype[1])

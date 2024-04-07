@@ -21,7 +21,7 @@
 
 import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
-from fralgo.lib.structure import StructureData
+from fralgo.lib.datatypes import StructureData, get_type
 
 __variables = {}
 __structures = {}
@@ -29,14 +29,9 @@ __structures = {}
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-  if data_type == 'Booléen':
-    __variables[name] = Boolean(None)
-  elif data_type == 'Chaîne':
-    __variables[name] = String(None)
-  elif data_type == 'Numérique':
-    __variables[name] = Float(None)
-  elif data_type == 'Entier':
-    __variables[name] = Integer(None)
+  datatype = get_type(data_type)
+  if datatype is not None:
+    __variables[name] = datatype(None)
   elif is_structure(data_type):
     structure = get_structure(data_type)
     __variables[name] = StructureData(structure)
@@ -68,9 +63,9 @@ def is_variable_structure(name):
   var = get_variable(name)
   return is_structure(var.data_type)
 
-def get_type(name):
-  var = get_variable(name)
-  return var.datatype if isinstance(var, Array) else var.data_type
+# def get_type(name):
+#   var = get_variable(name)
+#   return var.datatype if isinstance(var, Array) else var.data_type
 
 def delete_variable(name):
   __variables.pop(name)

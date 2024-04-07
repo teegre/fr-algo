@@ -216,8 +216,12 @@ def p_mode(p):
 def p_structure_access(p):
   '''
   structure_access : ID DOT ID
+                   | array_access DOT ID
   '''
-  p[0] = (p[1], p[3])
+  if isinstance(p[1], list):
+    p[0] = (ArrayGetItem(p[1][0], *p[1][1]), p[3])
+  else:
+    p[0] = (p[1], p[3])
 
 def p_array_access(p):
   '''
@@ -240,7 +244,7 @@ def p_array_index(p):
   '''
   array_index : expression
   '''
-  p[0] = [map_type(p[1])]
+  p[0] = [p[1]]
 
 def p_array_resize(p):
   '''

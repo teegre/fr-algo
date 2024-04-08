@@ -20,8 +20,10 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange
+from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
+
+__structures = {}
 
 class Base():
   _type = 'Base'
@@ -30,7 +32,7 @@ class Base():
     raise NotImplementedError
   def __repr__(self):
     if self.value is None:
-      return f'{self.data_type}'
+      return f'{self.data_type} → ?'
     return f'{self.data_type} → {self.value}'
   @property
   def data_type(self):
@@ -145,6 +147,8 @@ class Array(Base):
     if len(sizes) == 1:
       datatype = get_type(self.datatype)
       if isinstance(datatype, (list, tuple)):
+        if issubclass(datatype[0], StructureData):
+          return [datatype[0](datatype[1]) for _ in range(sizes[0])]
         return [datatype[0](None, datatype[1])] * sizes[0]
       return [datatype(None)] * sizes[0]
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
@@ -269,14 +273,15 @@ class StructureData(Base):
   def _new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
-      if isinstance(datatype, (list, tuple)):
-        if datatype[0] == 'Caractère':
-          data[name] = Char(None, datatype[1])
+      data_type = get_type(datatype)
+      if isinstance(data_type, (list, tuple)):
+          data[name] = data_type[0](None, data_type[1])
       else:
-        data[name] = get_type(datatype)(None)
+        data[name] = data_type(None)
     return data
   def __repr__(self):
-    return f'{self.name} {", ".join(k+" "+str(v) for k,v in self.data.items())}'
+    data = [k+" → "+repr(v) for k,v in self.data.items()]
+    return f'{self.name} : {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -305,17 +310,14 @@ class Boolean(Base):
       return f'{self.data_type} → ?'
     return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
 
-def map_type(value):
-  '''Convert Python type to an Algo type'''
-  if isinstance(value, int) and not isinstance(value, bool):
-    return Integer(value)
-  if isinstance(value, float):
-    return Float(value)
-  if isinstance(value, bool):
-    return Boolean(value)
-  if isinstance(value, str):
-    return String(value)
-  return value
+def get_structure(name):
+  structure = __structures.get(name, None)
+  if structure is None:
+    raise VarUndeclared(f'Structure {name} non déclarée')
+  return structure
+
+def is_structure(name):
+  return __structures.get(name, None) is not None
 
 def get_type(datatype):
   match datatype:
@@ -330,3 +332,19 @@ def get_type(datatype):
   if isinstance(datatype, (list, tuple)):
     if datatype[0] == 'Caractère':
       return (Char, datatype[1])
+  else:
+    # Structure
+    structure = get_structure(datatype)
+    return (StructureData, structure)
+
+def map_type(value):
+  '''Convert Python type to an Algo type'''
+  if isinstance(value, int) and not isinstance(value, bool):
+    return Integer(value)
+  if isinstance(value, float):
+    return Float(value)
+  if isinstance(value, bool):
+    return Boolean(value)
+  if isinstance(value, str):
+    return String(value)
+  return value

@@ -26,7 +26,7 @@ import operator
 from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.structure import Structure, StructureData
+from fralgo.lib.datatypes import Structure, StructureData
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
@@ -150,7 +150,10 @@ class StructureGetItem:
     self.var = var
     self.field = field
   def eval(self):
-    var = get_variable(self.var)
+    if isinstance(self.var, ArrayGetItem):
+      var = self.var.eval()
+    else:
+      var = get_variable(self.var)
     return var.get_item(self.field)
   def __repr__(self):
     return f'{self.var.name}.{self.field}'

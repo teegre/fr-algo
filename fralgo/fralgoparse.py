@@ -269,6 +269,7 @@ def p_statement(p):
   statement : var_assignment
             | array_assignment
             | structure_assignment
+            | structure_access
             | array_resize NEWLINE
             | if_block
             | while_block

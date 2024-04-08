@@ -21,20 +21,21 @@
 
 import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
-from fralgo.lib.datatypes import StructureData, get_type
+from fralgo.lib.datatypes import StructureData
+from fralgo.lib.datatypes import __structures
+from fralgo.lib.datatypes import get_structure, is_structure, get_type
 
 __variables = {}
-__structures = {}
 
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   datatype = get_type(data_type)
-  if datatype is not None:
-    __variables[name] = datatype(None)
-  elif is_structure(data_type):
+  if is_structure(data_type):
     structure = get_structure(data_type)
     __variables[name] = StructureData(structure)
+  else:
+    __variables[name] = datatype(None)
 
 def declare_array(name, data_type, *max_indexes):
   if __variables.get(name, None) is not None:
@@ -45,6 +46,11 @@ def declare_sized_char(name, size):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   __variables[name] = Char(None, size)
+
+def declare_structure(structure):
+  if __structures.get(structure.name, None) is not None:
+    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
+  __structures[structure.name] = structure
 
 def assign_value(name, value):
   var = get_variable(name)
@@ -63,26 +69,8 @@ def is_variable_structure(name):
   var = get_variable(name)
   return is_structure(var.data_type)
 
-# def get_type(name):
-#   var = get_variable(name)
-#   return var.datatype if isinstance(var, Array) else var.data_type
-
 def delete_variable(name):
   __variables.pop(name)
 
 def reset_variables():
   __variables.clear()
-
-def is_structure(name):
-  return __structures.get(name, None) is not None
-
-def declare_structure(structure):
-  if __structures.get(structure.name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
-  __structures[structure.name] = structure
-
-def get_structure(name):
-  structure = __structures.get(name, None)
-  if structure is None:
-    raise ex.VarUndeclared(f'Structure {name} non déclarée')
-  return structure

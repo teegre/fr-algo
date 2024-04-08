@@ -312,7 +312,7 @@ def p_statement_readfile(p):
             | READFILE expression COMMA array_access NEWLINE
   '''
   if isinstance(p[4], list): # Array!
-    p[0] = Node(ReadFile(p[4][0].name, *p[4][1]), p.lineno(1))
+    p[0] = Node(ReadFile(p[2], ArrayGetItem(p[4][0].name, *p[4][1])), p.lineno(1))
   else:
     p[0] = Node(ReadFile(p[2], p[4]), p.lineno(1))
 

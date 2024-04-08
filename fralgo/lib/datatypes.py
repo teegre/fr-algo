@@ -114,6 +114,8 @@ class Char(String):
   def set_value(self, value):
     size = self.size.eval()
     val = value
+    if not isinstance(val, (str, int, float, bool, list, tuple, Char, String)):
+      val = value.eval()
     if isinstance(value, (Char, String)):
       val = value.eval()
     try:
@@ -149,7 +151,9 @@ class Array(Base):
       if isinstance(datatype, (list, tuple)):
         if issubclass(datatype[0], StructureData):
           return [datatype[0](datatype[1]) for _ in range(sizes[0])]
+        # sized Char
         return [datatype[0](None, datatype[1])] * sizes[0]
+      # Basic type
       return [datatype(None)] * sizes[0]
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):

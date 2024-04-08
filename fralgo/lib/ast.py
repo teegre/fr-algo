@@ -116,7 +116,10 @@ class ArrayGetItem:
     self.var = var
     self.indexes = indexes
   def eval(self):
-    var = self.var.eval()
+    try:
+      var = self.var.eval()
+    except AttributeError:
+      var = get_variable(self.var)
     return var.get_item(*self.indexes)
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
@@ -166,7 +169,7 @@ class StructureSetItem:
   def eval(self):
     var = self.var
     if isinstance(var, ArrayGetItem):
-       var = self.var.eval()
+      var = self.var.eval()
     else:
       var = get_variable(self.var)
     if isinstance (self.value, list):
@@ -181,7 +184,8 @@ class Assign:
     self.var = var
     self.value = value
   def eval(self):
-    assign_value(self.var, self.value.eval())
+    value = self.value
+    assign_value(self.var, value.eval())
   def __repr__(self):
     return f'{self.var} ← {self.value}'
 
@@ -418,7 +422,7 @@ class Mid:
       raise BadType('Extraire(C, E, >E<) : Type Entier attendu')
     return exp[start-1:start-1+length]
   def __repr__(self):
-    return f'Extraire({self.exp, self.start, self.length})'
+    return f'Extraire{self.exp, self.start, self.length}'
 
 class Trim:
   def __init__(self, exp, length, right=False):
@@ -487,7 +491,10 @@ class ReadFile:
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    var = get_variable(self.var)
+    if isinstance(self.var, ArrayGetItem):
+      var = self.var.eval()
+    else:
+      var = get_variable(self.var)
     value = fd.read()
     var.set_value(value)
   def __repr__(self):

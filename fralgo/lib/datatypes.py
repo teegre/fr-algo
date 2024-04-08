@@ -20,8 +20,10 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from fralgo.lib.exceptions import BadType, VarUndefined, IndexOutOfRange
+from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
+
+__structures = {}
 
 class Base():
   _type = 'Base'
@@ -30,7 +32,7 @@ class Base():
     raise NotImplementedError
   def __repr__(self):
     if self.value is None:
-      return f'{self.data_type}'
+      return f'{self.data_type} → ?'
     return f'{self.data_type} → {self.value}'
   @property
   def data_type(self):
@@ -143,7 +145,12 @@ class Array(Base):
     if len(sizes) == 0:
       return []
     if len(sizes) == 1:
-      return [None] * sizes[0]
+      datatype = get_type(self.datatype)
+      if isinstance(datatype, (list, tuple)):
+        if issubclass(datatype[0], StructureData):
+          return [datatype[0](datatype[1]) for _ in range(sizes[0])]
+        return [datatype[0](None, datatype[1])] * sizes[0]
+      return [datatype(None)] * sizes[0]
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
@@ -227,6 +234,58 @@ class Array(Base):
   def size(self):
     return self.sizes
 
+class Structure(Base):
+  '''Structure skeleton'''
+  _type = 'Structure'
+  def __init__(self, name, fields):
+    self.name =  name
+    self.fields = fields # list of names and types
+    self._type = name
+  def eval(self):
+    return NotImplemented
+  def __iter__(self):
+    return iter(self.fields)
+  def __repr__(self):
+    return f'{self.name} {", ".join(str(field) for field in self.fields)}'
+  @property
+  def data_type(self):
+    return self.name
+
+class StructureData(Base):
+  ''' A Structure instance '''
+  _type = 'StructureData'
+  def __init__(self, structure):
+    self.structure = structure
+    self.name = structure.name
+    self.data = self._new_structure_data()
+  def eval(self):
+    return self
+  def set_value(self, value, fieldname=None):
+    if fieldname is not None:
+      self.data[fieldname].set_value(value)
+    else:
+      for i, name in enumerate(self.data):
+        self.data[name].set_value(value[i])
+  def get_item(self, name):
+    if name in self.data.keys():
+      return self.data[name]
+    raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
+  def _new_structure_data(self):
+    data = {}
+    for name, datatype in self.structure:
+      data_type = get_type(datatype)
+      if isinstance(data_type, (list, tuple)):
+          data[name] = data_type[0](None, data_type[1])
+      else:
+        data[name] = data_type(None)
+    return data
+  def __repr__(self):
+    data = [k+" → "+repr(v) for k,v in self.data.items()]
+    return f'{self.name} : {", ".join(data)}'
+  @property
+  def data_type(self):
+    return self.name
+
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
@@ -250,6 +309,33 @@ class Boolean(Base):
     if self.value is None:
       return f'{self.data_type} → ?'
     return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
+
+def get_structure(name):
+  structure = __structures.get(name, None)
+  if structure is None:
+    raise VarUndeclared(f'Structure {name} non déclarée')
+  return structure
+
+def is_structure(name):
+  return __structures.get(name, None) is not None
+
+def get_type(datatype):
+  match datatype:
+    case 'Booléen':
+      return Boolean
+    case 'Chaîne':
+      return String
+    case 'Entier':
+      return Integer
+    case 'Numérique':
+      return Float
+  if isinstance(datatype, (list, tuple)):
+    if datatype[0] == 'Caractère':
+      return (Char, datatype[1])
+  else:
+    # Structure
+    structure = get_structure(datatype)
+    return (StructureData, structure)
 
 def map_type(value):
   '''Convert Python type to an Algo type'''

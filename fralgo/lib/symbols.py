@@ -21,23 +21,21 @@
 
 import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
+from fralgo.lib.datatypes import StructureData
+from fralgo.lib.datatypes import __structures
+from fralgo.lib.datatypes import get_structure, is_structure, get_type
 
 __variables = {}
-__structures = {}
 
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-  if data_type == 'Booléen':
-    __variables[name] = Boolean(None)
-  elif data_type == 'Caractère':
-    __variables[name] = Char(None)
-  elif data_type == 'Chaîne':
-    __variables[name] = String(None)
-  elif data_type == 'Numérique':
-    __variables[name] = Float(None)
-  elif data_type == 'Entier':
-    __variables[name] = Integer(None)
+  datatype = get_type(data_type)
+  if is_structure(data_type):
+    structure = get_structure(data_type)
+    __variables[name] = StructureData(structure)
+  else:
+    __variables[name] = datatype(None)
 
 def declare_array(name, data_type, *max_indexes):
   if __variables.get(name, None) is not None:
@@ -48,6 +46,11 @@ def declare_sized_char(name, size):
   if __variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   __variables[name] = Char(None, size)
+
+def declare_structure(structure):
+  if __structures.get(structure.name, None) is not None:
+    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
+  __structures[structure.name] = structure
 
 def assign_value(name, value):
   var = get_variable(name)
@@ -62,17 +65,12 @@ def get_variable(name):
 def is_variable(name):
   return __variables.get(name, False) is not False
 
-def get_type(name):
+def is_variable_structure(name):
   var = get_variable(name)
-  return var.datatype if isinstance(var, Array) else var.data_type
+  return is_structure(var.data_type)
 
 def delete_variable(name):
   __variables.pop(name)
 
 def reset_variables():
   __variables.clear()
-
-def declare_structure(structure):
-  if __structures.get(structure.name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
-  __structures[structure.name] = structure

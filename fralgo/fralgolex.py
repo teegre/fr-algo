@@ -24,6 +24,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+from fralgo.lib.exceptions import FatalError
 from fralgo.ply.lex import lex
 
 reserved = {
@@ -75,6 +76,8 @@ reserved = {
   'Ecriture':    'MODE_WRITE',
   'Ajout':       'MODE_APPEND',
   'FDF':         'EOF',
+  'Structure':   'STRUCT',
+  'FinStructure': 'ENDSTRUCT',
 }
 
 tokens = (
@@ -86,6 +89,7 @@ tokens = (
   'LPAREN', 'RPAREN',
   'LBRACKET', 'RBRACKET',
   'COMMA',
+  'DOT',
   'BACKSLASH',
   'NEWLINE',
   'ID',
@@ -109,6 +113,7 @@ t_RPAREN = r'\)'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r'\,'
+t_DOT = r'\.'
 t_BACKSLASH = r'\\'
 
 t_ignore = ' \t'
@@ -158,7 +163,9 @@ def t_NEWLINE(t):
 
 def t_error(t):
   print(f'*** caractère invalide {t.value[0]!r}')
-  print(f'-v- ligne {t.lineno}.')
+  if 'FRALGOREPL' not in os.environ:
+    print(f'-v- ligne {t.lineno}.')
+    raise FatalError
   t.lexer.skip(1)
 
 lexer = lex()

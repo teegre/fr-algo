@@ -20,7 +20,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Array, Char, Boolean, Float, Integer, String
+from fralgo.lib.datatypes import Array, Char
 from fralgo.lib.datatypes import StructureData
 from fralgo.lib.datatypes import __structures
 from fralgo.lib.datatypes import get_structure, is_structure, get_type

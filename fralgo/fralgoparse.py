@@ -217,11 +217,15 @@ def p_structure_access(p):
   '''
   structure_access : ID DOT ID
                    | array_access DOT ID
+                   | ID
   '''
-  if isinstance(p[1], list):
+  if len(p) == 1:
+    p[0] = p[1]
+  elif isinstance(p[1], list):
     p[0] = (ArrayGetItem(p[1][0], *p[1][1]), p[3])
   else:
     p[0] = (p[1], p[3])
+
 
 def p_array_access(p):
   '''
@@ -269,7 +273,6 @@ def p_statement(p):
   statement : var_assignment
             | array_assignment
             | structure_assignment
-            | structure_access
             | array_resize NEWLINE
             | if_block
             | while_block
@@ -309,7 +312,7 @@ def p_statement_readfile(p):
             | READFILE expression COMMA array_access NEWLINE
   '''
   if isinstance(p[4], list): # Array!
-    p[0] = Node(ReadFile(p[4][0].name, *p[4][1]), p.lineno(1))
+    p[0] = Node(ReadFile(p[2], ArrayGetItem(p[4][0].name, *p[4][1])), p.lineno(1))
   else:
     p[0] = Node(ReadFile(p[2], p[4]), p.lineno(1))
 
@@ -322,9 +325,17 @@ def p_statement_writefile(p):
 def p_var_assignment(p):
   '''
   var_assignment : ID ARROW expression NEWLINE
+                 | ID ARROW sequence NEWLINE
+                 | array_access ARROW sequence NEWLINE
   '''
-  assignment = Assign(p[1], p[3])
-  p[0] = Node(assignment, p.lineno(1))
+  if not isinstance(p[3], list): # Basic type
+    assignment = Assign(p[1], p[3])
+    p[0] = Node(assignment, p.lineno(1))
+  else: # Structure
+    if isinstance(p[1], list): # Array
+      p[0] = Node(StructureSetItem(ArrayGetItem(p[1][0], *p[1][1]), None, p[3]), p.lineno(1))
+    else: # Other type
+      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
 
 def p_array_assignment(p):
   '''
@@ -334,9 +345,12 @@ def p_array_assignment(p):
 
 def p_structure_assignment(p):
   '''
-  structure_assignment : structure_access ARROW expression NEWLINE
+  structure_assignment : structure_access ARROW sequence NEWLINE
   '''
-  p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3]), p.lineno(1))
+  if len(p[3]) == 1:
+    p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
+  else:
+    p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
 
 def p_array_get_item(p):
   '''

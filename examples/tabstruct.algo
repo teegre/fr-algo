@@ -5,6 +5,7 @@ Structure Bottin
   mail en Caractère*20
 FinStructure
 Tableau MesPotes[] en Bottin
+Variable tampon en Chaîne
 Variable i en Entier
 Début
   Ouvrir "../examples/fichier_lecture.txt" sur 3 en Lecture
@@ -12,8 +13,16 @@ Début
   TantQue NON(FDF(3))
     i <- i + 1
     Redim MesPotes[i]
-    LireFichier 3, MesPotes[i]
+    LireFichier 3, tampon
+    MesPotes[i] <- Extraire(tampon, 1, 19), Extraire(tampon, 20, 36), Extraire(tampon, 36, 45), Extraire(tampon, 46, 65)
   FinTantQue
   Fermer 3
-  Ecrire MesPotes[3].mail
+  Ecrire MesPotes[3].tel = "0149875231"
+  # Test ajout d'une entrée dans le fichier
+  Redim MesPotes[i+1]
+  MesPotes[i+1] <- "Wick", "John", "0102030405", "johnwick@air.com"
+  Ouvrir "../examples/fichier_lecture.txt" sur 1 en Ajout
+  EcrireFichier 1, MesPotes[i+1]
+  Fermer 1
+  Ecrire "Merci."
 Fin

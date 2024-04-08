@@ -279,6 +279,9 @@ class StructureData(Base):
       else:
         data[name] = data_type(None)
     return data
+  def __str__(self):
+    data = [str(v.eval()) for v in self.data.values()]
+    return ''.join(data)
   def __repr__(self):
     data = [k+" → "+repr(v) for k,v in self.data.items()]
     return f'{self.name} : {", ".join(data)}'

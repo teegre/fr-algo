@@ -1,0 +1,19 @@
+Structure Bottin
+  nom en Caractère*20
+  prenom en Caractère*15
+  tel en Caractère*10
+  mail en Caractère*20
+FinStructure
+Tableau MesPotes[] en Bottin
+Variable i en Entier
+Début
+  Ouvrir "../examples/fichier_lecture.txt" sur 3 en Lecture
+  i ← -1
+  TantQue NON(FDF(3))
+    i <- i + 1
+    Redim MesPotes[i]
+    LireFichier 3, MesPotes[i]
+  FinTantQue
+  Fermer 3
+  Ecrire MesPotes[3].mail
+Fin

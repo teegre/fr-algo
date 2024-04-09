@@ -20,6 +20,9 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import os
+from copy import deepcopy
+
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
 
@@ -268,10 +271,18 @@ class StructureData(Base):
     if fieldname is not None:
       self.data[fieldname].set_value(value)
     else:
-      for i, name in enumerate(self.data):
-        self.data[name].set_value(value[i])
+      if isinstance(value, StructureData):
+        if value.name == self.name:
+          self.data = deepcopy(value.data)
+        else:
+          raise BadType(f'{value.name} n\'est pas {self.name}')
+      else:
+        for i, name in enumerate(self.data):
+          self.data[name].set_value(value[i].eval())
   def get_item(self, name):
     if name in self.data.keys():
+      if self.data[name] is None:
+        raise (f'{self.name}.{name} : Valeur indéfinie')
       return self.data[name]
     raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
   def _new_structure_data(self):
@@ -284,10 +295,12 @@ class StructureData(Base):
         data[name] = data_type(None)
     return data
   def __str__(self):
+    if 'FRALGOREPL' in os.environ:
+      return self.__repr__()
     data = [str(v.eval()) for v in self.data.values()]
     return ''.join(data)
   def __repr__(self):
-    data = [k+" → "+repr(v) for k,v in self.data.items()]
+    data = [k+": "+repr(v) for k,v in self.data.items()]
     return f'{self.name} : {", ".join(data)}'
   @property
   def data_type(self):

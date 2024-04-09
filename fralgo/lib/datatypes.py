@@ -25,6 +25,7 @@ from copy import deepcopy
 
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
+from fralgo.lib.exceptions import InvalidStructureValueCount
 
 __structures = {}
 
@@ -277,12 +278,23 @@ class StructureData(Base):
         else:
           raise BadType(f'{value.name} n\'est pas {self.name}')
       else:
+        try:
+          if len(value) != len(self.data):
+            raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
+        except TypeError:
+          # Dealing with a mono-field structure here
+          if len(self.data) > 1:
+            raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
         for i, name in enumerate(self.data):
-          self.data[name].set_value(value[i].eval())
+          try:
+            self.data[name].set_value(value[i].eval())
+          except TypeError:
+            # Mono-field structure
+            self.data[name].set_value(map_type(value).eval())
   def get_item(self, name):
     if name in self.data.keys():
       if self.data[name] is None:
-        raise (f'{self.name}.{name} : Valeur indéfinie')
+        raise VarUndefined(f'{self.name}.{name} : Valeur indéfinie')
       return self.data[name]
     raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
   def _new_structure_data(self):
@@ -297,14 +309,19 @@ class StructureData(Base):
       else:
         data[name] = data_type(None)
     return data
+  def get_field_type(self, name):
+    for field in self.structure.fields:
+      if field[0] == name:
+        return field[1]
+    return None
   def __str__(self):
     if 'FRALGOREPL' in os.environ:
       return self.__repr__()
     data = [str(v.eval()) for v in self.data.values()]
     return ''.join(data)
   def __repr__(self):
-    data = [k+": "+repr(v) for k,v in self.data.items()]
-    return f'{self.name} : {", ".join(data)}'
+    data = [k+" ← "+repr(v) for k,v in self.data.items()]
+    return f'{self.name}({", ".join(data)})'
   @property
   def data_type(self):
     return self.name

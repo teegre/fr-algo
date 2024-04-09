@@ -2,12 +2,23 @@ Structure P
   a en Entier
   b en Entier
 FinStructure
+
 Structure Q
   c en P
   d en Entier
 FinStructure
+
 Variable x en P
 Variable y en Q
+
 Début
-  Ecrire y.c.a
+  x <- 1, 2
+  y.c <- x
+  Ecrire y.c.a = 1
+  y.c.a <- 3
+  Ecrire y.c.a = 3
+  y.c.b <- 4
+  Ecrire y.c.b = 4
+  Ecrire y.c.a = x.a + 2 ET y.c.b = x.b + 2
+  Ecrire x.a = 1 ET x.b = 2
 Fin

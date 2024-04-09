@@ -159,7 +159,7 @@ class StructureGetItem:
       var = get_variable(self.var)
     return var.get_item(self.field)
   def __repr__(self):
-    return f'{self.var.name}.{self.field}'
+    return f'{self.var}.{self.field}'
 
 class StructureSetItem:
   def __init__(self, var, field, value):
@@ -168,7 +168,7 @@ class StructureSetItem:
     self.value = value
   def eval(self):
     var = self.var
-    if isinstance(var, ArrayGetItem):
+    if isinstance(var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
       var = get_variable(self.var)

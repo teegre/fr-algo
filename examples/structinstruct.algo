@@ -1,0 +1,13 @@
+Structure P
+  a en Entier
+  b en Entier
+FinStructure
+Structure Q
+  c en P
+  d en Entier
+FinStructure
+Variable x en P
+Variable y en Q
+Début
+  Ecrire y.c.a
+Fin

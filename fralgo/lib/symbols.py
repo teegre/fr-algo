@@ -26,6 +26,9 @@ from fralgo.lib.datatypes import __structures
 from fralgo.lib.datatypes import get_structure, is_structure, get_type
 
 __variables = {}
+# __functions = {}
+# __localvars = {}
+# __localfunc = {}
 
 def declare_var(name, data_type):
   if __variables.get(name, None) is not None:
@@ -52,6 +55,12 @@ def declare_structure(structure):
     raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
   __structures[structure.name] = structure
 
+# def declare_function(name, parameters, body):
+#   if is_local_function(name):
+#     __localfunc[name] = [parameters, body]
+#   else:
+#     __functions[name] = [parameters, body]
+
 def assign_value(name, value):
   var = get_variable(name)
   var.set_value(value)
@@ -68,6 +77,9 @@ def is_variable(name):
 def is_variable_structure(name):
   var = get_variable(name)
   return is_structure(var.data_type)
+
+def is_local_function(name):
+  return __localfunc.get(name) is not None
 
 def delete_variable(name):
   __variables.pop(name)

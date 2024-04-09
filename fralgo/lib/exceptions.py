@@ -42,6 +42,8 @@ class ArrayResizeFailed(FralgoException):
   '''La taille d\'un tableau ne peut pas être inférieure à sa taille initiale.'''
 class InvalidCharacterSize(FralgoException):
   '''Taille invalide.'''
+class InvalidStructureValueCount(FralgoException):
+  '''Le nombre de valeurs ne correspond pas au nombre de champs de la structure'''
 class FatalError(FralgoException):
   ''' ERREUR FATALE '''
 class ZeroDivide(FralgoException):

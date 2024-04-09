@@ -213,19 +213,28 @@ def p_mode(p):
   '''
   p[0] = p[1]
 
+def p_structure_accesses(p):
+  '''
+  structure_accesses : structure_accesses DOT structure_access
+                     | structure_access
+  '''
+  if len(p) == 4:
+    p[0] = (StructureGetItem(p[1][0], p[1][1]),) + (p[3],)
+  else:
+    p[0] = p[1]
+
 def p_structure_access(p):
   '''
   structure_access : ID DOT ID
                    | array_access DOT ID
                    | ID
   '''
-  if len(p) == 1:
+  if len(p) == 2:
     p[0] = p[1]
   elif isinstance(p[1], list):
     p[0] = (ArrayGetItem(p[1][0], *p[1][1]), p[3])
   else:
     p[0] = (p[1], p[3])
-
 
 def p_array_access(p):
   '''
@@ -345,7 +354,7 @@ def p_array_assignment(p):
 
 def p_structure_assignment(p):
   '''
-  structure_assignment : structure_access ARROW sequence NEWLINE
+  structure_assignment : structure_accesses ARROW sequence NEWLINE
   '''
   if len(p[3]) == 1:
     p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
@@ -360,7 +369,7 @@ def p_array_get_item(p):
 
 def p_structure_get_item(p):
   '''
-  structure_get_item : structure_access
+  structure_get_item : structure_accesses
   '''
   p[0] = StructureGetItem(p[1][0], p[1][1])
 

@@ -31,7 +31,7 @@ from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, d
 from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import FatalError, ZeroDivide
+from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -153,13 +153,13 @@ class StructureGetItem:
     self.var = var
     self.field = field
   def eval(self):
-    if isinstance(self.var, ArrayGetItem):
+    if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
       var = get_variable(self.var)
     return var.get_item(self.field)
   def __repr__(self):
-    return f'{self.var.name}.{self.field}'
+    return f'{self.var}.{self.field}'
 
 class StructureSetItem:
   def __init__(self, var, field, value):
@@ -168,7 +168,7 @@ class StructureSetItem:
     self.value = value
   def eval(self):
     var = self.var
-    if isinstance(var, ArrayGetItem):
+    if isinstance(var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
       var = get_variable(self.var)
@@ -201,7 +201,7 @@ class Variable:
     try:
       value = get_variable(self.name)
       return f'{self.name} → {value}'
-    except VarUndeclared:
+    except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
 
 class Print:
@@ -275,7 +275,7 @@ class BinOp:
       '*'   : operator.mul,
       '/'   : 'dummy',
       '%'   : operator.mod,
-      'dp'  : 'dummy',
+      'DP'  : 'dummy',
       '^'   : operator.pow,
       '&'   : 'dummy',
       '='   : operator.eq,

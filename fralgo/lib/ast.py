@@ -31,7 +31,7 @@ from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, d
 from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import FatalError, ZeroDivide
+from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -153,7 +153,7 @@ class StructureGetItem:
     self.var = var
     self.field = field
   def eval(self):
-    if isinstance(self.var, ArrayGetItem):
+    if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
       var = get_variable(self.var)
@@ -201,7 +201,7 @@ class Variable:
     try:
       value = get_variable(self.name)
       return f'{self.name} → {value}'
-    except VarUndeclared:
+    except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
 
 class Print:

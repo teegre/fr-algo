@@ -290,6 +290,9 @@ class StructureData(Base):
     for name, datatype in self.structure:
       data_type = get_type(datatype)
       if isinstance(data_type, (list, tuple)):
+        if issubclass(data_type[0], StructureData):
+          data[name] = data_type[0](data_type[1])
+        else:
           data[name] = data_type[0](None, data_type[1])
       else:
         data[name] = data_type(None)

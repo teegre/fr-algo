@@ -275,7 +275,7 @@ class BinOp:
       '*'   : operator.mul,
       '/'   : 'dummy',
       '%'   : operator.mod,
-      'dp'  : 'dummy',
+      'DP'  : 'dummy',
       '^'   : operator.pow,
       '&'   : 'dummy',
       '='   : operator.eq,

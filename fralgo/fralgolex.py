@@ -43,7 +43,7 @@ reserved = {
   'Fin':        'END',
   'Ecrire':     'PRINT',
   'Lire':       'READ',
-  'dp':         'DIVBY',
+  'DP':         'DIVBY',
   'ET':         'AND',
   'OU':         'OR',
   'OUX':        'XOR',

@@ -14,7 +14,7 @@
 
 `VRAI, FAUX`
 
-`Lire, Ecrire, Redim`
+`Lire, Ecrire, Redim, Extraire, Longueur, Gauche, Droite, Trouve, Aléa, Ouvrir, LireFichier, EcrireFichier, Fermer, FDF`
 
 `Si, SinonSi, Sinon, FinSi`
 

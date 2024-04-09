@@ -11,10 +11,11 @@ syn case match
 
 " ========================================================================================
 
-syn match BinOp "\v-\s"
-syn match BinOp "\v\+\s"
-syn match BinOp "\v*\s"
-syn match BinOp "\v/"
+
+syn match BinOp "\-"
+syn match BinOp "+"
+syn match BinOp "\*"
+syn match BinOp "\/"
 syn match BinOp "%"
 syn match BinOp "Dp"
 syn match BinOp "\^"
@@ -23,26 +24,28 @@ syn match BinOp "<="
 syn match BinOp ">"
 syn match BinOp ">="
 syn match BinOp "<>"
-syn match BinOp "\vET\s"
-syn match BinOp "\vOU\s"
-syn match BinOp "\vOUX\s"
+syn match BinOp "&"
+syn match BinOp "ET"
+syn match BinOp "OU"
+syn match BinOp "OUX"
 
-syn match Assignment "←|<-"
+syn match Assignment "←\|<-"
 
-syn keyword VarDeclaration Variable Variables Tableau Tableaux
+syn keyword VarDeclaration Variable Variables Tableau Tableaux Structure FinStructure
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique
 syn keyword Program Début Fin
+syn keyword File Ajout Ecriture Lecture
 syn keyword StockFunc Aléa Droite Ecrire EcrireFichier Extraire FDF Fermer
-syn keyword StockFunc Gauche Lire LireFichier Longueur Ouvrir Redim Trouve
-syn keyword Loop TantQue FinTanque Pour Suivant
-syn keyword Conditional Si Alors SinonSi Sinon FinSi
-syn keyword Boolean VRAI FAUX
+syn keyword StockFunc Gauche Lire LireFichier Longueur NON Ouvrir Redim Trouve
+syn keyword Loop TantQue FinTantQue Pour Suivant
+syn keyword Condition Si Alors SinonSi Sinon FinSi
+syn keyword Bool VRAI FAUX
+syn keyword Conjonction à en sur
+syn region AlgoString start='"' skip=/\v\\./ end='"'
+syn region AlgoString start="'" skip=/\v\\./ end="'"
 
-syn region String start='"' skip=/\v\\./ end='"'
-syn region String start="'" skip=/\v\\./ end="'"
-
-syn keyword Todo TODO FIXME NOTE NOTES contained
-syn match Comment "#.*" contains=Todo
+syn keyword AlgoTodo TODO FIXME NOTE NOTES contained
+syn match AlgoComment "#.*" contains=Todo
 
 syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained
 
@@ -50,32 +53,28 @@ syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained
 " syn keyword powStatement set  nextgroup=powID skipwhite
 " syn keyword powStatement setg nextgroup=powID skipwhite
 
-" syn match   powLambda "\v\@[a-zA-Z_][a-zA-Z0-9-_]*" display contained
+syn match AlgoNumber "\<\d\+"
+syn match AlgoNumber "[-]\d\+"
+syn match AlgoNumber "\<\d\+\.\d*"
+syn match AlgoNumber "[-]\d\+\.\d*"
 
-" syn keyword powLambdaCall @ nextgroup=powLambda skipwhite
+syn sync lines=100
 
-" syn match powNumber "\<\d\+"
-" syn match powNumber "[-]\d\+"
-" syn match powNumber "\<\d\+\.\d*"
-" syn match powNumber "[-]\d\+\.\d*"
+let b:current_syntax = "algo"
 
-" syn match powOp   "\v1\v\+"
-" syn match powOp   "\v1\v-"
-
-" syn sync lines=100
-
-" hi def link powFunc       Keyword
-" hi def link powOp         Operator
-" hi def link powCond       Conditional
-" hi def link powType       Type
-" hi def link powBool       Boolean
-" hi def link powString     String
-" hi def link powNumber     Number
-" hi def link powID         Identifier
-" hi def link powLambda     Identifier
-" hi def link powLambdaCall Identifier
-" hi def link powStatement  Statement
-" hi def link powComment    Comment
-" hi def link powTodo       Todo
-
-" let b:current_syntax = "pow"
+hi def link Program Constant
+hi def link Assignment Constant
+hi def link StockFunc Keyword
+hi def link BinOp Operator
+hi def link Condition Conditional
+hi def link VarType Type
+hi def link Bool Boolean
+hi def link AlgoString String
+hi def link AlgoNumber Number
+hi def link File PreProc
+hi def link ID Identifier
+hi def link VarDeclaration Statement
+hi def link AlgoComment Comment
+hi def link AlgoTodo Todo
+hi def link Loop Statement
+hi def link Conjonction Constant

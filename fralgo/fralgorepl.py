@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import readline
 import traceback
-from fralgo.version import get_version
+from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException
@@ -93,7 +93,7 @@ def main():
   print('|    ___|   __ \   _   |     |_|     __|       |')
   print('|    ___|      <       |       |    |  |   -   |')
   print('|___|   |___|__|___|___|_______|_______|_______|')
-  print(f'A L G O R I T H M E S                   {get_version()}mg')
+  print(f'A L G O R I T H M E S                   {__version__}mg')
   print()
   print('[ ctrl+d pour quitter ]')
   print('En attente de vos instructions.')

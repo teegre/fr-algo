@@ -8,17 +8,35 @@ Structure Q
   d en Entier
 FinStructure
 
+Structure R
+  e en Q
+  f en Entier
+FinStructure
+
 Variable x en P
 Variable y en Q
+Variable z en R
 
 Début
+  Ecrire "Structure dans structure :"
   x <- 1, 2
   y.c <- x
-  Ecrire y.c.a = 1
+  Ecrire ">> y.c.a et y.c.b", y.c.a = 1 ET y.c.b = 2
   y.c.a <- 3
-  Ecrire y.c.a = 3
   y.c.b <- 4
-  Ecrire y.c.b = 4
-  Ecrire y.c.a = x.a + 2 ET y.c.b = x.b + 2
-  Ecrire x.a = 1 ET x.b = 2
+  Ecrire ">> x.a et x.b", x.a = 1 ET x.b = 2
+  Ecrire ">> y.c.a et y.c.b", y.c.a = 3 ET y.c.b = 4
+  Ecrire ">> y.c.a + 2 et y.c.b + 2", y.c.a = x.a + 2 ET y.c.b = x.b + 2
+
+  Ecrire "Structure dans structure dans structure :"
+  z.e.c <- x
+  Ecrire ">> z.e.c.a et z.e.c.b", z.e.c.a = 1 ET z.e.c.b = 2
+  z.e.c.a <- 3
+  z.e.c.b <- 4
+  Ecrire ">> x.a et x.b", x.a = 1 ET x.b = 2
+  Ecrire ">> z.e.c.a et z.e.c.b", z.e.c.a = 3 ET z.e.c.b = 4
+  z.e.d <- 5
+  Ecrire ">> z.e.d = 5", z.e.d = 5
+  z.f <- 6
+  Ecrire ">> z.f = 6", z.f = 6
 Fin

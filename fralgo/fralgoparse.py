@@ -219,7 +219,10 @@ def p_structure_accesses(p):
                      | structure_access
   '''
   if len(p) == 4:
-    p[0] = (StructureGetItem(p[1][0], p[1][1]),) + (p[3],)
+    if len(p[3]) > 1:
+      p[0] = ((p[1][0], p[1][1]) + p[3][:-1], p[3][-1])
+    else:
+      p[0] = ((p[1][0], p[1][1]), p[3])
   else:
     p[0] = p[1]
 

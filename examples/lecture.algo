@@ -10,8 +10,8 @@ Début
   TantQue NON(FDF(1))
     LireFichier 1, ligne
     Redim info[indice_max,1]
-    info[indice_max,0] <- Extraire(ligne, 1, 19)
-    info[indice_max,1] <- Extraire(ligne, 20, 15)
+    info[indice_max,0] <- Extraire(ligne, 1, 20)
+    info[indice_max,1] <- Extraire(ligne, 21, 15)
     indice_max <- indice_max + 1
   FinTantQue
   Fermer 1

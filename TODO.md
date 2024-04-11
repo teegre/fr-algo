@@ -5,9 +5,9 @@
 *  Debug: If `x = VRAI`, `Si NON(x)` is `VRAI` although `Ecrire NON(x)` returns `FAUX`. [FIXED]
 *  Better AST representation.
 *  Error code + detailed description.
-*  Gauche("ABCD", 2) "AB", Droite("ABCD", 2) "CD"
-*  Trouve("A B C D", "B C") 3, Trouve("ABC", "D") 0
-*  Asc("A") 65, Chr(65) "A"
-*  Ent("3.5") 3
-*  Alea() returns a random number between 0 and 1
-*  CNum("1") 1, CNum("1.5") 1.5, CCar(1) "1", CCar("1.5") 1.5
+*  Gauche("ABCD", 2) "AB", Droite("ABCD", 2) "CD" [OK]
+*  Trouve("A B C D", "B C") 3, Trouve("ABC", "D") 0 [OK]
+*  Extraire("ABC", 2, 1) "B" [OK]
+*  Asc("A") 65, Car(65) "A" [OK]
+*  Alea() returns a random number between 0 and 1 [OK]
+*  Type conversion [TESTING]

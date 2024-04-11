@@ -26,7 +26,7 @@ import operator
 from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.datatypes import Structure
+from fralgo.lib.datatypes import Structure, is_structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
@@ -110,6 +110,8 @@ class DeclareStruct:
   def eval(self):
     for field, datatype in self.fields:
       if datatype not in self.__types:
+        if isinstance(datatype, tuple) or is_structure(datatype):
+          continue
         raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
     declare_structure(Structure(self.name, self.fields))
   def __repr__(self):

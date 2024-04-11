@@ -110,6 +110,9 @@ class DeclareStruct:
   def eval(self):
     for field, datatype in self.fields:
       if datatype not in self.__types:
+        if isinstance(datatype, tuple):
+          # sized Caractère type.
+          continue
         raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
     declare_structure(Structure(self.name, self.fields))
   def __repr__(self):

@@ -13,30 +13,83 @@ Structure R
   f en Entier
 FinStructure
 
+Structure S
+  g en R
+  h en Entier
+FinStructure
+
 Variable x en P
 Variable y en Q
 Variable z en R
+Variable u en S
+
+Variables test, final en Booléen
 
 Début
   Ecrire "Structure dans structure :"
   x <- 1, 2
   y.c <- x
-  Ecrire ">> y.c.a et y.c.b", y.c.a = 1 ET y.c.b = 2
+  test <- y.c.a = 1 ET y.c.b = 2
+  final <- test
+  Ecrire ">> y.c.a et y.c.b", test
   y.c.a <- 3
   y.c.b <- 4
-  Ecrire ">> x.a et x.b", x.a = 1 ET x.b = 2
-  Ecrire ">> y.c.a et y.c.b", y.c.a = 3 ET y.c.b = 4
-  Ecrire ">> y.c.a + 2 et y.c.b + 2", y.c.a = x.a + 2 ET y.c.b = x.b + 2
+  test <- x.a = 1 ET x.b = 2
+  final <- final ET test
+  Ecrire ">> x.a et x.b", test
+  test <- y.c.a = 3 ET y.c.b = 4
+  final <- final ET test
+  Ecrire ">> y.c.a et y.c.b", test
+  test <- y.c.a = x.a + 2 ET y.c.b = x.b + 2
+  final <- final ET test
+  Ecrire ">> y.c.a + 2 et y.c.b + 2", test
+  y.c <- 3, 4
+  test <- y.c.a = 3 ET y.c.b = 4
+  final <- final ET test
 
   Ecrire "Structure dans structure dans structure :"
   z.e.c <- x
-  Ecrire ">> z.e.c.a et z.e.c.b", z.e.c.a = 1 ET z.e.c.b = 2
+  test <- z.e.c.a = 1 ET z.e.c.b = 2
+  final <- final ET test
+  Ecrire ">> z.e.c.a et z.e.c.b", test
   z.e.c.a <- 3
   z.e.c.b <- 4
-  Ecrire ">> x.a et x.b", x.a = 1 ET x.b = 2
-  Ecrire ">> z.e.c.a et z.e.c.b", z.e.c.a = 3 ET z.e.c.b = 4
+  test <- x.a = 1 ET x.b = 2
+  final <- final ET test
+  Ecrire ">> x.a et x.b", test
+  test <- z.e.c.a = 3 ET z.e.c.b = 4
+  final <- final ET test
+  Ecrire ">> z.e.c.a et z.e.c.b", test
   z.e.d <- 5
-  Ecrire ">> z.e.d = 5", z.e.d = 5
   z.f <- 6
-  Ecrire ">> z.f = 6", z.f = 6
+  test <- z.e.d = 5 ET z.f = 6
+  final <- final ET test
+  Ecrire ">> z.e.d et z.f", test
+
+  Ecrire "Toujours plus loin..."
+  u.g.e.c.a <- 1
+  u.g.e.c.b <- 2
+  test <- u.g.e.c.a = 1 ET u.g.e.c.b = 2
+  final <- final ET test
+  Ecrire "u.g.e.c.a et u.g.e.c.b", test
+  u.g.e.c <- 3, 4
+  test <- u.g.e.c.a = 3 ET u.g.e.c.b = 4
+  final <- final ET test
+  Ecrire "u.g.e.c.a et u.g.e.c.b", test
+  u.g.e.d <- 5
+  u.g.f <- 6
+  test <- u.g.e.d = 5 ET u.g.f = 6
+  final <- final ET test
+  Ecrire "u.g.e.d et u.g.f", test
+  u.h <- 7
+  test <- u.h = 7
+  final <- final ET test
+  Ecrire "u.h", test
+
+  Ecrire "Conclusion : " \
+  Si final Alors
+    Ecrire "victoire !"
+  Sinon
+    Ecrire "échec cuisant."
+  FinSi
 Fin

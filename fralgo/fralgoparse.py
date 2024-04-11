@@ -220,9 +220,9 @@ def p_structure_accesses(p):
   '''
   if len(p) == 4:
     if len(p[3]) > 1:
-      p[0] = ((p[1][0], p[1][1]) + p[3][:-1], p[3][-1])
+      p[0] = p[1] + p[3]
     else:
-      p[0] = ((p[1][0], p[1][1]), p[3])
+      p[0] = (p[1], p[3])
   else:
     p[0] = p[1]
 
@@ -359,10 +359,22 @@ def p_structure_assignment(p):
   '''
   structure_assignment : structure_accesses ARROW sequence NEWLINE
   '''
-  if len(p[3]) == 1:
-    p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
+  # StructureSetItem(var, field, value)
+  if len(p[1]) > 2:
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3][0]), p.lineno(1))
+    else:
+      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+  elif len(p[1]) > 1:
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
+    else:
+      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
   else:
-    p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1][0], None, p[3][0]), p.lineno(1))
+    else:
+      p[0] = Node(StructureSetItem(p[1][0], None, p[3]), p.lineno(1))
 
 def p_array_get_item(p):
   '''
@@ -374,7 +386,10 @@ def p_structure_get_item(p):
   '''
   structure_get_item : structure_accesses
   '''
-  p[0] = StructureGetItem(p[1][0], p[1][1])
+  if len(p[1]) > 2:
+    p[0] = StructureGetItem(p[1][:-1], p[1][-1])
+  else:
+    p[0] = StructureGetItem(p[1][0], p[1][1])
 
 def p_if_block(p):
   '''

@@ -174,13 +174,16 @@ class StructureSetItem:
     self.var = var
     self.field = field
     self.value = value
+    # print('var', repr(var), 'field', repr(field), 'value', repr(value))
   def eval(self):
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
+        # print(self.var[0])
         structure = get_variable(self.var[0])
         for f, field in enumerate(self.var):
           if f == 0:
             continue
+          # print(f, repr(structure), repr(field))
           structure = structure.get_item(field)
         var = structure
     elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):

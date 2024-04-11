@@ -13,9 +13,15 @@ Structure R
   f en Entier
 FinStructure
 
+Structure S
+  g en R
+  h en Entier
+FinStructure
+
 Variable x en P
 Variable y en Q
 Variable z en R
+Variable u en S
 
 Début
   Ecrire "Structure dans structure :"
@@ -39,4 +45,11 @@ Début
   Ecrire ">> z.e.d = 5", z.e.d = 5
   z.f <- 6
   Ecrire ">> z.f = 6", z.f = 6
+
+  Ecrire "Toujours plus loin..."
+  u.g.e.c.a <- 1
+  u.g.e.c.b <- 2
+  u.g.e.d <- 3
+  u.g.f <- 4
+  u.h <- 5
 Fin

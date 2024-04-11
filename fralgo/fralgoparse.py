@@ -220,15 +220,11 @@ def p_structure_accesses(p):
   '''
   if len(p) == 4:
     if len(p[3]) > 1:
-      # print('>1 p[1]', p[1], 'p[3]', p[3])
-      p[0] = (p[1] + p[3])
+      p[0] = p[1] + p[3]
     else:
-      # print('1 p[1]', p[1], 'p[3]', p[3])
       p[0] = (p[1], p[3])
   else:
-    # print('p[1]', p[1])
     p[0] = p[1]
-  # print('accesses', p[0])
 
 def p_structure_access(p):
   '''
@@ -242,7 +238,6 @@ def p_structure_access(p):
     p[0] = (ArrayGetItem(p[1][0], *p[1][1]), p[3])
   else:
     p[0] = (p[1], p[3])
-  # print('access', p[0])
 
 def p_array_access(p):
   '''
@@ -364,17 +359,22 @@ def p_structure_assignment(p):
   '''
   structure_assignment : structure_accesses ARROW sequence NEWLINE
   '''
-  print('setitem', 'var, field', p[1], 'value', p[3], 'len', len(p[3]), sep=' / ')
+  # StructureSetItem(var, field, value)
   if len(p[1]) > 2:
     if len(p[3]) == 1:
-      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3]), p.lineno(1))
+      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3][0]), p.lineno(1))
     else:
-      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3][-1]), p.lineno(1))
-  elif len(p[1]) == 2:
-    p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3]), p.lineno(1))
+      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+  elif len(p[1]) > 1:
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
+    else:
+      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
   else:
-    p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
-  print('setitem', p[0])
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1][0], None, p[3][0]), p.lineno(1))
+    else:
+      p[0] = Node(StructureSetItem(p[1][0], None, p[3]), p.lineno(1))
 
 def p_array_get_item(p):
   '''
@@ -386,12 +386,10 @@ def p_structure_get_item(p):
   '''
   structure_get_item : structure_accesses
   '''
-  # print(len(p[1]))
   if len(p[1]) > 2:
     p[0] = StructureGetItem(p[1][:-1], p[1][-1])
   else:
     p[0] = StructureGetItem(p[1][0], p[1][1])
-  print('getitem', p[0])
 
 def p_if_block(p):
   '''

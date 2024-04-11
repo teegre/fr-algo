@@ -103,10 +103,14 @@ class DeclareSizedChar:
     return f'Variable {self.name}*{self.size}'
 
 class DeclareStruct:
+  __types = ('Booléen', 'Caractère', 'Chaîne', 'Entier', 'Numérique')
   def __init__(self, name, fields):
     self.name = name
     self.fields = fields
   def eval(self):
+    for field, datatype in self.fields:
+      if datatype not in self.__types:
+        raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
     declare_structure(Structure(self.name, self.fields))
   def __repr__(self):
     return f'Structure {self.name} {self.fields}'

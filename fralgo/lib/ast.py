@@ -26,7 +26,7 @@ import operator
 from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
-from fralgo.lib.datatypes import Structure, StructureData
+from fralgo.lib.datatypes import Structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
@@ -153,6 +153,14 @@ class StructureGetItem:
     self.var = var
     self.field = field
   def eval(self):
+    if isinstance(self.var, tuple):
+      if len(self.var) > 1:
+        structure = get_variable(self.var[0])
+        for f, field in enumerate(self.var):
+          if f == 0:
+            continue
+          structure = structure.get_item(field)
+        return structure.get_item(self.field)
     if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
@@ -167,8 +175,15 @@ class StructureSetItem:
     self.field = field
     self.value = value
   def eval(self):
-    var = self.var
-    if isinstance(var, (StructureGetItem, ArrayGetItem)):
+    if isinstance(self.var, tuple):
+      if len(self.var) > 1:
+        structure = get_variable(self.var[0])
+        for f, field in enumerate(self.var):
+          if f == 0:
+            continue
+          structure = structure.get_item(field)
+        var = structure
+    elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
       var = get_variable(self.var)

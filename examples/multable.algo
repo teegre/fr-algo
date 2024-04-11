@@ -1,7 +1,7 @@
 # Tables de multiplication
 Variables N, I en Entier
 Début
-  Ecrire "Entrez un nombre entier positif non nul :"
+  Ecrire "Entrez un nombre entier positif non nul : " \
   Lire N
   Si N > 0 Alors
     Pour I ← 1 à 10

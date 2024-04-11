@@ -1,7 +1,6 @@
 Tableau T[7] en Entier
 Variable I en Entier
 Début
-  Ecrire T
   Ecrire "Remplissage du tableau..."
   Pour I ← 0 à 7
     T[I] ← I + 1

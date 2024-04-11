@@ -14,7 +14,7 @@ Début
     i <- i + 1
     Redim MesPotes[i]
     LireFichier 3, tampon
-    MesPotes[i] <- Extraire(tampon, 1, 19), Extraire(tampon, 20, 36), Extraire(tampon, 36, 45), Extraire(tampon, 46, 65)
+    MesPotes[i] <- Extraire(tampon, 1, 20), Extraire(tampon, 21, 15), Extraire(tampon, 36, 10), Extraire(tampon, 46, 20)
   FinTantQue
   Fermer 3
   Ecrire MesPotes[3].tel = "0149875231"

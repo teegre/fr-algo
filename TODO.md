@@ -11,3 +11,4 @@
 *  Asc("A") 65, Car(65) "A" [OK]
 *  Alea() returns a random number between 0 and 1 [OK]
 *  Type conversion [TESTING]
+*  Dormir(duration)

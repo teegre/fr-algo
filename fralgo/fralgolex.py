@@ -67,6 +67,7 @@ reserved = {
   'Car':        'CHR',
   'CodeCar':    'ORD',
   'Aléa':       'RANDOM',
+  'Dormir':     'SLEEP',
   'Ouvrir':     'OPEN',
   'Fermer':     'CLOSE',
   'LireFichier': 'READFILE',

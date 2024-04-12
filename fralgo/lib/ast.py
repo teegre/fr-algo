@@ -23,7 +23,9 @@
 import os
 import sys
 import operator
+from time import sleep
 from random import random
+
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
@@ -320,7 +322,7 @@ class BinOp:
     op = self.__op.get(self.op, None)
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
-        raise BadType('E|N/E|N : Type Entier ou Numérique attendu')
+        raise BadType('E|N / E|N : Type Entier ou Numérique attendu')
       if isinstance(a, int) and isinstance(b, int):
         if b == 0:
           raise ZeroDivide('Division par zéro')
@@ -332,13 +334,17 @@ class BinOp:
     if self.op == 'dp':
       return map_type(a % b == 0)
     if self.op == '&':
-      # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
         return a + b
       raise BadType('C & C : Type Chaîne attendu')
     if self.b is None:
       return op(a)
-    return op(a, b)
+    if isinstance(a, str) and isinstance(b, str):
+      raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
+    try:
+      return op(a, b)
+    except TypeError:
+      raise BadType('Opération sur des types incompatibles')
   def __repr__(self):
     if self.b is None:
       return f'{self.op} {self.a}'
@@ -621,6 +627,18 @@ class Random:
     return map_type(random())
   def __repr__(self):
     return 'Aléa()'
+
+class Sleep:
+  def __init__(self, duration):
+    self.duration = duration
+  def eval(self):
+    duration = algo_to_python(self.duration)
+    try:
+      sleep(duration)
+    except TypeError:
+      raise BadType('Dormir(E|N) : Type Entier ou Numérique attendu')
+  def __repr__(self):
+    return f'Dormir({self.duration})'
 
 def algo_to_python(expression):
   '''

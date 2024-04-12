@@ -1,0 +1,12 @@
+Variable c en Caractère
+Variable ch en Chaîne
+Variable e en Entier
+Variable n en Numérique
+
+Début
+ c <- Car(65)
+ ch <- Chaîne(713705)
+ e <- Entier("713705")
+ Ecrire "ch = '" & ch & "', e =", e, ", ch = e ? " \
+ Ecrire ch = e
+Fin

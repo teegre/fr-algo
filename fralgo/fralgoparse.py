@@ -8,7 +8,7 @@ from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
-from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FatalError
@@ -293,6 +293,7 @@ def p_statement(p):
             | PRINT sequence BACKSLASH NEWLINE
             | READ ID NEWLINE
             | READ array_access NEWLINE
+            | SLEEP LPAREN expression RPAREN NEWLINE
             | expression NEWLINE
   '''
   if p[1] == 'Ecrire':
@@ -303,6 +304,8 @@ def p_statement(p):
       p[0] = Node(Read(p[2][0].name, *p[2][1]), p.lineno(1))
     else:
       p[0] = Node(Read(p[2]), p.lineno(1))
+  elif p[1] == 'Dormir':
+    p[0] = Node(Sleep(p[3]), p.lineno(1))
   else:
     p[0] = Node(p[1], p.lineno(1))
 

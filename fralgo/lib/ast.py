@@ -23,7 +23,9 @@
 import os
 import sys
 import operator
+from time import sleep
 from random import random
+
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
@@ -625,6 +627,18 @@ class Random:
     return map_type(random())
   def __repr__(self):
     return 'Aléa()'
+
+class Sleep:
+  def __init__(self, duration):
+    self.duration = duration
+  def eval(self):
+    duration = algo_to_python(self.duration)
+    try:
+      sleep(duration)
+    except TypeError:
+      raise BadType('Dormir(E|N) : Type Entier ou Numérique attendu')
+  def __repr__(self):
+    return f'Dormir({self.duration})'
 
 def algo_to_python(expression):
   '''

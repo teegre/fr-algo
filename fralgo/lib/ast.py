@@ -320,7 +320,7 @@ class BinOp:
     op = self.__op.get(self.op, None)
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
-        raise BadType('E|N/E|N : Type Entier ou Numérique attendu')
+        raise BadType('E|N / E|N : Type Entier ou Numérique attendu')
       if isinstance(a, int) and isinstance(b, int):
         if b == 0:
           raise ZeroDivide('Division par zéro')
@@ -332,13 +332,17 @@ class BinOp:
     if self.op == 'dp':
       return map_type(a % b == 0)
     if self.op == '&':
-      # evaluate expressions until we get a str.
       if isinstance(a, str) and isinstance(b, str):
         return a + b
       raise BadType('C & C : Type Chaîne attendu')
     if self.b is None:
       return op(a)
-    return op(a, b)
+    if isinstance(a, str) and isinstance(b, str):
+      raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
+    try:
+      return op(a, b)
+    except TypeError:
+      raise BadType('Opération sur des types incompatibles')
   def __repr__(self):
     if self.b is None:
       return f'{self.op} {self.a}'

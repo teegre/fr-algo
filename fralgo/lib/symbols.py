@@ -78,8 +78,8 @@ def is_variable_structure(name):
   var = get_variable(name)
   return is_structure(var.data_type)
 
-def is_local_function(name):
-  return __localfunc.get(name) is not None
+# def is_local_function(name):
+#   return __localfunc.get(name) is not None
 
 def delete_variable(name):
   __variables.pop(name)

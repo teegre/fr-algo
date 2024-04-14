@@ -320,6 +320,7 @@ class BinOp:
     a = algo_to_python(self.a)
     b = algo_to_python(self.b)
     op = self.__op.get(self.op, None)
+    comp = ('=', '<>', '<', '>', '<=', '>=')
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
         raise BadType('E|N / E|N : Type Entier ou Numérique attendu')
@@ -339,7 +340,7 @@ class BinOp:
       raise BadType('C & C : Type Chaîne attendu')
     if self.b is None:
       return op(a)
-    if isinstance(a, str) and isinstance(b, str):
+    if isinstance(a, str) and isinstance(b, str) and self.op not in comp:
       raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
     try:
       return op(a, b)

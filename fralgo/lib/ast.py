@@ -510,7 +510,10 @@ class OpenFile:
     fd = new_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    fd.open_file(self.filename.eval(), self.access_mode)
+    try:
+      fd.open_file(self.filename.eval(), self.access_mode)
+    except FatalError as e:
+      raise e
   def __repr__(self):
     return f'Ouvrir {self.filename} sur {self.fd_number} en {self.access_mode_str}'
 

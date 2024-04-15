@@ -49,6 +49,9 @@ class Node:
         result = statement.eval()
       except FatalError as e:
         print(f'*** {e.message}')
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          sys.exit(666)
       except FralgoException as e:
         print('***', e.message)
         if 'FRALGOREPL' not in os.environ:

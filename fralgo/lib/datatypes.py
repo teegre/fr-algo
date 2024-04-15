@@ -200,7 +200,11 @@ class Array(Base):
     array = self.value
     for i in idxs[:-1]:
       array = array[i]
-    array[idxs[-1]] = typed_value.eval()
+    # /!\ deepcopy StructureData
+    if isinstance(typed_value, StructureData):
+      array[idxs[-1]] = deepcopy(typed_value)
+    else:
+      array[idxs[-1]] = typed_value.eval()
   def _indexes_to_copy(self, old, new):
     '''
     Generator yielding indexes for copying values
@@ -225,6 +229,8 @@ class Array(Base):
       value = self.get_item(*idx)
       if value is None:
         continue
+      if isinstance(value, StructureData):
+        value = deepcopy(value)
       new_array.set_value(idx, map_type(value))
     self.indexes = idxs
     self.sizes = sizes

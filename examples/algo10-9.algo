@@ -1,0 +1,47 @@
+Structure Vendeur
+  nom en Caractère*20
+  vente en Numérique
+FinStructure
+
+Tableau vendeurs[] en Vendeur
+Variables vendeur, vendeur_precedent en Vendeur
+Variable ligne en Chaîne
+Variables index, index_max en Entier
+Variable total en Numérique
+
+Début
+  Ouvrir "ventes.txt" sur 1 en Lecture
+
+  index_max <- -1
+
+  LireFichier 1, ligne
+  vendeur_precedent <- Extraire(ligne, 1, 20), Numérique(Extraire(ligne, 21, 10))
+
+  TantQue NON(FDF(1))
+    LireFichier 1, ligne
+    vendeur<- Extraire(ligne, 1, 20), Numérique(Extraire(ligne, 21, 10))
+    Si vendeur_precedent.nom <> vendeur.nom Alors
+      index_max <- index_max + 1
+      Redim vendeurs[index_max]
+      vendeurs[index_max] <- vendeur_precedent
+      vendeur_precedent <- vendeur
+    Sinon
+      vendeur.vente <- vendeur.vente + vendeur_precedent.vente
+      vendeur_precedent <- vendeur
+    FinSi
+  FinTantQue
+
+  Fermer 1
+
+  index_max <- index_max + 1
+  Redim vendeurs[index_max]
+  vendeurs[index_max] <- vendeur
+
+  total <- 0.0
+  Pour index <- 0 à index_max
+    Ecrire Chaîne(vendeurs[index].nom), vendeurs[index].vente
+    total <- total + vendeurs[index].vente
+  index Suivant
+  Ecrire "-----------------------------"
+  Ecrire "total               ", total
+Fin

@@ -27,7 +27,7 @@ from time import sleep
 from random import random
 
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
+from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
@@ -49,6 +49,9 @@ class Node:
         result = statement.eval()
       except FatalError as e:
         print(f'*** {e.message}')
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          sys.exit(666)
       except FralgoException as e:
         print('***', e.message)
         if 'FRALGOREPL' not in os.environ:
@@ -320,6 +323,7 @@ class BinOp:
     a = algo_to_python(self.a)
     b = algo_to_python(self.b)
     op = self.__op.get(self.op, None)
+    comp = ('=', '<>', '<', '>', '<=', '>=')
     if self.op == '/':
       if not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
         raise BadType('E|N / E|N : Type Entier ou Numérique attendu')
@@ -339,7 +343,7 @@ class BinOp:
       raise BadType('C & C : Type Chaîne attendu')
     if self.b is None:
       return op(a)
-    if isinstance(a, str) and isinstance(b, str):
+    if isinstance(a, str) and isinstance(b, str) and self.op not in comp:
       raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
     try:
       return op(a, b)
@@ -506,7 +510,10 @@ class OpenFile:
     fd = new_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    fd.open_file(self.filename.eval(), self.access_mode)
+    try:
+      fd.open_file(self.filename.eval(), self.access_mode)
+    except FatalError as e:
+      raise e
   def __repr__(self):
     return f'Ouvrir {self.filename} sur {self.fd_number} en {self.access_mode_str}'
 
@@ -647,7 +654,7 @@ def algo_to_python(expression):
   types = (
       ArrayGetItem,
       BinOp, Boolean,
-      Chr,
+      Char, Chr,
       EOF,
       Find,
       Len,

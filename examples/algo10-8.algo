@@ -1,0 +1,42 @@
+ Structure Bottin
+  Nom en Caractère * 20
+  Prénom en Caractère * 15
+  Tel en Caractère * 10
+  Mail en Caractère * 20
+FinStructure
+
+Tableau MesPotes[] en Bottin
+Variable MonPote en Bottin
+Variable Tampon en Chaîne
+Variables i, t, nb en Entier
+
+Début
+  Ouvrir "../examples/adresse.txt" sur 1 en Lecture
+  t ← -1
+  TantQue NON(FDF(1))
+    LireFichier 1, Tampon
+    MonPote.Nom <- Extraire(Tampon, 1, 20)
+    MonPote.Prénom <- Extraire(Tampon, 21, 15)
+    MonPote.Tel <- Extraire(Tampon, 36, 10)
+    MonPote.Mail <- Extraire(Tampon, 46, 20)
+    Ecrire MonPote
+    nb ← 0
+    Pour i ← 1 à Longueur(MonPote.Mail)
+      Si Extraire(MonPote.Mail, i, 1) = "@" Alors
+        nb ← nb + 1
+      FinSi
+    i Suivant
+    Si nb = 1 Alors
+      t ← t + 1
+      Redim MesPotes[t]
+      MesPotes[t] ← MonPote
+    FinSi
+  FinTantQue
+  Fermer 1
+  Ecrire MesPotes
+  Ouvrir "../examples/adresse_corrigé.txt" sur 1 en Ecriture
+  Pour i ← 0 à t
+    EcrireFichier 1, MesPotes[i]
+  i Suivant
+  Fermer 1
+Fin

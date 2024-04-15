@@ -1,0 +1,10 @@
+vendeur1            1000.5
+vendeur1            2000.5     
+vendeur2            3000.5     
+vendeur2            4000.5     
+vendeur3            5000.5    
+vendeur3            6000.5
+vendeur4            7000.5
+vendeur4            7500.5
+vendeur5            8000.5
+vendeur5            9000.5

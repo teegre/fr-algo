@@ -18,7 +18,8 @@ from fralgo.ply.yacc import yacc
 tokens = lex.tokens
 
 precedence = (
-    ('left', 'EQ', 'GT', 'LT', 'GE', 'LE'),
+    ('left', 'EQ', 'NE'),
+    ('left', 'GT', 'LT', 'GE', 'LE'),
     ('left', 'CONCAT'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV', 'MODULO'),

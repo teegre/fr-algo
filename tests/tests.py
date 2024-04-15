@@ -17,10 +17,36 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_structure(self):
+    prog = '''Structure P
+      a en Entier
+      b en Entier
+    FinStructure
+    Variable p en P
+    Variables test1, test2 en Booléen
+    Début
+      Ecrire "1. Test Structure"
+      p <- 1, 2
+      test1 ← p.a = 1 ET p.b = 2
+      p.a <- 3
+      p.b <- 4
+      test2 ← p.a = 3 ET p.b = 4
+      Ecrire test1, test2
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = get_variable('test1')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    t2 = get_variable('test2')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    print()
+
   def test_array_declaration(self):
     prog = '''Tableau T[] en Entier
     Début
-      Ecrire "Test déclaration d'un tableau vide"
+      Ecrire "2. Test déclaration d'un tableau vide"
     Fin'''
 
     reset_parser()
@@ -34,7 +60,7 @@ class Test(unittest.TestCase):
   def test_multidimensional_array_declaration(self):
     prog = '''Tableau T[2, 2] en Entier
     Début
-      Ecrire "Test déclaration d'un tableau multidimensionnel vide"
+      Ecrire "3. Test déclaration d'un tableau multidimensionnel vide"
     Fin'''
 
     reset_parser()
@@ -49,7 +75,7 @@ class Test(unittest.TestCase):
   def test_arrays_declaration(self):
     prog = '''Tableaux T1[], T2[2, 2], T3[3] en Entier
     Début
-      Ecrire "Test déclarations de plusieurs tableaux"
+      Ecrire "4. Test déclarations de plusieurs tableaux"
     Fin'''
 
     reset_parser()
@@ -70,7 +96,7 @@ class Test(unittest.TestCase):
     prog = '''Tableau T[7] en Entier
     Variable I en Entier
     Début
-      # Remplissage du tableau avec une boucle Pour
+      Ecrire "5. Remplissage du tableau avec une boucle Pour"
       Pour I ← 0 à 7
         T[I] ← I + 1
       I Suivant
@@ -99,7 +125,7 @@ class Test(unittest.TestCase):
     prog = '''Variable Marche en Booléen
     Début
       Marche ← VRAI
-      Ecrire "Test de la boucle 'TantQue Marche'"
+      Ecrire "6. Test de la boucle 'TantQue Marche'"
       TantQue Marche
         Ecrire Marche
         Marche ← FAUX
@@ -118,7 +144,7 @@ class Test(unittest.TestCase):
     prog = '''Variable N en Entier
     Début
       N ← 1
-      Ecrire "Test de la boucle 'TantQue N < 11'"
+      Ecrire "7. Test de la boucle 'TantQue N < 11'"
       TantQue N < 11
         Ecrire N, "x 9 =", N * 9
         N ← N + 1
@@ -135,7 +161,7 @@ class Test(unittest.TestCase):
   def test_for_loop_normal(self):
     prog = '''Variable I en Entier
     Début
-      Ecrire "Test de la boucle 'Pour I <- 1 à 10'"
+      Ecrire "8. Test de la boucle 'Pour I <- 1 à 10'"
       Pour I ← 1 à 10
         Ecrire I
       I Suivant
@@ -151,7 +177,7 @@ class Test(unittest.TestCase):
   def test_for_loop_reverse(self):
     prog = '''Variable I en Entier
     Début
-      Ecrire "Test de la boucle 'Pour I <- 10 à 0 Pas -1'"
+      Ecrire "9. Test de la boucle 'Pour I <- 10 à 0 Pas -1'"
       Pour I ← 10 à 0 Pas -1
         Ecrire I
       I Suivant
@@ -167,7 +193,7 @@ class Test(unittest.TestCase):
   def test_for_step_two(self):
     prog = '''Variable I en Entier
     Début
-      Ecrire "Test de la boucle 'Pour I <- 1 à 10 Pas 2'"
+      Ecrire "10. Test de la boucle 'Pour I <- 1 à 10 Pas 2'"
       Pour I ← 1 à 10 Pas 2
         Ecrire I
       I Suivant
@@ -183,7 +209,7 @@ class Test(unittest.TestCase):
   def test_for_step_negative_two(self):
     prog = '''Variable I en Entier
     Début
-      Ecrire "Test de la boucle 'Pour I <- 0 à -10 Pas -2'"
+      Ecrire "11. Test de la boucle 'Pour I <- 0 à -10 Pas -2'"
       Pour I ← 0 à -10 Pas -2
         Ecrire I
       I Suivant
@@ -199,7 +225,7 @@ class Test(unittest.TestCase):
   def test_for_negative(self):
     prog = '''Variable I en Entier
     Début
-      Ecrire "Test de la boucle 'Pour I <- 0 à -10'"
+      Ecrire "12. Test de la boucle 'Pour I <- 0 à -10'"
       Pour I ← 0 à -10
         Ecrire I
       I Suivant
@@ -215,7 +241,7 @@ class Test(unittest.TestCase):
   def test_if_not(self):
     prog = '''Variables A, B en Booléen
     Début
-      Ecrire "Test de 'NON(A)'"
+      Ecrire "13. Test de 'NON(A)'"
       A ← VRAI
       Si NON(A) Alors
         B ← VRAI

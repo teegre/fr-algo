@@ -27,7 +27,7 @@ from time import sleep
 from random import random
 
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.datatypes import Array, Boolean, Number, Float, Integer, String
+from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
@@ -648,7 +648,7 @@ def algo_to_python(expression):
   types = (
       ArrayGetItem,
       BinOp, Boolean,
-      Chr,
+      Char, Chr,
       EOF,
       Find,
       Len,

@@ -19,7 +19,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from fralgo.lib.exceptions import BadType, VarUndeclared, FuncInvalidParameterCount
+from fralgo.lib.exceptions import FralgoException, BadType, VarUndeclared, FuncInvalidParameterCount
 
 __functions = {}
 
@@ -33,6 +33,8 @@ class Function:
     self.return_type = return_type # str
     if return_type is None:
       self._type = 'Procédure'
+  def eval(self):
+    declare_function(self.name, self.params, self.body, self.return_type)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
     return f'{self.data_type} {self.name}({", ".join(params)}) en {self.return_type}'
@@ -53,7 +55,7 @@ class FunctionCall:
     params = function.params
     # Check parameter count
     if len(self.params) != len(params):
-      raise FuncInvalidParameterCount(f'Nombre de paramètres invalide')
+      raise FuncInvalidParameterCount('Nombre de paramètres invalide')
     # Type check
     for index, param in enumerate(self.params):
       if param.data_type != params[index][1]:
@@ -66,11 +68,16 @@ class FunctionCall:
       result = body.eval()
     except FralgoException as e:
       raise e
+    finally:
+      self.__localvars.clear()
+    return result
   def set_variable(self, param, value):
     self.__localvars[param] = value
+  def get_variable(self, name):
+    return self.__localvars[name]
   def __repr__(self):
     params = [str(param) for param in self.params]
-    return f'{self.name} {", ".join(params)}'
+    return f'{self.name}({", ".join(params)})'
 
 def declare_function(name, params, body, return_type):
   __functions[name] = Function(name, params, body, return_type)

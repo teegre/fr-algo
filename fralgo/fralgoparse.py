@@ -10,6 +10,7 @@ from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
+from fralgo.lib.function import Function, FunctionCall
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
@@ -89,6 +90,7 @@ def p_var_declarations(p):
   var_declarations : var_declarations var_declaration
                    | var_declaration
                    | struct_declarations
+                   | function_declaration
   '''
   if len(p) == 2:
     p[0] = Node(p[1], p.lineno(1))
@@ -394,6 +396,63 @@ def p_structure_get_item(p):
     p[0] = StructureGetItem(p[1][:-1], p[1][-1])
   else:
     p[0] = StructureGetItem(p[1][0], p[1][1])
+
+def p_function_declaration(p):
+  '''
+  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
+  '''
+  p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
+  print(p[0])
+
+def p_body(p):
+  '''
+  body : statements RETURN expression NEWLINE
+       | RETURN expression NEWLINE
+  '''
+  if len(p) == 5:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = p[2]
+
+def p_parameters(p):
+  '''
+  parameters : parameters COMMA parameter
+             | parameter
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = p[1]
+
+def p_parameter(p):
+  '''
+  parameter : var_list TYPE_DECL type
+            | ID TYPE_DECL type
+  '''
+  if isinstance(p[1], list):
+    # multiple variables with the same type
+    parameters = []
+    for param in p[1]:
+      parameters.append((param, p[3]))
+      p[0] = parameters
+  else:
+    p[0] = [(p[1], p[3])]
+
+def p_function_call(p):
+  '''
+  expression : ID LPAREN expressions RPAREN
+  '''
+  p[0] = Node(FunctionCall(p[1], p[3]), p.lineno(1))
+
+def p_expressions(p):
+  '''
+  expressions : expressions COMMA expression
+              | expression
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = [p[1]]
 
 def p_if_block(p):
   '''

@@ -1,0 +1,46 @@
+Structure Annuaire
+  nom en Caractère*20
+  prenom en Caractère*15
+  tel en Caractère*10
+  mail en Caractère*20
+FinStructure
+
+Tableau potes[] en Annuaire
+Variable pote en Annuaire
+Variables ancien, nouveau en Caractère*20
+Variable ligne en Chaîne
+Variables i, j en Entier
+Variable trouvé en Booléen
+
+Début
+  Ecrire "Entrez le nom à modifier : " \
+  Lire ancien
+  Ecrire "Entrez le nouveau nom : " \
+  Lire nouveau
+
+  Ouvrir "adresse.txt" sur 1 en Lecture
+  i <- -1
+  trouvé <- FAUX
+  TantQue NON(FDF(1))
+    i <- i + 1
+    Redim potes[i]
+    LireFichier 1, ligne
+    pote <- Extraire(ligne, 1, 20), Extraire(ligne, 21, 15), Extraire(ligne, 36, 10), Extraire(ligne, 46, 20)
+    Si pote.nom = ancien Alors
+      trouvé <- VRAI
+      pote.nom <- nouveau
+    FinSi
+    potes[i] <- pote
+  FinTantQue
+  Fermer 1
+  Ouvrir "adresse.txt" sur 1 en Ecriture
+  Pour j <- 0 à i
+    EcrireFichier 1, potes[j]
+  j Suivant
+  Fermer 1
+  Si trouvé Alors
+    Ecrire "Modification effectuée."
+  Sinon
+    Ecrire "Nom inconnu. Aucune modification effectuée"
+  FinSi
+Fin

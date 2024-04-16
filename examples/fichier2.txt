@@ -1,0 +1,5 @@
+fichier2 ligne1
+fichier2 ligne2
+fichier2 ligne3
+fichier2 ligne4
+fichier2 ligne5

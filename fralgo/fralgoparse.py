@@ -10,7 +10,7 @@ from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
-from fralgo.lib.function import Function, FunctionCall
+from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
@@ -89,8 +89,6 @@ def p_var_declarations(p):
   '''
   var_declarations : var_declarations var_declaration
                    | var_declaration
-                   | struct_declarations
-                   | function_declaration
   '''
   if len(p) == 2:
     p[0] = Node(p[1], p.lineno(1))
@@ -104,8 +102,12 @@ def p_var_declaration(p):
                   | ARRAYS_DECL array_list TYPE_DECL type NEWLINE
                   | VAR_DECL ID TYPE_DECL type NEWLINE
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
+                  | struct_declarations
+                  | function_declaration
   '''
-  if p[1].startswith('Tableau'):
+  if len(p) == 2:
+    p[0] = p[1]
+  elif p[1].startswith('Tableau'):
     # p[2] is a list of this form:
     # ['name1', ['name2', [x1, x2, ..., xN]], 'name3', ..., ['nameN', [x1, x2, ..., xN]]]
     # name being the variable name and x being indexes.
@@ -400,9 +402,12 @@ def p_structure_get_item(p):
 def p_function_declaration(p):
   '''
   function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
+                       | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
   '''
-  p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
-  print(p[0])
+  if len(p) == 12:
+    p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
+  else:
+    p[0] = Node(Function(p[2], None, p[8], p[6]), p.lineno(1))
 
 def p_body(p):
   '''
@@ -410,9 +415,10 @@ def p_body(p):
        | RETURN expression NEWLINE
   '''
   if len(p) == 5:
-    p[0] = p[1] + p[3]
+    p[1].append(Node(FunctionReturn(p[3])))
+    p[0] = p[1]
   else:
-    p[0] = p[2]
+    p[0] = Node(FunctionReturn(p[2]), p.lineno(1))
 
 def p_parameters(p):
   '''
@@ -441,8 +447,13 @@ def p_parameter(p):
 def p_function_call(p):
   '''
   expression : ID LPAREN expressions RPAREN
+             | ID LPAREN RPAREN
   '''
-  p[0] = Node(FunctionCall(p[1], p[3]), p.lineno(1))
+  if len(p) == 5:
+    params = p[3]
+  else:
+    params = None
+  p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
 
 def p_expressions(p):
   '''
@@ -450,7 +461,7 @@ def p_expressions(p):
               | expression
   '''
   if len(p) == 4:
-    p[0] = p[1] + p[3]
+    p[0] = p[1] + [p[3]] if not isinstance(p[3], list) else p[1] + p[3]
   else:
     p[0] = [p[1]]
 

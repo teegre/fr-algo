@@ -31,6 +31,7 @@ from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, S
 from fralgo.lib.datatypes import Structure, is_structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
+from fralgo.lib.symbols import declare_function, get_function, set_local, reset_local
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
@@ -71,6 +72,8 @@ class Node:
     return '\n'.join(statements)
   def __repr__(self):
     return f'Node({self.lineno}) {self.children}'
+  # def __add__(self, other):
+  #   self.append(other)
 
 class Declare:
   def __init__(self, name, var_type):
@@ -205,6 +208,67 @@ class StructureSetItem:
   def __repr__(self):
     return f'{self.var}.{self.field} ← {self.value}'
 
+class Function:
+  '''A function definition'''
+  ftype = 'Fonction'
+  def __init__(self, name, params, body, return_type):
+    self.name = name # str
+    self.params = params # [(name, datatype)]
+    self.body = body # Node
+    self.return_type = return_type # str
+    if return_type is None:
+      self.ftype = 'Procédure'
+  def eval(self):
+    declare_function(self)
+  def __repr__(self):
+    params = [f'{param} en {datatype}' for param, datatype in self.params]
+    return f'{self.ftype} {self.name}({", ".join(params)}) en {self.return_type}'
+
+class FunctionCall:
+  '''Function call'''
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
+  def eval(self):
+    # breakpoint()
+    function = get_function(self.name)
+    params = function.params
+    if self.params is not None:
+      # Check parameter count
+      if len(self.params) != len(params):
+        raise FuncInvalidParameterCount('Nombre de paramètres invalide')
+      # Type check
+      for index, param in enumerate(self.params):
+        if param.data_type != params[index][1]:
+          raise BadType(f'{self.name} : {function.params[index][0]}, type {function.params[index][1]} attendu')
+      sparams = [param.eval() for param in self.params]
+      set_local()
+      for index, param in enumerate(params):
+        declare_var(param[0], self.params[index].data_type)
+        var = get_variable(param[0])
+        var.set_value(sparams[index])
+    body = function.body
+    try:
+      result = body.eval()
+    except FralgoException as e:
+      raise e
+    finally:
+      reset_local()
+    if map_type(result).data_type != function.return_type:
+      raise BadType(f'Fonction {self.name} : type retourné invalide')
+    return algo_to_python(result)
+  def __repr__(self):
+    params = [str(param) for param in self.params]
+    return f'{self.name}({", ".join(params)})'
+
+class FunctionReturn:
+  def __init__(self, expression):
+    self.expression = map_type(expression)
+  def eval(self):
+    return self.expression.eval()
+  def __repr__(self):
+    return f'Retourne {self.expression}'
+
 class Assign:
   def __init__(self, var, value):
     self.var = var
@@ -229,6 +293,10 @@ class Variable:
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
+  @property
+  def data_type(self):
+    var = get_variable(self.name, is_global=True)
+    return var.data_type
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -661,6 +729,7 @@ def algo_to_python(expression):
       Neg, Number,
       Ord,
       Mid,
+      Node,
       Random,
       String,
       StructureGetItem,

@@ -26,6 +26,7 @@ from copy import deepcopy
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
 from fralgo.lib.exceptions import InvalidStructureValueCount
+from fralgo.lib.exceptions import FuncInvalidParameterCount
 
 __structures = {}
 
@@ -137,6 +138,30 @@ class Char(String):
     if self.value is None:
       return '?'
     return f'"{self.value}"'
+
+class Boolean(Base):
+  _type = 'Booléen'
+  def __init__(self, value):
+    if value in ('VRAI', 'FAUX'):
+      self.value = value == 'VRAI'
+    else:
+      self.value = value
+  def set_value(self, value):
+    if value not in (True, False):
+      raise BadType(f'Type {self.data_type} attendu [{value}]')
+    self.value = value
+  def eval(self):
+    if self.value is None:
+      raise VarUndefined('Valeur indéfinie')
+    return self.value
+  def __str__(self):
+    if self.value is not None:
+      return 'VRAI' if self.value is True else 'FAUX'
+    return f'{self.data_type}'
+  def __repr__(self):
+    if self.value is None:
+      return f'{self.data_type} → ?'
+    return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
 
 class Array(Base):
   _type = 'Tableau'
@@ -331,30 +356,6 @@ class StructureData(Base):
   @property
   def data_type(self):
     return self.name
-
-class Boolean(Base):
-  _type = 'Booléen'
-  def __init__(self, value):
-    if value in ('VRAI', 'FAUX'):
-      self.value = value == 'VRAI'
-    else:
-      self.value = value
-  def set_value(self, value):
-    if value not in (True, False):
-      raise BadType(f'Type {self.data_type} attendu [{value}]')
-    self.value = value
-  def eval(self):
-    if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
-    return self.value
-  def __str__(self):
-    if self.value is not None:
-      return 'VRAI' if self.value is True else 'FAUX'
-    return f'{self.data_type}'
-  def __repr__(self):
-    if self.value is None:
-      return f'{self.data_type} → ?'
-    return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
 
 def get_structure(name):
   structure = __structures.get(name, None)

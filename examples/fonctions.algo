@@ -1,0 +1,48 @@
+Variables n, x, y en Entier
+Fonction somme5(a, b, c, d, e en Entier) en Entier
+  Retourne a + b + c + d + e
+FinFonction
+
+Fonction carré(n en Entier) en Entier
+  Ecrire "Dans la fonction carré, n =", n
+  Retourne n ^ 2
+FinFonction
+
+Fonction plus(a, b en Entier) en Entier
+  Ecrire "Dans la fonction plus, a =", a, "et b =", b
+  Retourne a + b
+FinFonction
+
+Fonction un() en Entier
+  Retourne 1
+FinFonction
+
+Fonction deux() en Entier
+  Retourne 2
+FinFonction
+
+Fonction voyelles(mot en Chaîne) en Entier
+  Variables i, nb en Entier
+  nb <- 0
+  Pour i <- 1 à Longueur(mot)
+    Si Trouve("aeiouy")
+  i Suivant
+FinFonction
+
+Début
+  Ecrire "> Test de la fonction carré :"
+  n <- carré(9)
+  Ecrire "-- Le carré de 9 est égal à", n
+  n <- 10
+  Ecrire "-- le carré de 10 est égal à", carré(n)
+  Ecrire "> Test de la fonction plus :"
+  x <- 9
+  y <- 6
+  Ecrire x, "+", y, "=", plus(x, y)
+  Ecrire "9 + 9 =", plus(9, 9)
+  Ecrire "La fonction 'un'   retourne 1 :", un() = 1
+  Ecrire "La fonction 'deux' retourne 2 :", deux() = 2
+  Ecrire "'un' + 'deux' ?", un() + deux()
+  Ecrire "Somme de 1, 2, 3, 4 et 5 :", somme5(1, 2, 3, 4, 5)
+  Ecrire "Merci de votre attention."
+Fin

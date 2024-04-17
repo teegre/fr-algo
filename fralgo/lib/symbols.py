@@ -31,35 +31,35 @@ __localvars = []
 
 def declare_var(name, data_type):
   if is_local():
-    vars = __localvars[0]
+    variables = __localvars[-1]
   else:
-    vars = __variables
-  if vars.get(name, None) is not None:
+    variables = __variables
+  if variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
   datatype = get_type(data_type)
   if is_structure(data_type):
     structure = get_structure(data_type)
-    vars[name] = StructureData(structure)
+    variables[name] = StructureData(structure)
   else:
-    vars[name] = datatype(None)
+    variables[name] = datatype(None)
 
 def declare_array(name, data_type, *max_indexes):
   if is_local():
-    vars = __localvars[0]
+    variables = __localvars[-1]
   else:
-    vars = __variables
-  if vars.get(name, None) is not None:
+    variables = __variables
+  if variables.get(name, None) is not None:
     raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
-  vars[name] = Array(data_type, *max_indexes)
+  variables[name] = Array(data_type, *max_indexes)
 
 def declare_sized_char(name, size):
   if is_local():
-    vars = __localvars[0]
+    variables = __localvars[-1]
   else:
-    vars = __variables
-  if vars.get(name, None) is not None:
+    variables = __variables
+  if variables.get(name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-  vars[name] = Char(None, size)
+  variables[name] = Char(None, size)
 
 def declare_structure(structure):
   if __structures.get(structure.name, None) is not None:
@@ -72,20 +72,21 @@ def assign_value(name, value):
 
 def get_variable(name, is_global=False):
   if is_local() and not is_global:
-    vars = __localvars[0]
+    variables = __localvars[-1]
   else:
-    vars = __variables
-  var = vars.get(name, None)
+    variables = __variables
+  var = variables.get(name, None)
   if var is None:
+    print(__localvars)
     raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
   return var
 
 def is_variable(name):
   if is_local():
-    vars = __localvars[0]
+    variables = __localvars[-1]
   else:
-    vars = __variables
-  return vars.get(name, False) is not False
+    variables = __variables
+  return variables.get(name, False) is not False
 
 def is_variable_structure(name):
   var = get_variable(name)
@@ -97,7 +98,7 @@ def declare_function(function):
 def get_function(name):
   function = __functions.get(name, None)
   if function is None:
-    raise VarUndeclared(f'Fonction {name} non déclarée')
+    raise ex.VarUndeclared(f'Fonction {name} non déclarée')
   return function
 
 def set_local():
@@ -107,7 +108,7 @@ def is_local():
   return len(__localvars) > 0
 
 def reset_local():
-  __localvars.clear()
+  __localvars.pop()
 
 def delete_variable(name):
   __variables.pop(name)

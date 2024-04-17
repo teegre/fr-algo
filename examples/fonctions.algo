@@ -1,4 +1,5 @@
 Variables n, x, y en Entier
+
 Fonction somme5(a, b, c, d, e en Entier) en Entier
   Retourne a + b + c + d + e
 FinFonction
@@ -25,8 +26,11 @@ Fonction voyelles(mot en Chaîne) en Entier
   Variables i, nb en Entier
   nb <- 0
   Pour i <- 1 à Longueur(mot)
-    Si Trouve("aeiouy")
+    Si Trouve("aeiouy", Extraire(mot, i, 1)) <> 0 Alors
+      nb <- nb + 1
+    FinSi
   i Suivant
+  Retourne nb
 FinFonction
 
 Début
@@ -40,9 +44,11 @@ Début
   y <- 6
   Ecrire x, "+", y, "=", plus(x, y)
   Ecrire "9 + 9 =", plus(9, 9)
-  Ecrire "La fonction 'un'   retourne 1 :", un() = 1
-  Ecrire "La fonction 'deux' retourne 2 :", deux() = 2
-  Ecrire "'un' + 'deux' ?", un() + deux()
-  Ecrire "Somme de 1, 2, 3, 4 et 5 :", somme5(1, 2, 3, 4, 5)
+  Ecrire "> La fonction 'un'   retourne 1 :", un() = 1
+  Ecrire "> La fonction 'deux' retourne 2 :", deux() = 2
+  Ecrire "> 'un' + 'deux' ?", un() + deux()
+  Ecrire "> Somme de 1, 2, 3, 4 et 5 :", somme5(1, 2, 3, 4, 5)
+  Ecrire "> anticonstitutionnellement contient", voyelles("anticonstitutionnellement") \
+  Ecrire " voyelles."
   Ecrire "Merci de votre attention."
 Fin

@@ -31,10 +31,11 @@ from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, S
 from fralgo.lib.datatypes import Structure, is_structure
 from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
 from fralgo.lib.symbols import get_variable, assign_value
-from fralgo.lib.symbols import declare_function, get_function, set_local, reset_local
+from fralgo.lib.symbols import declare_function, get_function, set_local, is_local, reset_local
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
+from fralgo.lib.exceptions import FuncInvalidParameterCount
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -47,6 +48,9 @@ class Node:
     result = None
     for statement in self.children:
       try:
+        if isinstance(statement, FunctionReturn):
+          print('oh yeah!')
+          # return statement.eval()
         result = statement.eval()
       except FatalError as e:
         print(f'*** {e.message}')
@@ -239,12 +243,14 @@ class FunctionCall:
         raise FuncInvalidParameterCount('Nombre de paramètres invalide')
       # Type check
       for index, param in enumerate(self.params):
+        param = map_type(algo_to_python(param))
         if param.data_type != params[index][1]:
           raise BadType(f'{self.name} : {function.params[index][0]}, type {function.params[index][1]} attendu')
-      sparams = [param.eval() for param in self.params]
+      sparams = [algo_to_python(param) for param in self.params]
       set_local()
       for index, param in enumerate(params):
-        declare_var(param[0], self.params[index].data_type)
+        sparam = map_type(algo_to_python(self.params[index]))
+        declare_var(param[0], sparam.data_type)
         var = get_variable(param[0])
         var.set_value(sparams[index])
     body = function.body
@@ -253,6 +259,7 @@ class FunctionCall:
     except FralgoException as e:
       raise e
     finally:
+      print('reset!')
       reset_local()
     if map_type(result).data_type != function.return_type:
       raise BadType(f'Fonction {self.name} : type retourné invalide')

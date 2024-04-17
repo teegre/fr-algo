@@ -13,10 +13,10 @@ from fralgo.lib.exceptions import FralgoException
 os.environ['FRALGOREPL'] = '1'
 
 class Interpreter:
-  start_hook = ('TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
-  loop_hook = ('TantQue', 'Pour', 'Si', 'Structure')
+  start_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
+  loop_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Structure')
   while_end_hook = 'Suivant'
-  end_hook = ('FinTantQue', 'FinSi', 'FinStructure')
+  end_hook = ('FinTantQue', 'FinSi', 'FinStructure', 'FinFonction')
   def __init__(self):
     self.loop = False
     self.cancel = False

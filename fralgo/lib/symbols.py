@@ -29,6 +29,32 @@ __variables = {}
 __functions = {}
 __localvars = []
 
+class Symbols:
+  __func      = 'functions'
+  __vars      = 'variables'
+  __local     = 'local'
+  __localfunc = 'localfunctions'
+
+  table = {
+    __func      : {},
+    __vars      : {},
+    __local     : {},
+    __localfunc : [],
+  }
+
+  def is_variable(self, name):
+    return name in self.table[self.__vars].keys()
+  def is_local(self):
+    return len(self.table[self.__local]) > 0
+  def is_local_function(self):
+    return len(self.table[self.__localfunc]) > 0
+  def get_local_table(self):
+    table = self.table[self.__local]
+    return table[-1]
+  def get_localfunc_table(self):
+    table = self.table[self.__localfunc]
+    return table[-1]
+
 def declare_var(name, data_type):
   if is_local():
     variables = __localvars[-1]
@@ -67,7 +93,7 @@ def declare_structure(structure):
   __structures[structure.name] = structure
 
 def assign_value(name, value):
-  print('assign', name, value, 'local:', is_local())
+  # print('assign', name, value, 'local:', is_local())
   var = get_variable(name)
   var.set_value(value)
 
@@ -78,8 +104,8 @@ def get_variable(name, is_global=False):
     variables = __variables
   var = variables.get(name, None)
   if var is None:
-    print(__variables)
-    print(__localvars)
+    # print(__variables)
+    # print(__localvars)
     raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
   return var
 
@@ -104,15 +130,16 @@ def get_function(name):
   return function
 
 def set_local():
-  print('local')
+  # print('local')
   __localvars.append({})
 
 def is_local():
   return len(__localvars) > 0
 
 def reset_local():
-  print('reset', __localvars)
-  __localvars.pop()
+  # print('reset', __localvars)
+  if is_local():
+    __localvars.pop()
 
 def delete_variable(name):
   __variables.pop(name)

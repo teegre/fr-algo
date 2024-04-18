@@ -1,0 +1,12 @@
+Fonction addth(n en Entier) en Entier
+  Variable m en Entier
+  Si n < 10 Alors
+    Retourne n
+  FinSi
+  m <- n / 10 + n % 10
+  Retourne addth(m)
+FinFonction
+
+Début
+  Ecrire addth(999)
+Fin

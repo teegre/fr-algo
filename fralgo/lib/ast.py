@@ -29,13 +29,16 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
-from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
-from fralgo.lib.symbols import get_variable, assign_value
-from fralgo.lib.symbols import declare_function, get_function, set_local, is_local, reset_local
+from fralgo.lib.symbols2 import Symbols, declare_structure
+# declare_array, declare_sized_char, declare_var, declare_structure
+# from fralgo.lib.symbols import get_variable, assign_value
+# from fralgo.lib.symbols import declare_function, get_function, set_local, is_local, reset_local
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
+
+sym = Symbols()
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -84,9 +87,9 @@ class Declare:
     self.var_type = var_type
   def eval(self):
     if isinstance(self.var_type, tuple): # sized char
-      declare_sized_char(self.name, self.var_type[1])
+      sym.declare_sized_char(self.name, self.var_type[1])
     else:
-      declare_var(self.name, self.var_type)
+      sym.declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
 
@@ -96,7 +99,7 @@ class DeclareArray:
     self.var_type = var_type
     self.max_indexes = max_indexes
   def eval(self):
-    declare_array(self.name, self.var_type, *self.max_indexes)
+    sym.declare_array(self.name, self.var_type, *self.max_indexes)
   def __repr__(self):
     indexes = [str(n) for n in self.max_indexes]
     idx = ', '.join(indexes)
@@ -109,7 +112,7 @@ class DeclareSizedChar:
     self.name = name
     self.size = size
   def eval(self):
-    declare_sized_char(self.name, self.size)
+    sym.declare_sized_char(self.name, self.size)
   def __repr__(self):
     return f'Variable {self.name}*{self.size}'
 
@@ -136,7 +139,7 @@ class ArrayGetItem:
     try:
       var = self.var.eval()
     except AttributeError:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     return var.get_item(*self.indexes)
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
@@ -172,7 +175,7 @@ class StructureGetItem:
   def eval(self):
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = get_variable(self.var[0])
+        structure = sym.get_variable(self.var[0])
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -181,7 +184,7 @@ class StructureGetItem:
     if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     return var.get_item(self.field)
   def __repr__(self):
     return f'{self.var}.{self.field}'
@@ -194,7 +197,7 @@ class StructureSetItem:
   def eval(self):
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = get_variable(self.var[0])
+        structure = sym.get_variable(self.var[0])
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -203,7 +206,7 @@ class StructureSetItem:
     elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     if isinstance (self.value, list):
       var.set_value(self.value, None)
     else:
@@ -222,7 +225,7 @@ class Function:
     if return_type is None:
       self.ftype = 'Procédure'
   def eval(self):
-    declare_function(self)
+    sym.declare_function(self)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
     return f'{self.ftype} {self.name}({", ".join(params)}) en {self.return_type}'
@@ -234,7 +237,7 @@ class FunctionCall:
     self.params = params
   def eval(self):
     # breakpoint()
-    func = get_function(self.name)
+    func = sym.get_function(self.name)
     params = func.params
     if self.params is not None:
       # Check parameter count
@@ -246,16 +249,23 @@ class FunctionCall:
         if param.data_type != params[idx][1]:
           raise BadType(f'{self.name} : {func.params[idx][0]}, type {func.params[idx][1]} attendu')
       sparams = [algo_to_python(param) for param in self.params]
-      set_local()
+      sym.set_local()
       for idx, param in enumerate(params):
-        sparam = map_type(algo_to_python(self.params[idx]))
-        declare_var(param[0], sparam.data_type)
-        assign_value(param[0], sparams[idx])
-        # var = get_variable(param[0])
+        # breakpoint()
+        try:
+          sparam = map_type(algo_to_python(self.params[idx]))
+        except VarUndeclared:
+          sparam = self.params[idx]
+        sym.declare_var(param[0], sparam.data_type)
+        sym.assign_value(param[0], sparams[idx])
+        # var = sym.get_variable(param[0])
         # var.set_value(sparams[idx])
     body = func.body
     try:
-      result = body.eval()
+      for statement in body:
+        if isinstance(statement, FunctionReturn):
+          return statement.eval()
+        result = statement.eval()
     except FralgoException as e:
       raise e
     finally:
@@ -281,7 +291,7 @@ class Assign:
     self.value = value
   def eval(self):
     value = self.value
-    assign_value(self.var, value.eval())
+    sym.assign_value(self.var, value.eval())
   def __repr__(self):
     return f'{self.var} ← {self.value}'
 
@@ -289,19 +299,19 @@ class Variable:
   def __init__(self, name):
     self.name = name
   def eval(self):
-    var = get_variable(self.name)
+    var = sym.get_variable(self.name)
     if isinstance(var, (Boolean, Number, String)):
       return var.eval()
     return var
   def __repr__(self):
     try:
-      value = get_variable(self.name)
+      value = sym.get_variable(self.name)
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    var = get_variable(self.name, is_global=True)
+    var = sym.get_variable(self.name, is_global=not sym.is_local())
     return var.data_type
 
 class Print:
@@ -344,7 +354,7 @@ class Read:
       print()
       raise InterruptedByUser('Interrompu par l\'utilisateur')
     try:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
       if isinstance(var, Boolean):
         var.set_value(Boolean(user_input).eval())
       if isinstance(var, Integer):
@@ -485,7 +495,7 @@ class For:
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()
-    assign_value(self.var, i)
+    sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
         for statement in self.dothis:
@@ -495,7 +505,7 @@ class For:
       except KeyboardInterrupt:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       i += step
-      assign_value(self.var, i)
+      sym.assign_value(self.var, i)
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'
 
@@ -602,7 +612,7 @@ class ReadFile:
     if isinstance(self.var, ArrayGetItem):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     value = fd.read()
     var.set_value(value)
   def __repr__(self):

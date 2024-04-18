@@ -1,12 +1,21 @@
 Fonction addth(n en Entier) en Entier
-  Variable m en Entier
+  TantQue n > 10
+    n <- n / 10 + n % 10
+  FinTantQue
+  Retourne n
+FinFonction
+
+Fonction addth_recursive(n en Entier) en Entier
   Si n < 10 Alors
     Retourne n
+  Sinon
+    Retourne addth_recursive(n / 10 + n % 10)
   FinSi
-  m <- n / 10 + n % 10
-  Retourne addth(m)
 FinFonction
 
 Début
-  Ecrire addth(999)
+  Ecrire "> addth(1810197417121976) (2) : " \
+  Ecrire addth(1810197417121976)
+  Ecrire "> addth_recursive(1810197417121976) (2) : " \
+  Ecrire addth_recursive(1810197417121976)
 Fin

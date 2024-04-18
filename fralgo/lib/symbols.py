@@ -90,7 +90,6 @@ class Symbols:
       variables = self.table[self.__vars]
     var = variables.get(name, None)
     if var is None:
-      print('here?', self.get_local_table())
       raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
     return var
   def is_variable_structure(self, name):

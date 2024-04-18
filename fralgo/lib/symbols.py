@@ -67,6 +67,7 @@ def declare_structure(structure):
   __structures[structure.name] = structure
 
 def assign_value(name, value):
+  print('assign', name, value, 'local:', is_local())
   var = get_variable(name)
   var.set_value(value)
 
@@ -77,6 +78,7 @@ def get_variable(name, is_global=False):
     variables = __variables
   var = variables.get(name, None)
   if var is None:
+    print(__variables)
     print(__localvars)
     raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
   return var
@@ -102,12 +104,14 @@ def get_function(name):
   return function
 
 def set_local():
+  print('local')
   __localvars.append({})
 
 def is_local():
   return len(__localvars) > 0
 
 def reset_local():
+  print('reset', __localvars)
   __localvars.pop()
 
 def delete_variable(name):

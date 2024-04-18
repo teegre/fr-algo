@@ -49,8 +49,7 @@ class Node:
     for statement in self.children:
       try:
         if isinstance(statement, FunctionReturn):
-          print('oh yeah!')
-          # return statement.eval()
+          return statement.eval()
         result = statement.eval()
       except FatalError as e:
         print(f'*** {e.message}')
@@ -235,33 +234,33 @@ class FunctionCall:
     self.params = params
   def eval(self):
     # breakpoint()
-    function = get_function(self.name)
-    params = function.params
+    func = get_function(self.name)
+    params = func.params
     if self.params is not None:
       # Check parameter count
       if len(self.params) != len(params):
         raise FuncInvalidParameterCount('Nombre de paramètres invalide')
       # Type check
-      for index, param in enumerate(self.params):
+      for idx, param in enumerate(self.params):
         param = map_type(algo_to_python(param))
-        if param.data_type != params[index][1]:
-          raise BadType(f'{self.name} : {function.params[index][0]}, type {function.params[index][1]} attendu')
+        if param.data_type != params[idx][1]:
+          raise BadType(f'{self.name} : {func.params[idx][0]}, type {func.params[idx][1]} attendu')
       sparams = [algo_to_python(param) for param in self.params]
       set_local()
-      for index, param in enumerate(params):
-        sparam = map_type(algo_to_python(self.params[index]))
+      for idx, param in enumerate(params):
+        sparam = map_type(algo_to_python(self.params[idx]))
         declare_var(param[0], sparam.data_type)
-        var = get_variable(param[0])
-        var.set_value(sparams[index])
-    body = function.body
+        assign_value(param[0], sparams[idx])
+        # var = get_variable(param[0])
+        # var.set_value(sparams[idx])
+    body = func.body
     try:
       result = body.eval()
     except FralgoException as e:
       raise e
     finally:
-      print('reset!')
       reset_local()
-    if map_type(result).data_type != function.return_type:
+    if map_type(result).data_type != func.return_type:
       raise BadType(f'Fonction {self.name} : type retourné invalide')
     return algo_to_python(result)
   def __repr__(self):

@@ -6,14 +6,16 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import unittest
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import Array
-from fralgo.lib.symbols import get_variable, reset_variables
+from fralgo.lib.symbols import Symbols
+
+sym = Symbols()
 
 def reset_parser():
   try:
     parser.restart()
   except AttributeError:
     pass
-  reset_variables()
+  sym.reset()
 
 class Test(unittest.TestCase):
 
@@ -37,9 +39,9 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t1 = get_variable('test1')
+    t1 = sym.get_variable('test1')
     self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
-    t2 = get_variable('test2')
+    t2 = sym.get_variable('test2')
     self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
     print()
 
@@ -52,7 +54,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t = get_variable('T')
+    t = sym.get_variable('T')
     self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(type(t), Array, 'should be Array')
     print()
@@ -66,7 +68,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t = get_variable('T')
+    t = sym.get_variable('T')
     self.assertEqual(t.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(t.sizes, (3,3), 'should be (3,3)')
     self.assertEqual(type(t), Array, 'should be Array')
@@ -81,9 +83,9 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t1 = get_variable('T1')
-    t2 = get_variable('T2')
-    t3 = get_variable('T3')
+    t1 = sym.get_variable('T1')
+    t2 = sym.get_variable('T2')
+    t3 = sym.get_variable('T3')
     self.assertEqual(t1.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(t2.data_type, 'Tableau', 'should be Tableau')
     self.assertEqual(t3.data_type, 'Tableau', 'should be Tableau')
@@ -110,7 +112,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t = get_variable('T')
+    t = sym.get_variable('T')
     self.assertEqual(t.value[0], 1, 'Should be 1')
     self.assertEqual(t.value[1], 2, 'Should be 2')
     self.assertEqual(t.value[2], 3, 'Should be 3')
@@ -136,7 +138,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    m = get_variable('Marche')
+    m = sym.get_variable('Marche')
     self.assertEqual(m.eval(), False, 'should be False')
     print()
 
@@ -154,7 +156,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    n = get_variable('N')
+    n = sym.get_variable('N')
     self.assertEqual(n.eval(), 11, 'should be 11')
     print()
 
@@ -170,7 +172,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    i = get_variable('I')
+    i = sym.get_variable('I')
     self.assertEqual(i.eval(), 11, 'I should be 11')
     print()
 
@@ -186,7 +188,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    i = get_variable('I')
+    i = sym.get_variable('I')
     self.assertEqual(i.eval(), -1, 'I should be -1')
     print()
 
@@ -202,7 +204,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    i = get_variable('I')
+    i = sym.get_variable('I')
     self.assertEqual(i.eval(), 11, 'I should be 11')
     print()
 
@@ -218,7 +220,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    i = get_variable('I')
+    i = sym.get_variable('I')
     self.assertEqual(i.eval(), -12, 'I should be -12')
     print()
 
@@ -234,7 +236,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    i = get_variable('I')
+    i = sym.get_variable('I')
     self.assertEqual(i.eval(), 0, 'I should be 0')
     print()
 
@@ -253,7 +255,7 @@ class Test(unittest.TestCase):
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    b = get_variable('B')
+    b = sym.get_variable('B')
     self.assertEqual(b.eval(), False, 'I should be False')
     print()
 

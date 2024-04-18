@@ -10,6 +10,7 @@ from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
+from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
@@ -88,7 +89,6 @@ def p_var_declarations(p):
   '''
   var_declarations : var_declarations var_declaration
                    | var_declaration
-                   | struct_declarations
   '''
   if len(p) == 2:
     p[0] = Node(p[1], p.lineno(1))
@@ -102,8 +102,12 @@ def p_var_declaration(p):
                   | ARRAYS_DECL array_list TYPE_DECL type NEWLINE
                   | VAR_DECL ID TYPE_DECL type NEWLINE
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
+                  | struct_declarations
+                  | function_declaration
   '''
-  if p[1].startswith('Tableau'):
+  if len(p) == 2:
+    p[0] = p[1]
+  elif p[1].startswith('Tableau'):
     # p[2] is a list of this form:
     # ['name1', ['name2', [x1, x2, ..., xN]], 'name3', ..., ['nameN', [x1, x2, ..., xN]]]
     # name being the variable name and x being indexes.
@@ -395,9 +399,98 @@ def p_structure_get_item(p):
   else:
     p[0] = StructureGetItem(p[1][0], p[1][1])
 
+def p_function_declaration(p):
+  '''
+  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
+                       | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
+  '''
+  if len(p) == 12:
+    p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
+  else:
+    p[0] = Node(Function(p[2], None, p[8], p[6]), p.lineno(1))
+
+def p_body(p):
+  '''
+  body : var_declarations func_statements
+       | func_statements
+  '''
+  if len(p) == 3:
+    p[1].append(p[2])
+    p[0] = p[1]
+  else:
+    p[0] = p[1]
+
+def p_func_statements(p):
+  '''
+  func_statements : func_statements func_statement
+                  | func_statement
+  '''
+  if len(p) == 3:
+    p[1].append(p[2])
+  p[0] = p[1]
+
+def p_func_statement(p):
+  '''
+  func_statement : statement
+                 | return_statement
+  '''
+  p[0] = p[1]
+
+def p_return_statement(p):
+  '''
+  return_statement : RETURN expression NEWLINE
+  '''
+  p[0] = Node(FunctionReturn(p[2]), p.lineno(1))
+
+def p_parameters(p):
+  '''
+  parameters : parameters COMMA parameter
+             | parameter
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = p[1]
+
+def p_parameter(p):
+  '''
+  parameter : var_list TYPE_DECL type
+            | ID TYPE_DECL type
+  '''
+  if isinstance(p[1], list):
+    # multiple variables with the same type
+    parameters = []
+    for param in p[1]:
+      parameters.append((param, p[3]))
+      p[0] = parameters
+  else:
+    p[0] = [(p[1], p[3])]
+
+def p_function_call(p):
+  '''
+  expression : ID LPAREN expressions RPAREN
+             | ID LPAREN RPAREN
+  '''
+  if len(p) == 5:
+    params = p[3]
+  else:
+    params = None
+  p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
+
+def p_expressions(p):
+  '''
+  expressions : expressions COMMA expression
+              | expression
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + [p[3]] if not isinstance(p[3], list) else p[1] + p[3]
+  else:
+    p[0] = [p[1]]
+
 def p_if_block(p):
   '''
   if_block : IF expression THEN NEWLINE statements else_blocks
+           | IF expression THEN NEWLINE func_statements else_blocks
   '''
   p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
@@ -412,18 +505,21 @@ def p_else_blocks(p):
 def p_else_if_block(p):
   '''
   else_if_block : ELSIF expression THEN NEWLINE statements else_blocks
+                | ELSIF expression THEN NEWLINE func_statements else_blocks
   '''
   p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
 def p_else_block(p):
   '''
   else_block : ELSE NEWLINE statements ENDIF NEWLINE
+             | ELSE NEWLINE func_statements ENDIF NEWLINE
   '''
   p[0] = p[3]
 
 def p_while_block(p):
   '''
   while_block : WHILE expression NEWLINE statements ENDWHILE NEWLINE
+              | WHILE expression NEWLINE func_statements ENDWHILE NEWLINE
   '''
   p[0] = Node(While(p[2], p[4]), p.lineno(1))
 
@@ -431,6 +527,8 @@ def p_for_block(p):
   '''
   for_block : FOR var ARROW expression TO expression NEWLINE statements var NEXT NEWLINE
             | FOR var ARROW expression TO expression STEP expression NEWLINE statements var NEXT NEWLINE
+            | FOR var ARROW expression TO expression NEWLINE func_statements var NEXT NEWLINE
+            | FOR var ARROW expression TO expression STEP expression NEWLINE func_statements var NEXT NEWLINE
   '''
   if len(p) == 12:
     p[0] = Node(For(p[2], p[4], p[6], p[8], p[9]), p.lineno(1))

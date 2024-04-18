@@ -1,0 +1,40 @@
+Structure Annuaire
+  nom en Caractère*20
+  prenom en Caractère*15
+  tel en Caractère*10
+  mail en Caractère*20
+FinStructure
+
+Tableau potes[] en Annuaire
+Variable mini en Annuaire
+Variable ligne en Chaîne
+Variables i, j, k, posmini en Entier
+
+Début
+  Ouvrir "adresse.txt" sur 1 en Lecture
+  i <- -1
+  TantQue NON(FDF(1))
+    i <- i + 1
+    Redim potes[i]
+    LireFichier 1, ligne
+    potes[i] <- Extraire(ligne, 1, 20), Extraire(ligne, 21, 15), Extraire(ligne, 36, 10), Extraire(ligne, 46, 20)
+  FinTantQue
+  Fermer 1
+  Pour j <- 0 à i - 1
+    mini <- potes[j]
+    posmini <- j
+    Pour k <- j + 1 à i
+      Si potes[k].nom < mini.nom Alors
+        mini <- potes[k]
+        posmini <- k
+      FinSi
+    k Suivant
+    potes[posmini] <- potes[j]
+    potes[j] <- mini
+  j Suivant
+  Ouvrir "adresse.txt" sur 1 en Ecriture
+  Pour j <- 0 à i
+    EcrireFichier 1, potes[j]
+  j Suivant
+  Fermer 1
+Fin

@@ -29,11 +29,13 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
-from fralgo.lib.symbols import declare_array, declare_sized_char, declare_var, declare_structure
-from fralgo.lib.symbols import get_variable, assign_value
+from fralgo.lib.symbols import Symbols, declare_structure
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
+from fralgo.lib.exceptions import FuncInvalidParameterCount
+
+sym = Symbols()
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -46,6 +48,8 @@ class Node:
     result = None
     for statement in self.children:
       try:
+        if isinstance(statement, FunctionReturn):
+          return statement.eval()
         result = statement.eval()
       except FatalError as e:
         print(f'*** {e.message}')
@@ -71,6 +75,8 @@ class Node:
     return '\n'.join(statements)
   def __repr__(self):
     return f'Node({self.lineno}) {self.children}'
+  # def __add__(self, other):
+  #   self.append(other)
 
 class Declare:
   def __init__(self, name, var_type):
@@ -78,9 +84,9 @@ class Declare:
     self.var_type = var_type
   def eval(self):
     if isinstance(self.var_type, tuple): # sized char
-      declare_sized_char(self.name, self.var_type[1])
+      sym.declare_sized_char(self.name, self.var_type[1])
     else:
-      declare_var(self.name, self.var_type)
+      sym.declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
 
@@ -90,7 +96,7 @@ class DeclareArray:
     self.var_type = var_type
     self.max_indexes = max_indexes
   def eval(self):
-    declare_array(self.name, self.var_type, *self.max_indexes)
+    sym.declare_array(self.name, self.var_type, *self.max_indexes)
   def __repr__(self):
     indexes = [str(n) for n in self.max_indexes]
     idx = ', '.join(indexes)
@@ -103,7 +109,7 @@ class DeclareSizedChar:
     self.name = name
     self.size = size
   def eval(self):
-    declare_sized_char(self.name, self.size)
+    sym.declare_sized_char(self.name, self.size)
   def __repr__(self):
     return f'Variable {self.name}*{self.size}'
 
@@ -130,7 +136,7 @@ class ArrayGetItem:
     try:
       var = self.var.eval()
     except AttributeError:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     return var.get_item(*self.indexes)
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
@@ -166,7 +172,7 @@ class StructureGetItem:
   def eval(self):
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = get_variable(self.var[0])
+        structure = sym.get_variable(self.var[0])
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -175,7 +181,7 @@ class StructureGetItem:
     if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     return var.get_item(self.field)
   def __repr__(self):
     return f'{self.var}.{self.field}'
@@ -188,7 +194,7 @@ class StructureSetItem:
   def eval(self):
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = get_variable(self.var[0])
+        structure = sym.get_variable(self.var[0])
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -197,7 +203,7 @@ class StructureSetItem:
     elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     if isinstance (self.value, list):
       var.set_value(self.value, None)
     else:
@@ -205,13 +211,80 @@ class StructureSetItem:
   def __repr__(self):
     return f'{self.var}.{self.field} ← {self.value}'
 
+class Function:
+  '''A function definition'''
+  ftype = 'Fonction'
+  def __init__(self, name, params, body, return_type):
+    self.name = name # str
+    self.params = params # [(name, datatype)]
+    self.body = body # Node
+    self.return_type = return_type # str
+    if return_type is None:
+      self.ftype = 'Procédure'
+  def eval(self):
+    sym.declare_function(self)
+  def __repr__(self):
+    params = [f'{param} en {datatype}' for param, datatype in self.params]
+    return f'{self.ftype} {self.name}({", ".join(params)}) en {self.return_type}'
+
+class FunctionCall:
+  '''Function call'''
+  def __init__(self, name, params):
+    self.name = name
+    self.params = params
+  def eval(self):
+    func = sym.get_function(self.name)
+    params = func.params
+    # check parameter count
+    if self.params is not None:
+      if len(self.params) != len(params):
+        a = len(self.params) # actual
+        x = len(params) # expected
+        raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
+      # check data types
+      for i, p in enumerate(self.params):
+        if isinstance(p, BinOp):
+          p = map_type(p.eval())
+        if p.data_type != params[i][1]:
+          raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+      values = [param.eval() for param in self.params]
+      # set variables
+      sym.set_local()
+      for i, p in enumerate(params):
+        n, T = p
+        sym.declare_var(n, T)
+        sym.assign_value(n, values[i])
+    # function body
+    body = func.body
+    try:
+      result = body.eval()
+      if result is not None:
+        return map_type(result).eval()
+    except FralgoException as e:
+      raise e
+    finally:
+      if self.params is not None:
+        sym.del_local()
+    return result
+  def __repr__(self):
+    params = [str(param) for param in self.params]
+    return f'{self.name}({", ".join(params)})'
+
+class FunctionReturn:
+  def __init__(self, expression):
+    self.expression = expression
+  def eval(self):
+    return self.expression.eval()
+  def __repr__(self):
+    return f'Retourne {self.expression}'
+
 class Assign:
   def __init__(self, var, value):
     self.var = var
     self.value = value
   def eval(self):
     value = self.value
-    assign_value(self.var, value.eval())
+    sym.assign_value(self.var, value.eval())
   def __repr__(self):
     return f'{self.var} ← {self.value}'
 
@@ -219,16 +292,20 @@ class Variable:
   def __init__(self, name):
     self.name = name
   def eval(self):
-    var = get_variable(self.name)
+    var = sym.get_variable(self.name)
     if isinstance(var, (Boolean, Number, String)):
       return var.eval()
     return var
   def __repr__(self):
     try:
-      value = get_variable(self.name)
+      value = sym.get_variable(self.name)
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
+  @property
+  def data_type(self):
+    var = sym.get_variable(self.name, is_global=not sym.is_local())
+    return var.data_type
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -270,7 +347,7 @@ class Read:
       print()
       raise InterruptedByUser('Interrompu par l\'utilisateur')
     try:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
       if isinstance(var, Boolean):
         var.set_value(Boolean(user_input).eval())
       if isinstance(var, Integer):
@@ -372,10 +449,13 @@ class If:
     self.dothat = dothat
   def eval(self):
     if self.condition.eval():
-      for statement in self.dothis:
-        statement.eval()
+      result = self.dothis.eval()
+      if result is not None:
+        return result
     elif self.dothat is not None:
-      self.dothat.eval()
+      result = self.dothat.eval()
+      if result is not None:
+        return result
   def __repr__(self):
     if self.dothat is not None:
       return f'Si {self.condition} Alors {self.dothis} Sinon {self.dothat}'
@@ -411,7 +491,7 @@ class For:
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()
-    assign_value(self.var, i)
+    sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
         for statement in self.dothis:
@@ -421,7 +501,7 @@ class For:
       except KeyboardInterrupt:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       i += step
-      assign_value(self.var, i)
+      sym.assign_value(self.var, i)
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'
 
@@ -528,7 +608,7 @@ class ReadFile:
     if isinstance(self.var, ArrayGetItem):
       var = self.var.eval()
     else:
-      var = get_variable(self.var)
+      var = sym.get_variable(self.var)
     value = fd.read()
     var.set_value(value)
   def __repr__(self):
@@ -661,6 +741,7 @@ def algo_to_python(expression):
       Neg, Number,
       Ord,
       Mid,
+      Node,
       Random,
       String,
       StructureGetItem,

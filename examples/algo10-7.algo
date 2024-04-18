@@ -1,0 +1,17 @@
+Variable ligne en Chaîne
+Début
+  Ouvrir "fichier3.txt" sur 1 en Ajout
+  Ouvrir "fichier1.txt" sur 2 en Lecture
+  TantQue NON(FDF(2))
+    LireFichier 2, ligne
+    EcrireFichier 1, ligne
+  FinTantQue
+  Fermer 2
+  Ouvrir "fichier2.txt" sur 3 en Lecture
+  TantQue NON(FDF(3))
+    LireFichier 3, ligne
+    EcrireFichier 1, ligne
+  FinTantQue
+  Fermer 3
+  Fermer 1
+Fin

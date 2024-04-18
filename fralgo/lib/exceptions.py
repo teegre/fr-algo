@@ -48,3 +48,6 @@ class FatalError(FralgoException):
   ''' ERREUR FATALE '''
 class ZeroDivide(FralgoException):
   ''' Division par 0 ! '''
+class FuncInvalidParameterCount(FralgoException):
+  '''Nombre de paramètres invalide'''
+

@@ -8,7 +8,7 @@
 *  Gauche("ABCD", 2) "AB", Droite("ABCD", 2) "CD" [OK]
 *  Trouve("A B C D", "B C") 3, Trouve("ABC", "D") 0 [OK]
 *  Extraire("ABC", 2, 1) "B" [OK]
-*  Asc("A") 65, Car(65) "A" [OK]
+*  CodeCar("A") 65, Car(65) "A" [OK]
 *  Alea() returns a random number between 0 and 1 [OK]
-*  Type conversion [TESTING]
-*  Dormir(duration)
+*  Type conversion [OK]
+*  Dormir(duration) [OK]

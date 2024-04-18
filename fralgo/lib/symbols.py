@@ -25,64 +25,109 @@ from fralgo.lib.datatypes import StructureData
 from fralgo.lib.datatypes import __structures
 from fralgo.lib.datatypes import get_structure, is_structure, get_type
 
-__variables = {}
-# __functions = {}
-# __localvars = {}
-# __localfunc = {}
+class Symbols:
+  __func      = 'functions'
+  __vars      = 'variables'
+  __local     = 'local'
+  __localfunc = 'localfunctions'
 
-def declare_var(name, data_type):
-  if __variables.get(name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-  datatype = get_type(data_type)
-  if is_structure(data_type):
-    structure = get_structure(data_type)
-    __variables[name] = StructureData(structure)
-  else:
-    __variables[name] = datatype(None)
+  table = {
+    __func      : {},
+    __vars      : {},
+    __local     : [],
+    __localfunc : [],
+  }
 
-def declare_array(name, data_type, *max_indexes):
-  if __variables.get(name, None) is not None:
-    raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
-  __variables[name] = Array(data_type, *max_indexes)
-
-def declare_sized_char(name, size):
-  if __variables.get(name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-  __variables[name] = Char(None, size)
+  def is_variable(self, name):
+    return name in self.table[self.__vars].keys()
+  def is_local(self):
+    return len(self.table[self.__local]) > 0
+  def is_local_function(self):
+    return len(self.table[self.__localfunc]) > 0
+  def get_local_table(self):
+    table = self.table[self.__local]
+    return table[-1]
+  def get_localfunc_table(self):
+    table = self.table[self.__localfunc]
+    return table[-1]
+  def get_variables(self):
+    if self.is_local():
+      return self.get_local_table()
+    return self.table[self.__vars]
+  def declare_var(self, name, data_type):
+    variables = self.get_variables()
+    if variables.get(name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
+    datatype = get_type(data_type)
+    if is_structure(data_type):
+      structure = get_structure(data_type)
+      variables[name] = StructureData(structure)
+    else:
+      variables[name] = datatype(None)
+  def declare_array(self, name, data_type, *max_indexes):
+    if self.is_local():
+      variables = self.get_local_table()
+    else:
+      variables = self.table[self.__vars]
+    if variables.get(name, None) is not None:
+      raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
+    variables[name] = Array(data_type, *max_indexes)
+  def declare_sized_char(self, name, size):
+    if self.is_local():
+      variables = self.get_local_table()
+    else:
+      variables = self.table[self.__vars]
+    if variables.get(name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
+    variables[name] = Char(None, size)
+  def assign_value(self, name, value):
+    var = self.get_variable(name)
+    var.set_value(value)
+  def get_variable(self, name, is_global=False):
+    if self.is_local() and not is_global:
+      variables = self.get_local_table()
+    else:
+      variables = self.table[self.__vars]
+    var = variables.get(name, None)
+    if var is None:
+      raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
+    return var
+  def is_variable_structure(self, name):
+    var = self.get_variable(name)
+    return is_structure(var.data_type)
+  def declare_function(self, function):
+    if self.is_local_function():
+      self.get_localfunc_table()[function.name] = function
+    else:
+      self.table[self.__func][function.name] = function
+  def get_function(self, name):
+    if self.is_local_function():
+      for functions in reversed(self.table[self.__localfunc]):
+        if name in functions:
+          return functions[name]
+      # raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
+    function = self.table[self.__func].get(name, None)
+    if function is None:
+      raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
+    return function
+  def set_local(self):
+    self.table[self.__local].append({})
+    self.table[self.__localfunc].append({})
+  def del_local(self):
+    self.table[self.__local].pop()
+    self.table[self.__localfunc].pop()
+  def del_variable(self, name):
+    try:
+      self.table[self.__vars].pop(name)
+    except KeyError:
+      raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
+  def reset(self):
+    self.table[self.__func].clear()
+    self.table[self.__local].clear()
+    self.table[self.__vars].clear()
+    self.table[self.__localfunc].clear()
 
 def declare_structure(structure):
   if __structures.get(structure.name, None) is not None:
     raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
   __structures[structure.name] = structure
-
-# def declare_function(name, parameters, body):
-#   if is_local_function(name):
-#     __localfunc[name] = [parameters, body]
-#   else:
-#     __functions[name] = [parameters, body]
-
-def assign_value(name, value):
-  var = get_variable(name)
-  var.set_value(value)
-
-def get_variable(name):
-  var = __variables.get(name, None)
-  if var is None:
-    raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
-  return var
-
-def is_variable(name):
-  return __variables.get(name, False) is not False
-
-def is_variable_structure(name):
-  var = get_variable(name)
-  return is_structure(var.data_type)
-
-# def is_local_function(name):
-#   return __localfunc.get(name) is not None
-
-def delete_variable(name):
-  __variables.pop(name)
-
-def reset_variables():
-  __variables.clear()

@@ -29,10 +29,7 @@ from random import random
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
-from fralgo.lib.symbols2 import Symbols, declare_structure
-# declare_array, declare_sized_char, declare_var, declare_structure
-# from fralgo.lib.symbols import get_variable, assign_value
-# from fralgo.lib.symbols import declare_function, get_function, set_local, is_local, reset_local
+from fralgo.lib.symbols import Symbols, declare_structure
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
@@ -236,50 +233,46 @@ class FunctionCall:
     self.name = name
     self.params = params
   def eval(self):
-    # breakpoint()
     func = sym.get_function(self.name)
     params = func.params
+    # check parameter count
     if self.params is not None:
-      # Check parameter count
       if len(self.params) != len(params):
-        raise FuncInvalidParameterCount('Nombre de paramètres invalide')
-      # Type check
-      for idx, param in enumerate(self.params):
-        param = map_type(algo_to_python(param))
-        if param.data_type != params[idx][1]:
-          raise BadType(f'{self.name} : {func.params[idx][0]}, type {func.params[idx][1]} attendu')
-      sparams = [algo_to_python(param) for param in self.params]
+        a = len(self.params) # actual
+        x = len(params) # expected
+        raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
+      # check data types
+      for i, p in enumerate(self.params):
+        if isinstance(p, BinOp):
+          p = map_type(p.eval())
+        if p.data_type != params[i][1]:
+          raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+      values = [param.eval() for param in self.params]
+      # set variables
       sym.set_local()
-      for idx, param in enumerate(params):
-        # breakpoint()
-        try:
-          sparam = map_type(algo_to_python(self.params[idx]))
-        except VarUndeclared:
-          sparam = self.params[idx]
-        sym.declare_var(param[0], sparam.data_type)
-        sym.assign_value(param[0], sparams[idx])
-        # var = sym.get_variable(param[0])
-        # var.set_value(sparams[idx])
+      for i, p in enumerate(params):
+        n, T = p
+        sym.declare_var(n, T)
+        sym.assign_value(n, values[i])
+    # function body
     body = func.body
     try:
-      for statement in body:
-        if isinstance(statement, FunctionReturn):
-          return statement.eval()
-        result = statement.eval()
+      result = body.eval()
+      if result is not None:
+        return map_type(result).eval()
     except FralgoException as e:
       raise e
     finally:
-      reset_local()
-    if map_type(result).data_type != func.return_type:
-      raise BadType(f'Fonction {self.name} : type retourné invalide')
-    return algo_to_python(result)
+      if self.params is not None:
+        sym.del_local()
+    return result
   def __repr__(self):
     params = [str(param) for param in self.params]
     return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
   def __init__(self, expression):
-    self.expression = map_type(expression)
+    self.expression = expression
   def eval(self):
     return self.expression.eval()
   def __repr__(self):
@@ -456,10 +449,13 @@ class If:
     self.dothat = dothat
   def eval(self):
     if self.condition.eval():
-      for statement in self.dothis:
-        statement.eval()
+      result = self.dothis.eval()
+      if result is not None:
+        return result
     elif self.dothat is not None:
-      self.dothat.eval()
+      result = self.dothat.eval()
+      if result is not None:
+        return result
   def __repr__(self):
     if self.dothat is not None:
       return f'Si {self.condition} Alors {self.dothis} Sinon {self.dothat}'

@@ -243,7 +243,7 @@ class FunctionCall:
         raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
       # check data types
       for i, p in enumerate(self.params):
-        if isinstance(p, BinOp):
+        if isinstance(p, (BinOp, Node)):
           p = map_type(p.eval())
         if p.data_type != params[i][1]:
           raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
@@ -468,8 +468,9 @@ class While:
   def eval(self):
     while self.condition.eval():
       try:
-        for statement in self.dothis:
-          statement.eval()
+        result = self.dothis.eval()
+        if result is not None:
+          return result
       except KeyboardInterrupt:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoException as e:
@@ -494,8 +495,9 @@ class For:
     sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
-        for statement in self.dothis:
-          statement.eval()
+        result = self.dothis.eval()
+        if result is not None:
+          return result
       except FralgoException as e:
         raise e
       except KeyboardInterrupt:
@@ -534,6 +536,9 @@ class Mid:
     return exp[start-1:start-1+length]
   def __repr__(self):
     return f'Extraire{self.exp, self.start, self.length}'
+  @property
+  def data_type(self):
+    return 'Chaîne'
 
 class Trim:
   def __init__(self, exp, length, right=False):
@@ -556,6 +561,9 @@ class Trim:
     return exp[len(exp) - length:]
   def __repr__(self):
     return f'{self.cmd}({self.exp}, {self.length})'
+  @property
+  def data_type(self):
+    return 'Chaîne'
 
 class Find:
   def __init__(self, str1, str2):
@@ -573,6 +581,9 @@ class Find:
       raise BadType('Trouve(C, >C<) : Type Chaîne attendu')
   def __repr__(self):
     return f'Trouve({self.str1}, {self.str2})'
+  @property
+  def data_type(self):
+    return 'Entier'
 
 class OpenFile:
   def __init__(self, filename, fd, access_mode):
@@ -659,6 +670,9 @@ class Chr:
     return chr(value)
   def __repr__(self):
     return f'Car({self.value})'
+  @property
+  def data_type(self):
+    return 'Chaîne'
 
 class Ord:
   def __init__(self, value):
@@ -672,6 +686,9 @@ class Ord:
     return ord(value)
   def __repr__(self):
     return f'CodeCar({self.value})'
+  @property
+  def data_type(self):
+    return 'Entier'
 
 class ToInteger:
   def __init__(self, value):
@@ -684,6 +701,9 @@ class ToInteger:
       raise BadType(f'Entier(>N|C<) : Conversion de >{value}< impossible')
   def __repr__(self):
     return f'Entier({self.value})'
+  @property
+  def data_type(self):
+    return 'Entier'
 
 class ToFloat:
   def __init__(self, value):
@@ -696,6 +716,9 @@ class ToFloat:
       raise BadType(f'Entier(>E|C<) : Conversion de >{value}< impossible')
   def __repr__(self):
     return f'Numérique({self.value})'
+  @property
+  def data_type(self):
+    return 'Numérique'
 
 class ToString:
   def __init__(self, value):
@@ -708,12 +731,18 @@ class ToString:
       raise BadType(f'Chaîne(>E|N<) : Conversion de >{value}< impossible')
   def __repr__(self):
     return f'Chaîne({self.value})'
+  @property
+  def data_type(self):
+    return 'Chaîne'
 
 class Random:
   def eval(self):
     return map_type(random())
   def __repr__(self):
     return 'Aléa()'
+  @property
+  def data_type(self):
+    return 'Numérique'
 
 class Sleep:
   def __init__(self, duration):

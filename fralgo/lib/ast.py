@@ -251,8 +251,8 @@ class FunctionCall:
       # set variables
       sym.set_local()
       for i, p in enumerate(params):
-        n, T = p
-        sym.declare_var(n, T)
+        n, t = p
+        sym.declare_var(n, t)
         sym.assign_value(n, values[i])
     # function body
     body = func.body

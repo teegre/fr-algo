@@ -11,7 +11,7 @@ from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
-from fralgo.lib.datatypes import map_type
+from fralgo.lib.datatypes import map_type, Array
 from fralgo.lib.exceptions import FatalError
 import fralgo.fralgolex as lex
 from fralgo.ply.yacc import yacc
@@ -456,12 +456,18 @@ def p_parameter(p):
   '''
   parameter : var_list TYPE_DECL type
             | ID TYPE_DECL type
+            | array TYPE_DECL type
+            | array_list TYPE_DECL type
   '''
   if isinstance(p[1], list):
     # multiple variables with the same type
     parameters = []
     for param in p[1]:
-      parameters.append((param, p[3]))
+      if isinstance(param, list): # Array
+        array = DeclareArray(p[1][0][0], p[3], *p[1][0][1])
+        parameters.append((array))
+      else:
+        parameters.append((param, p[3]))
       p[0] = parameters
   else:
     p[0] = [(p[1], p[3])]

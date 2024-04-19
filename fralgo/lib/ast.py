@@ -243,7 +243,7 @@ class FunctionCall:
         raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
       # check data types
       for i, p in enumerate(self.params):
-        if isinstance(p, BinOp):
+        if isinstance(p, (BinOp, Node)):
           p = map_type(p.eval())
         if p.data_type != params[i][1]:
           raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')

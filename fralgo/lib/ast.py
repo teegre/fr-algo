@@ -468,8 +468,9 @@ class While:
   def eval(self):
     while self.condition.eval():
       try:
-        for statement in self.dothis:
-          statement.eval()
+        result = self.dothis.eval()
+        if result is not None:
+          return result
       except KeyboardInterrupt:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoException as e:
@@ -494,8 +495,9 @@ class For:
     sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
-        for statement in self.dothis:
-          statement.eval()
+        result = self.dothis.eval()
+        if result is not None:
+          return result
       except FralgoException as e:
         raise e
       except KeyboardInterrupt:

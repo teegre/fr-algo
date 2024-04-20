@@ -54,6 +54,30 @@ class Number(Base):
       return '?'
       # raise VarUndefined('Valeur indéfinie')
     return f'{self.value}'
+  def __eq__(self, other):
+    if isinstance(other, Number):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Number):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, Number):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, Number):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, Number):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, Number):
+      return self.value <= other.value
+    return False
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type} → ?'
@@ -100,6 +124,30 @@ class String(Base):
     return self.value
   def __len__(self):
     return len(self.value)
+  def __eq__(self, other):
+    if isinstance(other, String):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, String):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, String):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, String):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, String):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, String):
+      return self.value <= other.value
+    return False
   def __repr__(self):
     if self.value is None:
       return '?'
@@ -154,6 +202,30 @@ class Boolean(Base):
     if self.value is None:
       raise VarUndefined('Valeur indéfinie')
     return self.value
+  def __eq__(self, other):
+    if isinstance(other, Boolean):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Boolean):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, Boolean):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, Boolean):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, Boolean):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, Boolean):
+      return self.value <= other.value
+    return False
   def __str__(self):
     if self.value is not None:
       return 'VRAI' if self.value is True else 'FAUX'
@@ -393,6 +465,10 @@ class StructureData(Base):
       if field[0] == name:
         return field[1]
     return None
+  def __eq__(self, other):
+    if isinstance(other, StructureData):
+      return self.data == other.data
+    return False
   def __str__(self):
     if 'FRALGOREPL' in os.environ:
       return self.__repr__()

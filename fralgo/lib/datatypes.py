@@ -26,7 +26,6 @@ from copy import deepcopy
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
 from fralgo.lib.exceptions import InvalidStructureValueCount
-from fralgo.lib.exceptions import FuncInvalidParameterCount
 
 __structures = {}
 
@@ -52,7 +51,8 @@ class Number(Base):
     return self.value
   def __str__(self):
     if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
+      return '?'
+      # raise VarUndefined('Valeur indéfinie')
     return f'{self.value}'
   def __repr__(self):
     if self.value is None:
@@ -182,12 +182,12 @@ class Array(Base):
           return [datatype[0](datatype[1]) for _ in range(sizes[0])]
         # sized Char
         return [datatype[0](None, datatype[1])] * sizes[0]
-      # Basic type
+      # Basic type / structure
       return [datatype(None)] * sizes[0]
     return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
-      raise VarUndefined('Tableau non dimensionné')
+      raise VarUndefined('Redimendionnement impossible')
     for i, size in enumerate(index):
       if size < 0 or size >= self.indexes[i] + 1:
         raise IndexOutOfRange(f'Index hors limite : {size}')
@@ -211,6 +211,23 @@ class Array(Base):
     for i in idxs:
       array = array[i]
     return array
+  def set_array(self, array, ref=False):
+    '''
+    self ← array
+    self ← &array
+    '''
+    if self.sizes != array.sizes:
+      raise BadType('Tableaux de taille differentes')
+    if self.datatype != array.datatype:
+      raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
+    if ref:
+      self.indexes = array.indexes
+      self.sizes = array.sizes
+      self.value = array.value
+    else:
+      self.indexes = deepcopy(array.indexes)
+      self.sizes = deepcopy(array.sizes)
+      self.value = deepcopy(array.value)
   def set_value(self, indexes, value):
     datatype = self.datatype
     if isinstance(datatype, tuple): # sized char
@@ -261,6 +278,30 @@ class Array(Base):
     self.sizes = sizes
     self.indexes = idxs
     self.value = new_array.value
+  def __eq__(self,  other):
+    if isinstance(other, Array):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Array):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, Array):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, Array):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, Array):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, Array):
+      return self.value <= other.value
+    return False
   def __repr__(self):
     def recursive_repr(array):
       if isinstance(array, list):
@@ -271,7 +312,14 @@ class Array(Base):
     return self.__repr__()
   @property
   def size(self):
-    return self.sizes
+    if self.indexes[0] == -1:
+      return map_type(-1)
+    if len(self.sizes) == 1:
+      return map_type(self.sizes[0])
+    array = Array('Entier', len(self.sizes) - 1)
+    for idx, value in enumerate(self.sizes):
+      array.set_value((idx,), Integer(value))
+    return array
 
 class Structure(Base):
   '''Structure skeleton'''
@@ -366,23 +414,25 @@ def get_structure(name):
 def is_structure(name):
   return __structures.get(name, None) is not None
 
+__datatypes = {
+  'Booléen': Boolean,
+  'Caractère': Char,
+  'Chaîne': String,
+  'Entier': Integer,
+  'Numérique': Float,
+  'Tableau': Array,
+}
+
 def get_type(datatype):
-  match datatype:
-    case 'Booléen':
-      return Boolean
-    case 'Chaîne':
-      return String
-    case 'Entier':
-      return Integer
-    case 'Numérique':
-      return Float
+  if datatype in ('Booléen', 'Chaîne', 'Entier', 'Numérique', 'Tableau'):
+    return __datatypes[datatype]
   if isinstance(datatype, (list, tuple)):
     if datatype[0] == 'Caractère':
       return (Char, datatype[1])
   else:
-    # Structure
     structure = get_structure(datatype)
     return (StructureData, structure)
+  raise BadType(f'{datatype} : type de données inconnu')
 
 def map_type(value):
   '''Convert Python type to an Algo type'''

@@ -88,14 +88,31 @@ class Interpreter:
         traceback.print_exc()
       parser.restart()
       print(e)
+      return
     if result is None:
       return
-    result = result.eval()
+    try:
+      result = result.eval()
+    except FralgoException as e:
+      print(e.message)
+      return
+    except Exception as e:
+      if self.traceback:
+        traceback.print_exc()
+      parser.restart()
+      print(e)
+    if result is None:
+      return
     if isinstance(result, bool):
       print(map_type(result))
       return
     if result is not None:
-      print(result)
+      try:
+        print(result)
+      except Exception as e:
+        if self.traceback:
+          traceback.print_exc()
+        print(e)
     return
   def set_prompt(self):
     if self.loop:

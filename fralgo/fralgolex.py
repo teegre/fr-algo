@@ -33,6 +33,7 @@ reserved = {
   'Tableau':       'ARRAY_DECL',
   'Tableaux':      'ARRAYS_DECL',
   'Redim':         'RESIZE',
+  'Taille':        'SIZE',
   'en':            'TYPE_DECL',
   'Booléen':       'TYPE_BOOLEAN',
   'Caractère':     'TYPE_CHAR',

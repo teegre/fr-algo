@@ -1,3 +1,4 @@
+Tableau t[] en Entier
 Variables n, x, y en Entier
 
 Fonction somme5(a, b, c, d, e en Entier) en Entier
@@ -26,29 +27,103 @@ Fonction voyelles(mot en Chaîne) en Entier
   Variables i, nb en Entier
   nb <- 0
   Pour i <- 1 à Longueur(mot)
-    Si Trouve("aeiouy", Extraire(mot, i, 1)) <> 0 Alors
+    Si Trouve("AaEeIiOoUuYy", Extraire(mot, i, 1)) <> 0 Alors
       nb <- nb + 1
     FinSi
   i Suivant
   Retourne nb
 FinFonction
 
+Fonction somme(t[] en Entier) en Entier
+  Variables s, i en Entier
+  s <- 0
+  Pour i <- 0 à Taille(t) - 1
+    s <- s + t[i]
+  i Suivant
+  Retourne s
+FinFonction
+
+Fonction tous_differents(t[] en Entier) en Booléen
+  Variables i, j en Entier
+  Pour i <- 0 à Taille(t) - 2
+    Pour j <- i + 1 à Taille(t) - 1
+      Si t[i] = t[j] Alors
+        Retourne FAUX
+      FinSi
+    j Suivant
+  i Suivant
+  Retourne VRAI
+FinFonction
+
 Début
+  Ecrire "Test des fonctions en ALGO"
+  Ecrire "-----------------------------------------------------------------------------"
+
   Ecrire "> Test de la fonction carré :"
+  Dormir(1)
   n <- carré(9)
   Ecrire "-- Le carré de 9 est égal à", n
+  Dormir(1)
   n <- 10
   Ecrire "-- le carré de 10 est égal à", carré(n)
+  Dormir(1)
+  Ecrire "-----------------------------------------------------------------------------"
+  Dormir(2)
+
   Ecrire "> Test de la fonction plus :"
+  Dormir(1)
   x <- 9
   y <- 6
   Ecrire x, "+", y, "=", plus(x, y)
+  Dormir(1)
   Ecrire "9 + 9 =", plus(9, 9)
+  Dormir(1)
+  Ecrire "-----------------------------------------------------------------------------"
+  Dormir(2)
+
   Ecrire "> La fonction 'un'   retourne 1 :", un() = 1
+  Dormir(1)
   Ecrire "> La fonction 'deux' retourne 2 :", deux() = 2
+  Dormir(1)
   Ecrire "> 'un' + 'deux' ?", un() + deux()
+  Dormir(1)
+  Ecrire "-----------------------------------------------------------------------------"
+  Dormir(2)
+
   Ecrire "> Somme de 1, 2, 3, 4 et 5 :", somme5(1, 2, 3, 4, 5)
-  Ecrire "> anticonstitutionnellement contient", voyelles("anticonstitutionnellement") \
+  Dormir(1)
+  Ecrire "-----------------------------------------------------------------------------"
+  Dormir(2)
+
+  Ecrire "> Anticonstitutionnellement contient", voyelles("Anticonstitutionnellement") \
   Ecrire " voyelles."
-  Ecrire "Merci de votre attention."
+  Dormir(1)
+  Ecrire "-----------------------------------------------------------------------------"
+  Dormir(2)
+
+  Ecrire "> Constitution d'un tableau d'entiers de longueur et de valeurs arbitraires :"
+  Dormir(1)
+  # Redimensionnement du tableau
+  Ecrire "- Dimensionnement du tableau"
+  Dormir(1)
+  Redim t[Entier(Aléa() * 8 + 1)]
+  # Remplissage du tableau avec des valeurs arbitraires (entre 1 et 10 inclus)
+  Ecrire "- Remplissage du tableau"
+  Dormir(1)
+  Pour n <- 0 à Taille(t) - 1
+    t[n] <- Entier(Aléa() * 9 + 1)
+  n Suivant
+  Dormir(1)
+  Ecrire "-- Le tableau contient :", t
+  Dormir(1)
+  Ecrire "-- Sa taille est de :", Taille(t)
+  Dormir(1)
+  Ecrire "-- La somme de ses éléments est égale à :", somme(t)
+  Dormir(1)
+  Ecrire "-- Ses éléments sont-ils tous différents ? :", tous_differents(t)
+  Ecrire "-----------------------------------------------------------------------------"
+  Ecrire ""
+  Dormir(2)
+
+  Ecrire "Le test est terminé, merci de votre attention."
 Fin

@@ -8,7 +8,7 @@ from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
-from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.datatypes import map_type
@@ -113,11 +113,7 @@ def p_var_declaration(p):
     # name being the variable name and x being indexes.
     declarations = Node(lineno=p.lineno(1))
     for params in p[2]:
-      if not isinstance(params, list):
-        name = params
-        indexes = [-1]
-      else:
-        name, indexes = (params[0], params[1])
+      name, indexes = (params[0], params[1])
       declarations.append(DeclareArray(name, p[4], *indexes))
     p[0] = declarations
   else:
@@ -155,7 +151,7 @@ def p_array(p):
         | ID LBRACKET array_max_indexes RBRACKET
   '''
   if len(p) == 4:
-    p[0] = [p[1]]
+    p[0] = [[p[1], [-1]]]
   else:
     p[0] = [[p[1], p[3]]]
 
@@ -440,7 +436,7 @@ def p_return_statement(p):
   '''
   return_statement : RETURN expression NEWLINE
   '''
-  p[0] = Node(FunctionReturn(p[2]), p.lineno(1))
+  p[0] = FunctionReturn(p[2])
 
 def p_parameters(p):
   '''
@@ -456,12 +452,18 @@ def p_parameter(p):
   '''
   parameter : var_list TYPE_DECL type
             | ID TYPE_DECL type
+            | array TYPE_DECL type
+            | array_list TYPE_DECL type
   '''
   if isinstance(p[1], list):
     # multiple variables with the same type
     parameters = []
     for param in p[1]:
-      parameters.append((param, p[3]))
+      if isinstance(param, list): # Array
+        array = (p[1][0][0], p[3], *p[1][0][1])
+        parameters.append((array))
+      else:
+        parameters.append((param, p[3]))
       p[0] = parameters
   else:
     p[0] = [(p[1], p[3])]
@@ -629,6 +631,12 @@ def p_expression_len(p):
   expression : LEN LPAREN expression RPAREN
   '''
   p[0] = Len(p[3])
+
+def p_expression_size(p):
+  '''
+  expression : SIZE LPAREN var RPAREN
+  '''
+  p[0] = SizeOf(p[3])
 
 def p_expression_mid(p):
   '''

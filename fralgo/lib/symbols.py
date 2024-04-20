@@ -82,7 +82,10 @@ class Symbols:
     variables[name] = Char(None, size)
   def assign_value(self, name, value):
     var = self.get_variable(name)
-    var.set_value(value)
+    if isinstance(value, Array):
+      var.set_array(value)
+    else:
+      var.set_value(value)
   def get_variable(self, name, is_global=False):
     if self.is_local() and not is_global:
       variables = self.get_local_table()

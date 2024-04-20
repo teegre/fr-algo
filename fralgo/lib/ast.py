@@ -48,9 +48,9 @@ class Node:
     result = None
     for statement in self.children:
       try:
-        if isinstance(statement, FunctionReturn):
-          return statement.eval()
         result = statement.eval()
+        if result is not None:
+          return result
       except FatalError as e:
         print(f'*** {e.message}')
         if 'FRALGOREPL' not in os.environ:
@@ -165,6 +165,17 @@ class ArrayResize:
     indexes = (str(index) for index in self.indexes)
     return f'Redim {self.var.name}[{", ".join(indexes)}]'
 
+class SizeOf:
+  def __init__(self, var):
+    self.var = var
+  def eval(self):
+    var = self.var.eval()
+    if isinstance(var, Array):
+      return var.size
+    raise BadType('Taille(T) : type Tableau attendu')
+  def __repr__(self):
+    return f'Taille({self.var})'
+
 class StructureGetItem:
   def __init__(self, var, field):
     self.var = var
@@ -232,40 +243,60 @@ class FunctionCall:
   def __init__(self, name, params):
     self.name = name
     self.params = params
-  def eval(self):
-    func = sym.get_function(self.name)
-    params = func.params
-    # check parameter count
+  def _check_param_count(self, params):
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
         x = len(params) # expected
         raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
+  def _check_datatypes(self, params):
+    for i, p in enumerate(self.params):
+      if isinstance(p, (BinOp, Node)):
+        p = map_type(p.eval())
+      datatype = p.data_type
+      if isinstance(datatype, tuple): # Array or sized Char
+        if len(datatype) == 3: # Array
+          # check size
+          if params[i][2] != -1 and datatype[2] != params[i][2]:
+            raise BadType(f'Tableau[{params[2]}] attendu')
+          datatype = datatype[1]
+      if datatype != params[i][1]:
+        raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+  def eval(self):
+    func = sym.get_function(self.name)
+    params = func.params
+    if params is not None:
+      # check parameter count
+      self._check_param_count(params)
       # check data types
-      for i, p in enumerate(self.params):
-        if isinstance(p, (BinOp, Node)):
-          p = map_type(p.eval())
-        if p.data_type != params[i][1]:
-          raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+      self._check_datatypes(params)
       values = [param.eval() for param in self.params]
       # set variables
       sym.set_local()
       for i, p in enumerate(params):
-        n, T = p
-        sym.declare_var(n, T)
+        if len(p) == 3: # Array
+          n, t, s = p
+          if s == -1:
+            array = sym.get_variable(n, is_global=True)
+            sym.declare_array(n, t, *array.indexes)
+          else:
+            sym.declare_array(n, t, s)
+        else:
+          n, t = p
+          sym.declare_var(n, t)
         sym.assign_value(n, values[i])
     # function body
     body = func.body
     try:
       result = body.eval()
       if result is not None:
-        return map_type(result).eval()
+        return map_type(result)
     except FralgoException as e:
       raise e
     finally:
       if self.params is not None:
         sym.del_local()
-    return result
+    return None
   def __repr__(self):
     params = [str(param) for param in self.params]
     return f'{self.name}({", ".join(params)})'
@@ -305,6 +336,10 @@ class Variable:
   @property
   def data_type(self):
     var = sym.get_variable(self.name, is_global=not sym.is_local())
+    if var.data_type == 'Tableau':
+      return (var.data_type, var.datatype, var.indexes)
+    if var.data_type == 'Caractère':
+      return (var.data_type, var.size)
     return var.data_type
 
 class Print:
@@ -504,6 +539,7 @@ class For:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       i += step
       sym.assign_value(self.var, i)
+    return None
   def __repr__(self):
     return f'Pour {self.var} ← {self.start} à {self.end} → {self.dothis}'
 
@@ -772,6 +808,7 @@ def algo_to_python(expression):
       Mid,
       Node,
       Random,
+      SizeOf,
       String,
       StructureGetItem,
       ToFloat, ToInteger, ToString, Trim,

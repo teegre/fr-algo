@@ -1,0 +1,52 @@
+# Année
+Variable a en Entier
+# Cycle de méton
+Variable n en Entier
+# Centaine et rang de l'année
+Variables c, u en Entier
+# Siècle bissextile
+Variables s, t en Entier
+# Cycle de proemptose
+Variable p en Entier
+# Proemptose
+Variable q en Entier
+# Épacte
+Variable e en Entier
+# Année bissextile
+Variables b, d en Entier
+# Lettre dominicale
+Variable L en Entier
+# Correction
+Variable h en Entier
+# Mois
+Variable m en Entier
+# Jour
+Variable j en Entier
+# mois en Lettre
+Variable mois en Caractère*5
+Début
+ Ecrire "Calcul de la date de Pâques"
+ Ecrire "> Entrer l'année : " \
+ Lire a
+ n <- a % 19
+ c <- a / 100
+ u <- a % 100
+ s <- c / 4
+ t <- c % 4
+ p <- (c + 8) / 25
+ q <- (c - p + 1) / 3
+ e <- (19 * n + c - s - q + 15) % 30
+ b <- u / 4
+ d <- u % 4
+ L <- (2 * t + 2 * b - e - d + 32) % 7
+ h <- (n + 11 * e + 22 * L) / 451
+ m <- (e + L - 7 * h + 114) / 31
+ j <- (e + L - 7 * h + 114) % 31
+ j <- j + 1
+ Si m = 3 Alors
+   mois <- "mars"
+ Sinon
+   mois <- "avril"
+ FinSi
+ Ecrire "Le", j, mois, a
+Fin

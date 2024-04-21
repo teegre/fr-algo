@@ -447,7 +447,7 @@ class BinOp:
         if b == 0:
           raise ZeroDivide('Division par zéro')
         op = operator.truediv
-    if self.op == 'dp':
+    if self.op == 'DP':
       return map_type(a % b == 0)
     if self.op == '&':
       if isinstance(a, str) and isinstance(b, str):

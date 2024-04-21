@@ -19,21 +19,49 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_function(self):
+    prog = '''Fonction somme_chaine(n1, n2 en Entier) en Chaîne
+      # Retourne la somme de n1 et n2 en chaîne de caractères
+      # sous la forme : "n1 + n2 = résultat"
+      Retourne Chaîne(n1) & " + " & Chaîne(n2) & " = " & Chaîne(n1 + n2)
+    FinFonction
+    Variables x1, x2 en Entier
+    Variables resultat, attendu en Chaîne
+    Variable test en Booléen
+    Début
+      Ecrire "14. Test Fonction"
+      x1 <- Entier(Aléa() * 10 + 1)
+      x2 <- Entier(Aléa() * 10 + 1)
+      resultat <- somme_chaine(x1, x2)
+      attendu <- Chaîne(x1) & " + " & Chaîne(x2) & " = " & Chaîne(x1 + x2)
+      test <- resultat = attendu
+      Ecrire test
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+    print()
+
   def test_structure(self):
     prog = '''Structure P
       a en Entier
       b en Entier
     FinStructure
-    Variable p en P
-    Variables test1, test2 en Booléen
+    Variables p1, p2 en P
+    Variables test1, test2, test3 en Booléen
     Début
       Ecrire "1. Test Structure"
-      p <- 1, 2
-      test1 ← p.a = 1 ET p.b = 2
-      p.a <- 3
-      p.b <- 4
-      test2 ← p.a = 3 ET p.b = 4
-      Ecrire test1, test2
+      p1 <- 1, 2
+      test1 ← p1.a = 1 ET p1.b = 2
+      p1.a <- 3
+      p1.b <- 4
+      test2 ← p1.a = 3 ET p1.b = 4
+      p2 <- p1
+      test3 <- p2 = p1
+      Ecrire test1, test2, test3
     Fin'''
 
     reset_parser()
@@ -43,6 +71,8 @@ class Test(unittest.TestCase):
     self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
     t2 = sym.get_variable('test2')
     self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    t3 = sym.get_variable('test3')
+    self.assertEqual(t3.eval(), True, 'test3 should be VRAI')
     print()
 
   def test_array_declaration(self):

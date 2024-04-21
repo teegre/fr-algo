@@ -1,3 +1,4 @@
+''' File '''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -75,7 +76,7 @@ class FileDescriptor:
   def read(self):
     return self.__file.read()
   def write(self, buffer):
-    return self.__file.write(buffer)
+    self.__file.write(buffer)
   def __repr__(self):
     return f'Canal {self.fd}'
   @property

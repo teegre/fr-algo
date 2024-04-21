@@ -12,7 +12,7 @@ from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as lex
 from fralgo.ply.yacc import yacc
 
@@ -708,15 +708,13 @@ def p_expression_uminus(p):
 
 def p_error(p):
   if p:
-    try:
-      value = p.value.replace('\n', '↵')
-    except:
-      value = p.value
-    print(f'*** Erreur de syntaxe >> {value} <<')
+    value = p.value.replace('\n', '↵')
+    msg = f'Erreur de syntaxe >{value}<'
     if 'FRALGOREPL' not in os.environ:
-      print(f'-v- ligne {p.lineno}')
-      raise FatalError('*** Erreur fatale')
+      msg += f'\n-v- ligne {p.lineno}'
   else:
-    print('*** Fin de fichier prématurée.')
-
+    msg = 'Fin de fichier prématurée.'
+  if 'FRALGOREPL' not in os.environ:
+    raise FatalError(msg)
+  raise FralgoException(f'*** {msg}')
 parser = yacc()

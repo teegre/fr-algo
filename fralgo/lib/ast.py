@@ -476,6 +476,9 @@ class Neg:
     return -value
   def __repr__(self):
     return f'-{self.value}'
+  @property
+  def data_type(self):
+    return self.value.data_type
 
 class If:
   def __init__(self, condition, dothis, dothat):
@@ -491,6 +494,7 @@ class If:
       result = self.dothat.eval()
       if result is not None:
         return result
+    return None
   def __repr__(self):
     if self.dothat is not None:
       return f'Si {self.condition} Alors {self.dothis} Sinon {self.dothat}'
@@ -510,6 +514,7 @@ class While:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoException as e:
         raise e
+    return None
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
 

@@ -360,14 +360,15 @@ somme(3, 4)
 ### Fonctions imbriquées
 
 ```
-Fonction somme_mul(a, b en Entier) en Entier
+Fonction double_produit(a, b en Entier) en Entier
+  # Double la produit de a et b
   Fonction mul(a, b en Entier) en Entier
-    Retourne 2 * (a * b)
+    Retourne a * b
   FinFonction
-  Retourne mul(a, b)
+  Retourne 2 * mul(a, b)
 FinFonction
 
-somme_mul(4, 5)
+double_produit(4, 5)
 # 40
 ```
 

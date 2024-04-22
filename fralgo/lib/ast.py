@@ -246,9 +246,8 @@ class FunctionCall:
     self.params = params
   def _check_param_count(self, params):
     if self.params is None and params is not None:
-        a = 0 # actual
-        x = len(params) # expected
-        raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
+      x = len(params) # expected
+      raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : 0, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
@@ -262,6 +261,7 @@ class FunctionCall:
       if isinstance(datatype, tuple): # Array or sized Char
         if len(datatype) == 3: # Array
           # check size
+          print(i, p, type(p), params)
           if params[i][2] != -1 and datatype[2] != params[i][2]:
             raise BadType(f'Tableau[{params[2]}] attendu')
           datatype = datatype[1]
@@ -275,21 +275,24 @@ class FunctionCall:
       self._check_param_count(params)
       # check data types
       self._check_datatypes(params)
-      values = [param.eval() for param in self.params]
+      # values = [param.eval() for param in self.params]
       # set variables
       sym.set_local()
-      for i, p in enumerate(params):
-        if len(p) == 3: # Array
-          n, t, s = p
+      for i, param in enumerate(params):
+        if isinstance(param[0], Reference):
+          sym.declare_ref(param[0].name, self.params[i])
+          continue
+        if len(param) == 3: # Array
+          n, t, s = param
           if s == -1:
-            array = sym.get_variable(n, is_global=True) # ATTENTION!
+            array = sym.get_variable(n)
             sym.declare_array(n, t, *array.indexes)
           else:
             sym.declare_array(n, t, s)
         else:
-          n, t = p
+          n, t = param
           sym.declare_var(n, t)
-        sym.assign_value(n, values[i])
+        sym.assign_value(n, self.params[i].eval())
     # function body
     body = func.body
     try:
@@ -340,7 +343,7 @@ class Variable:
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    var = sym.get_variable(self.name, is_global=not sym.is_local())
+    var = sym.get_variable(self.name)
     if var.data_type == 'Tableau':
       return (var.data_type, var.datatype, var.indexes)
     if var.data_type == 'Caractère':
@@ -348,13 +351,10 @@ class Variable:
     return var.data_type
 
 class Reference(Variable):
-  def eval(self):
-    var = sym.get_variables(self.name)
-    return var
   def __repr__(self):
     return f'&{self.name}'
 
-class Print:
+class Print: # TODO: use stdout!
   '''Print statement. Display one or several elements'''
   def __init__(self, data, newline=True):
     self.data = data

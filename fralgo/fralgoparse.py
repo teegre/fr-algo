@@ -408,7 +408,7 @@ def p_function_declaration(p):
   else:
     p[0] = Node(Function(p[2], None, p[8], p[6]), p.lineno(1))
 
-def p_body(p):
+def p_func_body(p):
   '''
   func_body : var_declarations func_statements
             | func_statements
@@ -482,8 +482,8 @@ def p_function_call(p):
 
 def p_procedure_declaration(p):
   '''
-  procedure_declaration : PROCEDURE ID LPAREN proc_params RPAREN NEWLINE statements ENDPROCEDURE NEWLINE
-                        | PROCEDURE ID LPAREN RPAREN NEWLINE statements ENDPROCEDURE NEWLINE
+  procedure_declaration : PROCEDURE ID LPAREN proc_params RPAREN NEWLINE proc_body ENDPROCEDURE NEWLINE
+                        | PROCEDURE ID LPAREN RPAREN NEWLINE proc_body ENDPROCEDURE NEWLINE
   '''
   if len(p) == 10:
     p[0] = Node(Function(p[2], p[4], p[7]), p.lineno(1))
@@ -531,13 +531,25 @@ def p_proc_var(p):
   '''
   proc_var : ID
            | array
+           | array_list
            | CONCAT ID %prec UET
            | CONCAT array %prec UET
+           | CONCAT array_list %prec UET
   '''
   if len(p) == 2:
     p[0] = p[1]
   else:
+    print('proc_var', p[2])
     p[0] = Reference(p[2])
+
+def p_proc_body(p):
+  '''
+  proc_body : var_declarations statements
+            | statements
+  '''
+  if len(p) == 3:
+    p[1].append(p[2])
+  p[0] = p[1]
 
 def p_expressions(p):
   '''

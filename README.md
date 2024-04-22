@@ -492,8 +492,14 @@ Numérique(1)
 
 ```
 Tableau t[7] en Entier
+# 'Taille' retourne la taille du tableau donné en paramètre.
 Taille(t)
 # 8
+# Dans le cas d'un tableau multidimensionnel, 'Taille' retourne
+# un tableau contenant les tailles de chaque dimension.
+Tableau t2[7,7]
+Taille(t2)
+# [8, 8]
 ```
 
 ## Fonctions

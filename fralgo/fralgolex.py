@@ -83,6 +83,8 @@ reserved = {
   'Fonction':      'FUNCTION',
   'Retourne':      'RETURN',
   'FinFonction':   'ENDFUNCTION',
+  'Procédure':     'PROCEDURE',
+  'FinProcédure':  'ENDPROCEDURE',
 }
 
 tokens = (

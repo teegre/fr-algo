@@ -11,6 +11,7 @@ from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
+from fralgo.lib.ast import Reference
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as lex
@@ -25,7 +26,8 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV', 'MODULO'),
     ('left', 'POWER'),
-    ('right', 'UMINUS')
+    ('right', 'UMINUS'),
+    ('right', 'UET'),
 )
 
 # GRAMMAR
@@ -104,6 +106,7 @@ def p_var_declaration(p):
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
                   | struct_declarations
                   | function_declaration
+                  | procedure_declaration
   '''
   if len(p) == 2:
     p[0] = p[1]
@@ -397,8 +400,8 @@ def p_structure_get_item(p):
 
 def p_function_declaration(p):
   '''
-  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
-                       | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE body ENDFUNCTION NEWLINE
+  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
+                       | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
   '''
   if len(p) == 12:
     p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
@@ -407,14 +410,12 @@ def p_function_declaration(p):
 
 def p_body(p):
   '''
-  body : var_declarations func_statements
-       | func_statements
+  func_body : var_declarations func_statements
+            | func_statements
   '''
   if len(p) == 3:
     p[1].append(p[2])
-    p[0] = p[1]
-  else:
-    p[0] = p[1]
+  p[0] = p[1]
 
 def p_func_statements(p):
   '''
@@ -464,7 +465,7 @@ def p_parameter(p):
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
-      p[0] = parameters
+    p[0] = parameters
   else:
     p[0] = [(p[1], p[3])]
 
@@ -478,6 +479,65 @@ def p_function_call(p):
   else:
     params = None
   p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
+
+def p_procedure_declaration(p):
+  '''
+  procedure_declaration : PROCEDURE ID LPAREN proc_params RPAREN NEWLINE statements ENDPROCEDURE NEWLINE
+                        | PROCEDURE ID LPAREN RPAREN NEWLINE statements ENDPROCEDURE NEWLINE
+  '''
+  if len(p) == 10:
+    p[0] = Node(Function(p[2], p[4], p[7]), p.lineno(1))
+  else:
+    p[0] = Node(Function(p[2], None, p[6]), p.lineno(1))
+
+def p_proc_params(p):
+  '''
+  proc_params : proc_params COMMA proc_param
+              | proc_param
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = p[1]
+
+def p_proc_param(p):
+  '''
+  proc_param : proc_var_list TYPE_DECL type
+  '''
+  parameters = []
+  if isinstance(p[1], list):
+    for param in p[1]:
+      if isinstance(param, list): # Array
+        array = (p[1][0][0], p[3], *p[1][0][1])
+        parameters.append((array))
+      else:
+        parameters.append((param, p[3]))
+    p[0] = parameters
+  else:
+    p[0] = [(p[1], p[3])]
+
+def p_proc_var_list(p):
+  '''
+  proc_var_list : proc_var_list COMMA proc_var
+                | proc_var
+  '''
+  if len(p) == 4:
+    p[0] = p[1] + p[3]
+  else:
+    p[0] = [p[1]]
+
+
+def p_proc_var(p):
+  '''
+  proc_var : ID
+           | array
+           | CONCAT ID %prec UET
+           | CONCAT array %prec UET
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  else:
+    p[0] = Reference(p[2])
 
 def p_expressions(p):
   '''

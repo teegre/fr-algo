@@ -224,8 +224,7 @@ class StructureSetItem:
 
 class Function:
   '''A function definition'''
-  ftype = 'Fonction'
-  def __init__(self, name, params, body, return_type):
+  def __init__(self, name, params, body, return_type=None):
     self.name = name # str
     self.params = params # [(name, datatype)]
     self.body = body # Node
@@ -236,7 +235,9 @@ class Function:
     sym.declare_function(self)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
-    return f'{self.ftype} {self.name}({", ".join(params)}) en {self.return_type}'
+    if self.return_type is not None:
+      return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
+    return f'Procédure {self.name}({", ".join(params)})'
 
 class FunctionCall:
   '''Function call'''
@@ -244,6 +245,10 @@ class FunctionCall:
     self.name = name
     self.params = params
   def _check_param_count(self, params):
+    if self.params is None and params is not None:
+        a = 0 # actual
+        x = len(params) # expected
+        raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
@@ -277,7 +282,7 @@ class FunctionCall:
         if len(p) == 3: # Array
           n, t, s = p
           if s == -1:
-            array = sym.get_variable(n, is_global=True)
+            array = sym.get_variable(n, is_global=True) # ATTENTION!
             sym.declare_array(n, t, *array.indexes)
           else:
             sym.declare_array(n, t, s)
@@ -341,6 +346,13 @@ class Variable:
     if var.data_type == 'Caractère':
       return (var.data_type, var.size)
     return var.data_type
+
+class Reference(Variable):
+  def eval(self):
+    var = sym.get_variables(self.name)
+    return var
+  def __repr__(self):
+    return f'&{self.name}'
 
 class Print:
   '''Print statement. Display one or several elements'''
@@ -528,7 +540,7 @@ class For:
     self.var_next = nv.name
   def eval(self):
     if self.var != self.var_next:
-      raise FralgoException(f'Pour >>{self.var}<< ... >>{self.var_next}<< Suivant')
+      raise FralgoException(f'Pour >{self.var}< ... >{self.var_next}< Suivant')
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()

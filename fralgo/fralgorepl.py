@@ -17,10 +17,10 @@ user_path = os.path.expanduser('~')
 history_file = os.path.join(user_path, '.fralgohistory')
 
 class Interpreter:
-  start_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
-  loop_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Structure')
+  start_hook = ('Fonction', 'Procédure', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
+  loop_hook = ('Fonction', 'Procédure', 'TantQue', 'Pour', 'Si', 'Structure')
   while_end_hook = 'Suivant'
-  end_hook = ('FinTantQue', 'FinSi', 'FinStructure', 'FinFonction')
+  end_hook = ('FinTantQue', 'FinSi', 'FinStructure', 'FinFonction', 'FinProcédure')
   def __init__(self):
     self.loop = False
     self.cancel = False

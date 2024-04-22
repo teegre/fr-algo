@@ -735,7 +735,7 @@ class ToInteger:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     try:
       return int(value)
     except ValueError:
@@ -750,7 +750,7 @@ class ToFloat:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     try:
       return float(value)
     except ValueError:

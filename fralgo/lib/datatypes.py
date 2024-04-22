@@ -39,6 +39,9 @@ class Base():
       return f'{self.data_type} → ?'
     return f'{self.data_type} → {self.value}'
   @property
+  def is_empty(self):
+    return self.value is None
+  @property
   def data_type(self):
     return self._type
 
@@ -334,11 +337,19 @@ class Array(Base):
   def resize(self, *indexes):
     ''' Resize an Array '''
     idxs = self._eval_indexes(*indexes)
-    for i, idx in enumerate(self.indexes):
-      if idxs[i] < 0:
-        raise ArrayResizeFailed('Redimensionnement impossible')
     sizes = tuple(idx + 1 for idx in idxs)
     new_array = Array(self.datatype, *idxs)
+    if self.is_empty():
+      self.indexes = idxs
+      self.sizes = sizes
+      self.value = new_array.value
+      return
+    for i, idx in enumerate(self.indexes):
+      try:
+        if idxs[i] < 0:
+          raise ArrayResizeFailed('Redimensionnement impossible')
+      except IndexError:
+        raise ArrayResizeFailed('Redimensionnement impossible')
     for idx in self._indexes_to_copy(self.sizes, sizes):
       value = self.get_item(*idx)
       if value is None:
@@ -348,8 +359,21 @@ class Array(Base):
       new_array.set_value(idx, map_type(value))
     self.indexes = idxs
     self.sizes = sizes
-    self.indexes = idxs
     self.value = new_array.value
+  def is_empty(self, array=None):
+    if array is not None:
+      for item in array:
+        if isinstance(item, list):
+          return self.is_empty(item)
+        if not map_type(item).is_empty:
+          return False
+    else:
+      for item in self.value:
+        if isinstance(item, list):
+          return self.is_empty(item)
+        if not map_type(item).is_empty:
+          return False
+    return True
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value

@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
+from fralgo.lib.ast import sym
 from fralgo.lib.exceptions import FralgoException
 
 os.environ['FRALGOREPL'] = '1'
@@ -42,6 +43,10 @@ class Interpreter:
         case 'TRACE':
           self.traceback = not self.traceback
           print('*** TRACE est', map_type(self.traceback))
+          continue
+        case 'REINIT':
+          sym.reset()
+          print('*** Reinitialisation effectuée')
           continue
         case 'Début':
           print('*** Instructions Début et Fin non admises en mode interpréteur')
@@ -101,12 +106,9 @@ class Interpreter:
         traceback.print_exc()
       parser.restart()
       print(e)
-    if result is None:
-      return
     if isinstance(result, bool):
       print(map_type(result))
-      return
-    if result is not None:
+    elif result is not None:
       try:
         print(result)
       except Exception as e:

@@ -496,10 +496,21 @@ Tableau t[7] en Entier
 Taille(t)
 # 8
 # Dans le cas d'un tableau multidimensionnel, 'Taille' retourne
-# un tableau contenant les tailles de chaque dimension.
+# un tableau contenant les tailles de chaque sous-tableau.
 Tableau t2[7,7]
 Taille(t2)
 # [8, 8]
+```
+
+### Autres
+
+```
+# 'Dormir' suspend l'exécution du programme pendant une durée en
+# secondes donnée en paramètre.
+# La durée peut être de type Entier ou Numérique.
+# Exemples :
+Dormir(1)
+Dormir(0.5)
 ```
 
 ## Fonctions

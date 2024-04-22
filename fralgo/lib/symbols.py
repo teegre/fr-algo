@@ -29,11 +29,14 @@ class Symbols:
   __func      = 'functions'
   __vars      = 'variables'
   __local     = 'local'
+  __refs      =  'refs'
+  __localrefs = 'localrefs'
   __localfunc = 'localfunctions'
 
   table = {
     __func      : {},
     __vars      : {},
+    __localrefs : [],
     __local     : [],
     __localfunc : [],
   }
@@ -46,6 +49,9 @@ class Symbols:
     return len(self.table[self.__localfunc]) > 0
   def get_local_table(self):
     table = self.table[self.__local]
+    return table[-1]
+  def get_localrefs_table(self):
+    table = self.table[self.__localrefs]
     return table[-1]
   def get_localfunc_table(self):
     table = self.table[self.__localfunc]
@@ -64,6 +70,11 @@ class Symbols:
       variables[name] = StructureData(structure)
     else:
       variables[name] = datatype(None)
+  def declare_ref(self, name, var):
+    refs = self.get_localrefs_table()
+    if refs.get(name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la référence >{name}<')
+    refs[name] = var
   def declare_array(self, name, data_type, *max_indexes):
     if self.is_local():
       variables = self.get_local_table()
@@ -86,18 +97,23 @@ class Symbols:
       var.set_array(value)
     else:
       var.set_value(value)
-  def get_variable(self, name, is_global=False):
-    if self.is_local() and not is_global:
-      variables = self.get_local_table()
-    else:
-      variables = self.table[self.__vars]
-    var = variables.get(name, None)
+  def get_variable(self, name):
+    if self.is_local():
+      for variables in reversed(self.table[self.__local]):
+        if name in variables:
+          return variables[name]
+      for references in reversed(self.table[self.__localrefs]):
+        if name in references:
+          var = references[name]
+          return self.get_variable(var.name)
+    var = self.table[self.__vars].get(name, None)
     if var is None:
       raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
     return var
-  def is_variable_structure(self, name):
-    var = self.get_variable(name)
-    return is_structure(var.data_type)
+
+  # def is_variable_structure(self, name):
+    # var = self.get_variable(name)
+    # return is_structure(var.data_type)
   def declare_function(self, function):
     if self.is_local_function():
       self.get_localfunc_table()[function.name] = function
@@ -108,17 +124,21 @@ class Symbols:
       for functions in reversed(self.table[self.__localfunc]):
         if name in functions:
           return functions[name]
-      # raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
     function = self.table[self.__func].get(name, None)
     if function is None:
       raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
     return function
   def set_local(self):
     self.table[self.__local].append({})
+    self.table[self.__localrefs].append({})
     self.table[self.__localfunc].append({})
   def del_local(self):
-    self.table[self.__local].pop()
-    self.table[self.__localfunc].pop()
+    if self.table[self.__local]:
+      self.table[self.__local].pop()
+    if self.table[self.__localrefs]:
+      self.table[self.__localrefs].pop()
+    if self.table[self.__localfunc]:
+      self.table[self.__localfunc].pop()
   def del_variable(self, name):
     try:
       self.table[self.__vars].pop(name)
@@ -128,6 +148,7 @@ class Symbols:
     self.table[self.__func].clear()
     self.table[self.__local].clear()
     self.table[self.__vars].clear()
+    self.table[self.__localrefs].clear()
     self.table[self.__localfunc].clear()
 
 def declare_structure(structure):

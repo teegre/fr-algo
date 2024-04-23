@@ -19,9 +19,17 @@ Procédure remplir_grille(&t[8,8] en Entier)
   i Suivant
 FinProcédure
 
+Procédure remplir_ligne_zero(&t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à 8
+    t[i] <- 0
+  i Suivant
+FinProcédure
+
 Fonction verif_lignes(grille[8,8] en Entier) en Booléen
   Tableau ligne[8] en Entier
   Variables i, j en Entier
+  remplir_ligne_zero(ligne)
   Pour i <- 0 à 8
     Pour j <- 0 à 8
       ligne[j] <- grille[i,j]
@@ -33,14 +41,15 @@ Fonction verif_lignes(grille[8,8] en Entier) en Booléen
   Retourne VRAI
 FinFonction
 
-Fonction verif_lignes(grille[8,8] en Entier) en Booléen
+Fonction verif_cols(grille[8,8] en Entier) en Booléen
   Tableau col[8] en Entier
   Variables i, j en Entier
+  remplir_ligne_zero(col)
   Pour j <- 0 à 8
     Pour i <- 0 à 8
       col[j] <- grille[i,j]
     i Suivant
-    Si NON(tous_differents(colonne)) Alors
+    Si i > 0 ET NON(tous_differents(col)) Alors
       Retourne FAUX
     FinSi
   j Suivant
@@ -50,6 +59,7 @@ FinFonction
 Fonction verif_sous_grilles(grille[8,8] en Entier) en Booléen
   Tableau sous_grille[8] en Entier
   Variables i, j, k, l en Entier
+  remplir_ligne_zero(sous_grille)
   Pour i <- 0 à 6 Pas 3
     Pour j <- 0 à 6 Pas 3
       Pour k <- 0 à 2
@@ -65,12 +75,27 @@ Fonction verif_sous_grilles(grille[8,8] en Entier) en Booléen
   Retourne VRAI
 FinFonction
 
+Procédure afficher_grille(&grille[8,8] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 8
+    Pour j <- 0 à 8
+      Ecrire grille[i,j], "" \
+    j Suivant
+    Ecrire ""
+  i Suivant
+FinProcédure
+
 Procédure principale()
-  Tableau sudoku[8,8] en Entier
-  remplir_grille(sudoku)
-  TantQue NON(verif_lignes(sudoku)) OU NON(verif_col(sudoku)) OU NON(verif_sous_grilles(sudoku))
-    remplir_grille(sudoku)
+  Tableau s[8,8] en Entier
+  Variable compte en Entier
+  compte <- 1
+  remplir_grille(s)
+  TantQue NON(verif_lignes(s)) OU NON(verif_cols(s)) OU NON(verif_sous_grilles(s))
+    remplir_grille(s)
+    compte <- compte + 1
   FinTantQue
+  Ecrire compte, "remplissages effectués"
+  afficher_grille(s)
 FinProcédure
 
 Début

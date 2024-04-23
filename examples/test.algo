@@ -1,4 +1,4 @@
-Variable c en Caractère*5
+Variable mot en Caractère*10
 Tableau t[7,7] en Entier
 Tableau t2[7] en Entier
 
@@ -12,12 +12,11 @@ FinFonction
 Fonction addth_recursive(n en Entier) en Entier
   Si n < 10 Alors
     Retourne n
-  Sinon
-    Retourne addth_recursive(n / 10 + n % 10)
   FinSi
+  Retourne addth_recursive(n / 10 + n % 10)
 FinFonction
 
-Procédure gen_mot(&mot en Caractère*5)
+Procédure gen_mot(&mot en Caractère*10)
   Variable i en Entier
   Variable lettres en Chaîne
   mot <- ""
@@ -37,6 +36,16 @@ Procédure remplir_tableau(&t[7,7] en Entier)
   i Suivant
 FinProcédure
 
+Procédure affiche_tableau(&t[] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 7
+    Pour j <- 0 à 7
+      Ecrire t[i,j], "" \
+    j Suivant
+    Ecrire ""
+  i Suivant
+FinProcédure
+
 Procédure remplir_tableau_simple(&t[] en Entier)
   Variable i en Entier
   Pour i <- 0 à Taille(t) - 1
@@ -49,8 +58,10 @@ Début
   Ecrire addth(1810197417121976)
   Ecrire "> addth_recursive(1810197417121976) (2) : " \
   Ecrire addth_recursive(1810197417121976)
-  gen_mot(c)
-  Ecrire c
-#  remplir_tableau(t)
+  gen_mot(mot)
+  Ecrire mot
+  remplir_tableau(t)
+  affiche_tableau(t)
   remplir_tableau_simple(t2)
+  Ecrire t2
 Fin

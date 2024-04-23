@@ -29,7 +29,6 @@ class Symbols:
   __func      = 'functions'
   __vars      = 'variables'
   __local     = 'local'
-  __refs      =  'refs'
   __localrefs = 'localrefs'
   __localfunc = 'localfunctions'
 
@@ -97,23 +96,26 @@ class Symbols:
       var.set_array(value)
     else:
       var.set_value(value)
-  def get_variable(self, name):
+  def get_variable(self, name, visited=None):
+    if visited is None:
+      visited = set()
+    if name in visited:
+      return None
     if self.is_local():
-      for variables in reversed(self.table[self.__local]):
-        if name in variables:
-          return variables[name]
       for references in reversed(self.table[self.__localrefs]):
         if name in references:
           var = references[name]
-          return self.get_variable(var.name)
+          visited.add(name)
+          resolved = self.get_variable(var.name, visited)
+          if resolved is not None:
+            return resolved
+      for variables in reversed(self.table[self.__local]):
+        if name in variables:
+          return variables[name]
     var = self.table[self.__vars].get(name, None)
     if var is None:
       raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
     return var
-
-  # def is_variable_structure(self, name):
-    # var = self.get_variable(name)
-    # return is_structure(var.data_type)
   def declare_function(self, function):
     if self.is_local_function():
       self.get_localfunc_table()[function.name] = function

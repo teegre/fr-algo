@@ -258,13 +258,15 @@ class FunctionCall:
       if isinstance(p, (BinOp, Node)):
         p = map_type(p.eval())
       datatype = p.data_type
+      print(datatype, params)
       if isinstance(datatype, tuple): # Array or sized Char
         if len(datatype) == 3: # Array
           # check size
-          print(i, p, type(p), params)
           if params[i][2] != -1 and datatype[2] != params[i][2]:
             raise BadType(f'Tableau[{params[2]}] attendu')
           datatype = datatype[1]
+        elif params[i][1] != datatype[1]:
+          raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
       if datatype != params[i][1]:
         raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
   def eval(self):
@@ -811,7 +813,7 @@ class Sleep:
 
 def algo_to_python(expression):
   '''
-  Evaluate an Algo expression to a Python type
+  Evaluate an Algo expression/type to a Python type
   '''
   types = (
       ArrayGetItem,

@@ -461,7 +461,10 @@ def p_parameter(p):
     parameters = []
     for param in p[1]:
       if isinstance(param, list): # Array
-        array = (p[1][0][0], p[3], *p[1][0][1])
+        if len(p[1][0][1]) == 1:
+          array = (p[1][0][0], p[3], p[1][0][1][0])
+        else:
+          array = (p[1][0][0], p[3], (*p[1][0][1],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -508,7 +511,7 @@ def p_proc_param(p):
   if isinstance(p[1], list):
     for param in p[1]:
       if isinstance(param, list): # Array
-        array = (p[1][0][0], p[3], *p[1][0][1])
+        array = (p[1][0][0], p[3], p[1][0][1])
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -526,7 +529,6 @@ def p_proc_var_list(p):
   else:
     p[0] = [p[1]]
 
-
 def p_proc_var(p):
   '''
   proc_var : ID
@@ -539,8 +541,13 @@ def p_proc_var(p):
   if len(p) == 2:
     p[0] = p[1]
   else:
-    print('proc_var', p[2])
-    p[0] = Reference(p[2])
+    if isinstance(p[2], list):
+      if len(p[2][0][1]) == 1:
+        p[0] = [Reference(p[2][0][0]), p[2][0][1][0]]
+      else:
+        p[0] = [Reference(p[2][0][0]), (*p[2][0][1],)]
+    else:
+      p[0] = Reference(p[2])
 
 def p_proc_body(p):
   '''

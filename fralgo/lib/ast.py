@@ -258,16 +258,16 @@ class FunctionCall:
       if isinstance(p, (BinOp, Node)):
         p = map_type(p.eval())
       datatype = p.data_type
-      print(datatype, params)
       if isinstance(datatype, tuple): # Array or sized Char
         if len(datatype) == 3: # Array
           # check size
+          print(params[i])
           if params[i][2] != -1 and datatype[2] != params[i][2]:
             raise BadType(f'Tableau[{params[2]}] attendu')
           datatype = datatype[1]
-        elif params[i][1] != datatype[1]:
+        elif datatype[0] != params[i][1][0] or datatype[1] != params[i][1][1] :
           raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
-      if datatype != params[i][1]:
+      elif datatype != params[i][1]:
         raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
   def eval(self):
     func = sym.get_function(self.name)
@@ -277,7 +277,8 @@ class FunctionCall:
       self._check_param_count(params)
       # check data types
       self._check_datatypes(params)
-      # values = [param.eval() for param in self.params]
+      types = [False if isinstance(param[0], Reference) else True for param in params]
+      values = [param.eval() for i, param in enumerate(self.params) if types[i]]
       # set variables
       sym.set_local()
       for i, param in enumerate(params):
@@ -294,7 +295,7 @@ class FunctionCall:
         else:
           n, t = param
           sym.declare_var(n, t)
-        sym.assign_value(n, self.params[i].eval())
+        sym.assign_value(n, values[i])
     # function body
     body = func.body
     try:
@@ -348,8 +349,8 @@ class Variable:
     var = sym.get_variable(self.name)
     if var.data_type == 'Tableau':
       return (var.data_type, var.datatype, var.indexes)
-    if var.data_type == 'Caractère':
-      return (var.data_type, var.size)
+    if var.data_type.startswith('Caractère*'):
+      return ('Caractère', algo_to_python(var.size))
     return var.data_type
 
 class Reference(Variable):

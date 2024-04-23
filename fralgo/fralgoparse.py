@@ -780,7 +780,10 @@ def p_expression_uminus(p):
 
 def p_error(p):
   if p:
-    value = p.value.replace('\n', '↵')
+    try:
+      value = p.value.replace('\n', '↵')
+    except AttributeError:
+      value = p.value
     msg = f'Erreur de syntaxe >{value}<'
     if 'FRALGOREPL' not in os.environ:
       msg += f'\n-v- ligne {p.lineno}'

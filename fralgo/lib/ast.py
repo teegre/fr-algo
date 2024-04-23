@@ -261,9 +261,8 @@ class FunctionCall:
       if isinstance(datatype, tuple): # Array or sized Char
         if len(datatype) == 3: # Array
           # check size
-          print(params[i])
           if params[i][2] != -1 and datatype[2] != params[i][2]:
-            raise BadType(f'Tableau[{params[2]}] attendu')
+            raise BadType(f'Tableau[{params[i][2]}] attendu')
           datatype = datatype[1]
         elif datatype[0] != params[i][1][0] or datatype[1] != params[i][1][1] :
           raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
@@ -277,7 +276,7 @@ class FunctionCall:
       self._check_param_count(params)
       # check data types
       self._check_datatypes(params)
-      types = [False if isinstance(param[0], Reference) else True for param in params]
+      types = [not isinstance(param[0], Reference) for param in params]
       values = [param.eval() for i, param in enumerate(self.params) if types[i]]
       # set variables
       sym.set_local()
@@ -288,10 +287,10 @@ class FunctionCall:
         if len(param) == 3: # Array
           n, t, s = param
           if s == -1:
-            array = sym.get_variable(n)
+            array = sym.get_variable(self.params[i].name)
             sym.declare_array(n, t, *array.indexes)
           else:
-            sym.declare_array(n, t, s)
+            sym.declare_array(n, t, *s)
         else:
           n, t = param
           sym.declare_var(n, t)

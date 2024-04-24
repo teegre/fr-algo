@@ -22,6 +22,7 @@
 
 import os
 import sys
+from sys import stdout
 import operator
 from time import sleep
 from random import random
@@ -391,9 +392,10 @@ class Print: # TODO: use stdout!
       # here we want to use the str method of the evaluated class.
       result.append(str(element.eval()))
     if self.newline:
-      print(' '.join(result))
+      stdout.write(' '.join(result) + '\n')
     else:
-      print(' '.join(result), end='')
+      stdout.write(' '.join(result))
+    stdout.flush()
   def __repr__(self):
     return f'Ecrire {self.data}'
 

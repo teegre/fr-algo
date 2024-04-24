@@ -1,12 +1,22 @@
 Variables alpha, omega, zeta en Entier
+
+Fonction addth(n en Entier) en Entier
+  Si n < 10 Alors
+    Retourne n
+  FinSi
+  Retourne addth(n / 10 + n % 10)
+FinFonction
+
 Début
   Pour alpha <- 1 à 9
     Pour omega <- 1 à 9
-      zeta <- alpha * omega
-      TantQue zeta > 9
-        zeta <- zeta / 10 + zeta % 10
-      FinTantQue
-      Ecrire zeta, " " \
+      zeta <- addth(alpha * omega)
+      Si zeta = 9 Alors
+        Ecrire " [" & Chaîne(zeta) & "] " \
+      Sinon
+        Ecrire " ", zeta, " " \
+      FinSi
+      Dormir(0.03125)
     omega Suivant
     Ecrire ""
   alpha Suivant

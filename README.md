@@ -80,7 +80,7 @@ Bonjour le monde !
 
 Pour annuler une saisie en cours, appuyer sur <kbd>CTRL</kbd>+<kbd>C</kbd>
 Pour réinitialiser **l'environnement interactif**, taper `REINIT`
-Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>C</kbd>
+Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>D</kbd>
 
 ## Syntaxe
 
@@ -557,4 +557,31 @@ FinFonction
 
 factorielle(10)
 # 3628800
+```
+
+## Procédures
+
+### Déclaration
+
+```
+Procédure remplir(&t[] en Entier, taille en Entier)
+  Variable i en Entier
+  Si taille < 1 Alors
+    Ecrire "Erreur : taille invalide ", taille, "]"
+  Sinon
+    Redim t[taille - 1]
+    Pour i <- 0 à taille - 1
+      t[i] <- Entier(Aléa() * 9 + 1)
+    i Suivant
+  FinSi
+FinProcédure
+```
+
+### Appel
+
+```
+Tableau tab[] en Entier
+remplir(t, 8)
+# Exemple de résultat :
+# t = [1, 2, 8, 6, 8, 5, 7, 3]
 ```

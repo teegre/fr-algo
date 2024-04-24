@@ -1,10 +1,8 @@
-#   __           _
-#  / _|_ __ __ _| | __ _  ___
-# | |_| '__/ _` | |/ _` |/ _ \
-# |  _| | | (_| | | (_| | (_) |
-# |_| |_|  \__,_|_|\__, |\___/
-#                  |___/
-#
+#  _______ ______        _______ _____   _______ _______ 
+# |    ___|   __ \______|   _   |     |_|     __|       |
+# |    ___|      <______|       |       |    |  |   -   |
+# |___|   |___|__|      |___|___|_______|_______|_______|
+#                                                       
 # Copyright © 2024 Stéphane MEYER (teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -30,6 +28,7 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.exceptions import FatalError
 
@@ -42,7 +41,17 @@ def main():
     print('*** Fichier non trouvé')
     sys.exit(1)
   except IndexError:
-    print('fralgo <chemin/fichier.algo>')
+    print(r' _______ ______        _______ _____   _______ _______ ')
+    print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
+    print(r'|    ___|      <______|       |       |    |  |   -   |')
+    print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
+    print(f'A L G O R I T H M E S                          {__version__}mg')
+    print()
+    print('Donnez-moi un fichier ALGO en paramètre et je ferai de')
+    print("mon mieux pour lire et exécuter les instructions qu'il contient...")
+    print()
+    print('Exemple : fralgo monfichier.algo')
+    print()
     sys.exit(1)
   try:
     statements = parser.parse(prog)

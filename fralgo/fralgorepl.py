@@ -1,6 +1,7 @@
 import os
 import sys
 import readline
+from pathlib import Path
 import traceback
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -8,21 +9,28 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
+from fralgo.lib.ast import sym
 from fralgo.lib.exceptions import FralgoException
 
 os.environ['FRALGOREPL'] = '1'
+user_path = os.path.expanduser('~')
+history_file = os.path.join(user_path, '.fralgohistory')
 
 class Interpreter:
-  start_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
-  loop_hook = ('Fonction', 'TantQue', 'Pour', 'Si', 'Structure')
+  start_hook = ('Fonction', 'Procédure', 'TantQue', 'Pour', 'Si', 'Sinon', 'SinonSi', 'Structure')
+  loop_hook = ('Fonction', 'Procédure', 'TantQue', 'Pour', 'Si', 'Structure')
   while_end_hook = 'Suivant'
-  end_hook = ('FinTantQue', 'FinSi', 'FinStructure', 'FinFonction')
+  end_hook = ('FinTantQue', 'FinSi', 'FinStructure', 'FinFonction', 'FinProcédure')
   def __init__(self):
     self.loop = False
     self.cancel = False
     self.traceback = False
     self.instructions = []
     self.level = 0
+    try:
+      readline.read_history_file(history_file)
+    except FileNotFoundError:
+      Path(history_file).touch(mode=0o600)
   def input_loop(self):
     while True:
       try:
@@ -37,11 +45,16 @@ class Interpreter:
       except EOFError:
         print()
         print('*** Au revoir,', os.getenv('USER').capitalize(), '!')
+        readline.write_history_file(history_file)
         sys.exit(0)
       match instruction:
         case 'TRACE':
           self.traceback = not self.traceback
           print('*** TRACE est', map_type(self.traceback))
+          continue
+        case 'REINIT':
+          sym.reset()
+          print('*** Reinitialisation effectuée')
           continue
         case 'Début':
           print('*** Instructions Début et Fin non admises en mode interpréteur')
@@ -101,12 +114,9 @@ class Interpreter:
         traceback.print_exc()
       parser.restart()
       print(e)
-    if result is None:
-      return
     if isinstance(result, bool):
       print(map_type(result))
-      return
-    if result is not None:
+    elif result is not None:
       try:
         print(result)
       except Exception as e:

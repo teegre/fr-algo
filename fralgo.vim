@@ -36,6 +36,7 @@ syn keyword VarType Booléen Caractère Chaîne Entier Numérique
 syn keyword Program Début Fin
 syn keyword File Ajout Ecriture Lecture
 syn keyword Func Fonction Retourne FinFonction
+syn keyword Proc Procédure FinProcédure
 syn keyword StockFunc Aléa Droite Ecrire EcrireFichier Extraire FDF Fermer
 syn keyword StockFunc Gauche Lire LireFichier Longueur NON Ouvrir Redim Taille Trouve
 syn keyword Loop TantQue FinTantQue Pour Suivant
@@ -67,6 +68,7 @@ hi def link Program Constant
 hi def link Assignment Constant
 hi def link StockFunc Keyword
 hi def link Func PreProc
+hi def link Proc PreProc
 hi def link BinOp Operator
 hi def link Condition Conditional
 hi def link VarType Type

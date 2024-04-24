@@ -224,8 +224,7 @@ class StructureSetItem:
 
 class Function:
   '''A function definition'''
-  ftype = 'Fonction'
-  def __init__(self, name, params, body, return_type):
+  def __init__(self, name, params, body, return_type=None):
     self.name = name # str
     self.params = params # [(name, datatype)]
     self.body = body # Node
@@ -236,7 +235,9 @@ class Function:
     sym.declare_function(self)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
-    return f'{self.ftype} {self.name}({", ".join(params)}) en {self.return_type}'
+    if self.return_type is not None:
+      return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
+    return f'Procédure {self.name}({", ".join(params)})'
 
 class FunctionCall:
   '''Function call'''
@@ -244,6 +245,9 @@ class FunctionCall:
     self.name = name
     self.params = params
   def _check_param_count(self, params):
+    if self.params is None and params is not None:
+      x = len(params) # expected
+      raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : 0, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
@@ -258,9 +262,11 @@ class FunctionCall:
         if len(datatype) == 3: # Array
           # check size
           if params[i][2] != -1 and datatype[2] != params[i][2]:
-            raise BadType(f'Tableau[{params[2]}] attendu')
+            raise BadType(f'Tableau{str(params[i][2])} attendu')
           datatype = datatype[1]
-      if datatype != params[i][1]:
+        elif datatype[0] != params[i][1][0] or datatype[1] != params[i][1][1] :
+          raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
+      elif datatype != params[i][1]:
         raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
   def eval(self):
     func = sym.get_function(self.name)
@@ -270,19 +276,25 @@ class FunctionCall:
       self._check_param_count(params)
       # check data types
       self._check_datatypes(params)
-      values = [param.eval() for param in self.params]
+      # False if param is a Reference, True otherwise.
+      types = [not isinstance(param[0], Reference) for param in params]
+      # Eval params only when needed
+      values = [param.eval() if types[i] else param for i, param in enumerate(self.params)]
       # set variables
       sym.set_local()
-      for i, p in enumerate(params):
-        if len(p) == 3: # Array
-          n, t, s = p
+      for i, param in enumerate(params):
+        if isinstance(param[0], Reference):
+          sym.declare_ref(param[0].name, self.params[i])
+          continue
+        if len(param) == 3: # Array
+          n, t, s = param
           if s == -1:
-            array = sym.get_variable(n, is_global=True)
+            array = sym.get_variable(self.params[i].name)
             sym.declare_array(n, t, *array.indexes)
           else:
-            sym.declare_array(n, t, s)
+            sym.declare_array(n, t, *s)
         else:
-          n, t = p
+          n, t = param
           sym.declare_var(n, t)
         sym.assign_value(n, values[i])
     # function body
@@ -335,14 +347,18 @@ class Variable:
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    var = sym.get_variable(self.name, is_global=not sym.is_local())
+    var = sym.get_variable(self.name)
     if var.data_type == 'Tableau':
       return (var.data_type, var.datatype, var.indexes)
-    if var.data_type == 'Caractère':
-      return (var.data_type, var.size)
+    if var.data_type.startswith('Caractère*'):
+      return ('Caractère', algo_to_python(var.size))
     return var.data_type
 
-class Print:
+class Reference(Variable):
+  def __repr__(self):
+    return f'&{self.name}'
+
+class Print: # TODO: use stdout!
   '''Print statement. Display one or several elements'''
   def __init__(self, data, newline=True):
     self.data = data
@@ -447,7 +463,7 @@ class BinOp:
         if b == 0:
           raise ZeroDivide('Division par zéro')
         op = operator.truediv
-    if self.op == 'dp':
+    if self.op == 'DP':
       return map_type(a % b == 0)
     if self.op == '&':
       if isinstance(a, str) and isinstance(b, str):
@@ -476,6 +492,9 @@ class Neg:
     return -value
   def __repr__(self):
     return f'-{self.value}'
+  @property
+  def data_type(self):
+    return self.value.data_type
 
 class If:
   def __init__(self, condition, dothis, dothat):
@@ -491,6 +510,7 @@ class If:
       result = self.dothat.eval()
       if result is not None:
         return result
+    return None
   def __repr__(self):
     if self.dothat is not None:
       return f'Si {self.condition} Alors {self.dothis} Sinon {self.dothat}'
@@ -510,6 +530,7 @@ class While:
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoException as e:
         raise e
+    return None
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
 
@@ -523,7 +544,7 @@ class For:
     self.var_next = nv.name
   def eval(self):
     if self.var != self.var_next:
-      raise FralgoException(f'Pour >>{self.var}<< ... >>{self.var_next}<< Suivant')
+      raise FralgoException(f'Pour >{self.var}< ... >{self.var_next}< Suivant')
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()
@@ -730,7 +751,7 @@ class ToInteger:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     try:
       return int(value)
     except ValueError:
@@ -745,7 +766,7 @@ class ToFloat:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     try:
       return float(value)
     except ValueError:
@@ -794,7 +815,7 @@ class Sleep:
 
 def algo_to_python(expression):
   '''
-  Evaluate an Algo expression to a Python type
+  Evaluate an Algo expression/type to a Python type
   '''
   types = (
       ArrayGetItem,

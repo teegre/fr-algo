@@ -47,7 +47,8 @@ def main():
   try:
     statements = parser.parse(prog)
     statements.eval()
-  except FatalError:
+  except FatalError as e:
+    print('***', e.message)
     sys.exit(666)
 
 if __name__ == "__main__":

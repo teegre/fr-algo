@@ -1,3 +1,8 @@
+Variable longueur en Entier
+Variable mot en Chaîne
+Tableau t[7,7] en Entier
+Tableau t2[7] en Entier
+
 Fonction addth(n en Entier) en Entier
   TantQue n > 10
     n <- n / 10 + n % 10
@@ -8,14 +13,68 @@ FinFonction
 Fonction addth_recursive(n en Entier) en Entier
   Si n < 10 Alors
     Retourne n
-  Sinon
-    Retourne addth_recursive(n / 10 + n % 10)
   FinSi
+  Retourne addth_recursive(n / 10 + n % 10)
 FinFonction
+
+Fonction zero_un() en Entier
+  Si Aléa() >= 0.5 Alors
+    Retourne 1
+  FinSi
+  Retourne 0
+FinFonction
+
+Fonction alealettre() en Caractère
+  Si zero_un() = 1 Alors
+    Retourne Extraire("AEIOU", Entier(Aléa()*5+1), 1)
+  FinSi
+  Retourne Car(Entier(Aléa()*25+65))
+FinFonction
+
+Procédure gen_mot(&mot en Chaîne, long en Entier)
+  Variable i en Entier
+  mot <- ""
+  Pour i <- 1 à long
+    mot <- mot & alealettre()
+  i Suivant
+FinProcédure
+
+Procédure remplir_tableau(&t[7,7] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 7
+    Pour j <- 0 à 7
+      t[i,j] <- Entier(Aléa() * 9 + 1)
+    j Suivant
+  i Suivant
+FinProcédure
+
+Procédure affiche_tableau(&t[7,7] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 7
+    Pour j <- 0 à 7
+      Ecrire t[i,j], "" \
+    j Suivant
+    Ecrire ""
+  i Suivant
+FinProcédure
+
+Procédure remplir_tableau_simple(&t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à Taille(t) - 1
+    t[i] <- Entier(Aléa() * 9 + 1)
+  i Suivant
+FinProcédure
 
 Début
   Ecrire "> addth(1810197417121976) (2) : " \
   Ecrire addth(1810197417121976)
   Ecrire "> addth_recursive(1810197417121976) (2) : " \
   Ecrire addth_recursive(1810197417121976)
+  remplir_tableau(t)
+  affiche_tableau(t)
+  remplir_tableau_simple(t2)
+  affiche_tableau(t2)
+  Ecrire t2
+  gen_mot(mot, 10)
+  Ecrire mot
 Fin

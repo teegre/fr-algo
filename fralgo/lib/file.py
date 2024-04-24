@@ -1,3 +1,4 @@
+''' File '''
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -46,9 +47,9 @@ def clear_file_descriptor(fd_number):
       del __file_descriptors[fd_number-1]
       __file_descriptors[fd_number] = None
     else:
-      raise FatalError(f'Fichier ouvert sur le canal {fd_number-1}')
+      raise FatalError(f'Fichier ouvert sur le canal {fd_number}')
   else:
-    raise FatalError(f'Canal {fd_number-1} non utilisé')
+    raise FatalError(f'Canal {fd_number} non utilisé')
 
 class FileDescriptor:
   def __init__(self, fd):
@@ -75,7 +76,7 @@ class FileDescriptor:
   def read(self):
     return self.__file.read()
   def write(self, buffer):
-    return self.__file.write(buffer)
+    self.__file.write(buffer)
   def __repr__(self):
     return f'Canal {self.fd}'
   @property

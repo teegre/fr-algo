@@ -1,0 +1,103 @@
+Fonction tous_differents(t[] en Entier) en Booléen
+  Variables i, j en Entier
+  Pour i <- 0 à Taille(t) - 2
+    Pour j <- i + 1 à Taille(t) - 1
+      Si t[i] = t[j] Alors
+        Retourne FAUX
+      FinSi
+    j Suivant
+  i Suivant
+  Retourne VRAI
+FinFonction
+
+Procédure remplir_grille(&t[8,8] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 8
+    Pour j <- 0 à 8
+      t[i,j] <- Entier(Aléa() * 9 + 1)
+    j Suivant
+  i Suivant
+FinProcédure
+
+Procédure remplir_ligne_zero(&t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à 8
+    t[i] <- 0
+  i Suivant
+FinProcédure
+
+Fonction verif_lignes(grille[8,8] en Entier) en Booléen
+  Tableau ligne[8] en Entier
+  Variables i, j en Entier
+  remplir_ligne_zero(ligne)
+  Pour i <- 0 à 8
+    Pour j <- 0 à 8
+      ligne[j] <- grille[i,j]
+    j Suivant
+    Si NON(tous_differents(ligne)) Alors
+      Retourne FAUX
+    FinSi
+  i Suivant
+  Retourne VRAI
+FinFonction
+
+Fonction verif_cols(grille[8,8] en Entier) en Booléen
+  Tableau col[8] en Entier
+  Variables i, j en Entier
+  remplir_ligne_zero(col)
+  Pour j <- 0 à 8
+    Pour i <- 0 à 8
+      col[j] <- grille[i,j]
+    i Suivant
+    Si i > 0 ET NON(tous_differents(col)) Alors
+      Retourne FAUX
+    FinSi
+  j Suivant
+  Retourne VRAI
+FinFonction
+
+Fonction verif_sous_grilles(grille[8,8] en Entier) en Booléen
+  Tableau sous_grille[8] en Entier
+  Variables i, j, k, l en Entier
+  remplir_ligne_zero(sous_grille)
+  Pour i <- 0 à 6 Pas 3
+    Pour j <- 0 à 6 Pas 3
+      Pour k <- 0 à 2
+        Pour l <- 0 à 2
+          sous_grille[k * 3 + l] <- grille[i + k, j + l]
+        l Suivant
+      k Suivant
+      Si NON(tous_differents(sous_grille)) Alors
+        Retourne FAUX
+      FinSi
+    j Suivant
+  i Suivant
+  Retourne VRAI
+FinFonction
+
+Procédure afficher_grille(&grille[8,8] en Entier)
+  Variables i, j en Entier
+  Pour i <- 0 à 8
+    Pour j <- 0 à 8
+      Ecrire grille[i,j], "" \
+    j Suivant
+    Ecrire ""
+  i Suivant
+FinProcédure
+
+Procédure principale()
+  Tableau s[8,8] en Entier
+  Variable compte en Entier
+  compte <- 1
+  remplir_grille(s)
+  TantQue NON(verif_lignes(s)) OU NON(verif_cols(s)) OU NON(verif_sous_grilles(s))
+    remplir_grille(s)
+    compte <- compte + 1
+  FinTantQue
+  Ecrire compte, "remplissages effectués"
+  afficher_grille(s)
+FinProcédure
+
+Début
+  principale()
+Fin

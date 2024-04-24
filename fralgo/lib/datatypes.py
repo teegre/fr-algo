@@ -39,6 +39,9 @@ class Base():
       return f'{self.data_type} → ?'
     return f'{self.data_type} → {self.value}'
   @property
+  def is_empty(self):
+    return self.value is None
+  @property
   def data_type(self):
     return self._type
 
@@ -54,6 +57,30 @@ class Number(Base):
       return '?'
       # raise VarUndefined('Valeur indéfinie')
     return f'{self.value}'
+  def __eq__(self, other):
+    if isinstance(other, Number):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Number):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, Number):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, Number):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, Number):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, Number):
+      return self.value <= other.value
+    return False
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type} → ?'
@@ -100,6 +127,30 @@ class String(Base):
     return self.value
   def __len__(self):
     return len(self.value)
+  def __eq__(self, other):
+    if isinstance(other, String):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, String):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, String):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, String):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, String):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, String):
+      return self.value <= other.value
+    return False
   def __repr__(self):
     if self.value is None:
       return '?'
@@ -154,6 +205,30 @@ class Boolean(Base):
     if self.value is None:
       raise VarUndefined('Valeur indéfinie')
     return self.value
+  def __eq__(self, other):
+    if isinstance(other, Boolean):
+      return self.value == other.value
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Boolean):
+      return self.value != other.value
+    return False
+  def __gt__(self, other):
+    if isinstance(other, Boolean):
+      return self.value > other.value
+    return False
+  def __ge__(self, other):
+    if isinstance(other, Boolean):
+      return self.value >= other.value
+    return False
+  def __lt__(self, other):
+    if isinstance(other, Boolean):
+      return self.value < other.value
+    return False
+  def __le__(self, other):
+    if isinstance(other, Boolean):
+      return self.value <= other.value
+    return False
   def __str__(self):
     if self.value is not None:
       return 'VRAI' if self.value is True else 'FAUX'
@@ -262,11 +337,19 @@ class Array(Base):
   def resize(self, *indexes):
     ''' Resize an Array '''
     idxs = self._eval_indexes(*indexes)
-    for i, idx in enumerate(self.indexes):
-      if idxs[i] < 0:
-        raise ArrayResizeFailed('Redimensionnement impossible')
     sizes = tuple(idx + 1 for idx in idxs)
     new_array = Array(self.datatype, *idxs)
+    if self.is_empty():
+      self.indexes = idxs
+      self.sizes = sizes
+      self.value = new_array.value
+      return
+    for i, idx in enumerate(self.indexes):
+      try:
+        if idxs[i] < 0:
+          raise ArrayResizeFailed('Redimensionnement impossible')
+      except IndexError:
+        raise ArrayResizeFailed('Redimensionnement impossible')
     for idx in self._indexes_to_copy(self.sizes, sizes):
       value = self.get_item(*idx)
       if value is None:
@@ -276,8 +359,21 @@ class Array(Base):
       new_array.set_value(idx, map_type(value))
     self.indexes = idxs
     self.sizes = sizes
-    self.indexes = idxs
     self.value = new_array.value
+  def is_empty(self, array=None):
+    if array is not None:
+      for item in array:
+        if isinstance(item, list):
+          return self.is_empty(item)
+        if not map_type(item).is_empty:
+          return False
+    else:
+      for item in self.value:
+        if isinstance(item, list):
+          return self.is_empty(item)
+        if not map_type(item).is_empty:
+          return False
+    return True
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value
@@ -393,6 +489,10 @@ class StructureData(Base):
       if field[0] == name:
         return field[1]
     return None
+  def __eq__(self, other):
+    if isinstance(other, StructureData):
+      return self.data == other.data
+    return False
   def __str__(self):
     if 'FRALGOREPL' in os.environ:
       return self.__repr__()

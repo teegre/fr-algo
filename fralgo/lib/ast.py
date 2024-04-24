@@ -262,7 +262,7 @@ class FunctionCall:
         if len(datatype) == 3: # Array
           # check size
           if params[i][2] != -1 and datatype[2] != params[i][2]:
-            raise BadType(f'Tableau[{params[i][2]}] attendu')
+            raise BadType(f'Tableau{str(params[i][2])} attendu')
           datatype = datatype[1]
         elif datatype[0] != params[i][1][0] or datatype[1] != params[i][1][1] :
           raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
@@ -276,8 +276,10 @@ class FunctionCall:
       self._check_param_count(params)
       # check data types
       self._check_datatypes(params)
+      # False if param is a Reference, True otherwise.
       types = [not isinstance(param[0], Reference) for param in params]
-      values = [param.eval() for i, param in enumerate(self.params) if types[i]]
+      # Eval params only when needed
+      values = [param.eval() if types[i] else param for i, param in enumerate(self.params)]
       # set variables
       sym.set_local()
       for i, param in enumerate(params):

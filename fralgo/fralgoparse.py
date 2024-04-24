@@ -539,7 +539,13 @@ def p_proc_var(p):
            | CONCAT array_list %prec UET
   '''
   if len(p) == 2:
-    p[0] = p[1]
+    if isinstance(p[1], list): # Array
+      if len(p[1][0][1]) == 1:
+        p[0] = [p[1][0][0], p[1][0][1][0]]
+      else:
+        p[0] = [p[1][0][0], (*p[1][0][1],)]
+    else:
+      p[0] = p[1]
   else:
     if isinstance(p[2], list):
       if len(p[2][0][1]) == 1:

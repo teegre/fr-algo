@@ -1,8 +1,9 @@
-#  _______ ______        _______ _____   _______ _______ 
+''' Parser '''
+#  _______ ______        _______ _____   _______ _______
 # |    ___|   __ \______|   _   |     |_|     __|       |
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
-#                                                       
+#
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -487,10 +488,10 @@ def p_parameter(p):
     parameters = []
     for param in p[1]:
       if isinstance(param, list): # Array
-        if len(p[1][0][1]) == 1:
-          array = (p[1][0][0], p[3], p[1][0][1][0])
+        if len(param[1]) == 1:
+          array = (param[0], p[3], param[1][0])
         else:
-          array = (p[1][0][0], p[3], (*p[1][0][1],))
+          array = (param[0], p[3], (*param[1][0],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -537,7 +538,10 @@ def p_proc_param(p):
   if isinstance(p[1], list):
     for param in p[1]:
       if isinstance(param, list): # Array
-        array = (p[1][0][0], p[3], p[1][0][1])
+        if len(param[1]) == 1:
+          array = (param[0], p[3], param[1][0])
+        else:
+          array = (param[0], p[3], (*param[1],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -551,7 +555,8 @@ def p_proc_var_list(p):
                 | proc_var
   '''
   if len(p) == 4:
-    p[0] = p[1] + p[3]
+    print(p[1], p[3])
+    p[0] = p[1] + [p[3]]
   else:
     p[0] = [p[1]]
 
@@ -567,7 +572,7 @@ def p_proc_var(p):
   if len(p) == 2:
     if isinstance(p[1], list): # Array
       if len(p[1][0][1]) == 1:
-        p[0] = [p[1][0][0], p[1][0][1][0]]
+        p[0] = [p[1][0][0], p[1][0][1]]
       else:
         p[0] = [p[1][0][0], (*p[1][0][1],)]
     else:
@@ -575,7 +580,7 @@ def p_proc_var(p):
   else:
     if isinstance(p[2], list):
       if len(p[2][0][1]) == 1:
-        p[0] = [Reference(p[2][0][0]), p[2][0][1][0]]
+        p[0] = [Reference(p[2][0][0]), p[2][0][1]]
       else:
         p[0] = [Reference(p[2][0][0]), (*p[2][0][1],)]
     else:

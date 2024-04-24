@@ -1,4 +1,4 @@
-Variable mot en Caractère*10
+Variable mot en Chaîne
 Tableau t[7,7] en Entier
 Tableau t2[7] en Entier
 
@@ -16,15 +16,26 @@ Fonction addth_recursive(n en Entier) en Entier
   Retourne addth_recursive(n / 10 + n % 10)
 FinFonction
 
-Procédure gen_mot(&mot en Caractère*10)
+Fonction zero_un() en Entier
+  Si Aléa() >= 0.5 Alors
+    Retourne 1
+  FinSi
+  Retourne 0
+FinFonction
+
+Fonction alealettre() en Caractère
+  Si zero_un() = 1 Alors
+    Retourne Extraire("AEIOU", Entier(Aléa()*5+1), 1)
+  FinSi
+  Retourne Car(Entier(Aléa()*25+65))
+FinFonction
+
+Procédure gen_mot(&mot en Chaîne, long en Entier)
   Variable i en Entier
-  Variable lettres en Chaîne
   mot <- ""
-  lettres <- ""
-  Pour i <- 1 à Longueur(mot)
-    lettres <- lettres & Car(Entier(Aléa()*25+65))
+  Pour i <- 1 à long
+    mot <- mot & alealettre()
   i Suivant
-  mot <- lettres
 FinProcédure
 
 Procédure remplir_tableau(&t[7,7] en Entier)
@@ -58,10 +69,10 @@ Début
   Ecrire addth(1810197417121976)
   Ecrire "> addth_recursive(1810197417121976) (2) : " \
   Ecrire addth_recursive(1810197417121976)
-  gen_mot(mot)
-  Ecrire mot
   remplir_tableau(t)
   affiche_tableau(t)
   remplir_tableau_simple(t2)
   Ecrire t2
+  gen_mot(mot, 10)
+  Ecrire mot
 Fin

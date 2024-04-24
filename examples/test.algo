@@ -1,3 +1,4 @@
+Variable longueur en Entier
 Variable mot en Chaîne
 Tableau t[7,7] en Entier
 Tableau t2[7] en Entier
@@ -47,7 +48,7 @@ Procédure remplir_tableau(&t[7,7] en Entier)
   i Suivant
 FinProcédure
 
-Procédure affiche_tableau(&t[] en Entier)
+Procédure affiche_tableau(&t[7,7] en Entier)
   Variables i, j en Entier
   Pour i <- 0 à 7
     Pour j <- 0 à 7
@@ -72,6 +73,7 @@ Début
   remplir_tableau(t)
   affiche_tableau(t)
   remplir_tableau_simple(t2)
+  affiche_tableau(t2)
   Ecrire t2
   gen_mot(mot, 10)
   Ecrire mot

@@ -268,6 +268,19 @@ class FunctionCall:
           raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
       elif datatype != params[i][1]:
         raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+  def _check_returned_type(self, rt, value):
+    mv = map_type(value)
+    if isinstance(rt, tuple): # Sized char.
+      clen = map_type(rt[1]).eval()
+      if mv.data_type == 'Chaîne' and len(mv) == clen:
+        return
+      rt = rt[0] + '*' + str(rt[1])
+    if isinstance(mv.data_type, tuple):
+      mvdt = mv[0] + '*' + str(mv[1])
+    else:
+      mvdt = mv.data_type
+    if rt != mvdt:
+      raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
     func = sym.get_function(self.name)
     params = func.params
@@ -302,6 +315,7 @@ class FunctionCall:
     try:
       result = body.eval()
       if result is not None:
+        self._check_returned_type(func.return_type, result)
         return map_type(result)
     except FralgoException as e:
       raise e

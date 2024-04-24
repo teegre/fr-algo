@@ -80,9 +80,9 @@ Début
   Ecrire addth_recursive(1810197417121976)
   remplir_tableau(t)
   affiche_tableau(t)
+  Ecrire ""
   remplir_tableau_simple(t2)
   affiche_tableau_simple(t2)
-  Ecrire t2
   gen_mot(mot, 10)
   Ecrire mot
 Fin

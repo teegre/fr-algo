@@ -1,4 +1,9 @@
 '''Abstract syntax tree'''
+#  _______ ______        _______ _____   _______ _______ 
+# |    ___|   __ \______|   _   |     |_|     __|       |
+# |    ___|      <______|       |       |    |  |   -   |
+# |___|   |___|__|      |___|___|_______|_______|_______|
+#                                                       
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -22,10 +27,13 @@
 
 import os
 import sys
+from sys import stdout
 import operator
 from time import sleep
 from random import random
+from datetime import datetime
 
+from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
 from fralgo.lib.datatypes import Structure, is_structure
@@ -34,8 +42,10 @@ from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
+from fralgo.lib.exceptions import FralgoInterruption
 
 sym = Symbols()
+libs = LibMan()
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -51,18 +61,26 @@ class Node:
         result = statement.eval()
         if result is not None:
           return result
+      except RecursionError:
+        print('*** STOP : excès de récursivité !')
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          sys.exit(666)
+        raise FralgoInterruption('')
       except FatalError as e:
         print(f'*** {e.message}')
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           sys.exit(666)
+        raise FralgoInterruption('')
       except FralgoException as e:
-        print('***', e.message)
+        if e.message:
+          print('***', e.message)
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           print('*** Erreur fatale')
           sys.exit(666)
-        return None
+        raise FralgoInterruption('')
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -75,8 +93,6 @@ class Node:
     return '\n'.join(statements)
   def __repr__(self):
     return f'Node({self.lineno}) {self.children}'
-  # def __add__(self, other):
-  #   self.append(other)
 
 class Declare:
   def __init__(self, name, var_type):
@@ -268,6 +284,19 @@ class FunctionCall:
           raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
       elif datatype != params[i][1]:
         raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+  def _check_returned_type(self, rt, value):
+    mv = map_type(value)
+    if isinstance(rt, tuple): # Sized char.
+      clen = map_type(rt[1]).eval()
+      if mv.data_type == 'Chaîne' and len(mv) == clen:
+        return
+      rt = rt[0] + '*' + str(rt[1])
+    if isinstance(mv.data_type, tuple):
+      mvdt = mv[0] + '*' + str(mv[1])
+    else:
+      mvdt = mv.data_type
+    if rt != mvdt:
+      raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
     func = sym.get_function(self.name)
     params = func.params
@@ -302,6 +331,7 @@ class FunctionCall:
     try:
       result = body.eval()
       if result is not None:
+        self._check_returned_type(func.return_type, result)
         return map_type(result)
     except FralgoException as e:
       raise e
@@ -377,9 +407,10 @@ class Print: # TODO: use stdout!
       # here we want to use the str method of the evaluated class.
       result.append(str(element.eval()))
     if self.newline:
-      print(' '.join(result))
+      stdout.write(' '.join(result) + '\n')
     else:
-      print(' '.join(result), end='')
+      stdout.write(' '.join(result))
+    stdout.flush()
   def __repr__(self):
     return f'Ecrire {self.data}'
 
@@ -527,9 +558,10 @@ class While:
         if result is not None:
           return result
       except KeyboardInterrupt:
+        print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
-      except FralgoException as e:
-        raise e
+      except FralgoInterruption:
+        return None
     return None
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
@@ -552,12 +584,13 @@ class For:
     while i <= end if step > 0 else i >= end:
       try:
         result = self.dothis.eval()
-        if result is not None:
-          return result
-      except FralgoException as e:
-        raise e
       except KeyboardInterrupt:
+        print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
+      except FralgoInterruption:
+        return None
+      if result is not None:
+        return result
       i += step
       sym.assign_value(self.var, i)
     return None
@@ -813,6 +846,25 @@ class Sleep:
   def __repr__(self):
     return f'Dormir({self.duration})'
 
+class UnixTimestamp:
+  def eval(self):
+    return datetime.now().timestamp()
+  def __repr__(self):
+    return 'TempsUnix()'
+  @property
+  def data_type(self):
+    return 'Numérique'
+
+class Import:
+  def __init__(self, filename, parser):
+    self.filename = filename
+    self.parser = parser
+  def eval(self):
+    libs.set_parser(self.parser)
+    libs.import_lib(self.filename)
+  def __repr__(self):
+    return f'Importer "{self.filename}"'
+
 def algo_to_python(expression):
   '''
   Evaluate an Algo expression/type to a Python type
@@ -833,6 +885,7 @@ def algo_to_python(expression):
       String,
       StructureGetItem,
       ToFloat, ToInteger, ToString, Trim,
+      UnixTimestamp,
       Variable,
   )
   exp = expression

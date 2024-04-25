@@ -1,3 +1,30 @@
+''' Parser '''
+#  _______ ______        _______ _____   _______ _______
+# |    ___|   __ \______|   _   |     |_|     __|       |
+# |    ___|      <______|       |       |    |  |   -   |
+# |___|   |___|__|      |___|___|_______|_______|_______|
+#
+# This file is part of FRALGO
+# Copyright © 2024 Stéphane MEYER (Teegre)
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import os
 import sys
 
@@ -11,7 +38,7 @@ from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
-from fralgo.lib.ast import Reference
+from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as lex
@@ -52,6 +79,13 @@ def p_program(p):
     root.append(p[1])
 
   p[0] = root
+
+def p_import_statement(p):
+  '''
+  import_statement : IMPORT STRING NEWLINE
+  '''
+  parser = yacc()
+  p[0] = Node(Import(p[2], parser), p.lineno(1))
 
 def p_structure_declarations(p):
   '''
@@ -107,6 +141,7 @@ def p_var_declaration(p):
                   | struct_declarations
                   | function_declaration
                   | procedure_declaration
+                  | import_statement
   '''
   if len(p) == 2:
     p[0] = p[1]
@@ -461,10 +496,10 @@ def p_parameter(p):
     parameters = []
     for param in p[1]:
       if isinstance(param, list): # Array
-        if len(p[1][0][1]) == 1:
-          array = (p[1][0][0], p[3], p[1][0][1][0])
+        if len(param[1]) == 1:
+          array = (param[0], p[3], param[1][0])
         else:
-          array = (p[1][0][0], p[3], (*p[1][0][1],))
+          array = (param[0], p[3], (*param[1][0],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -511,7 +546,10 @@ def p_proc_param(p):
   if isinstance(p[1], list):
     for param in p[1]:
       if isinstance(param, list): # Array
-        array = (p[1][0][0], p[3], p[1][0][1])
+        if len(param[1]) == 1:
+          array = (param[0], p[3], param[1][0])
+        else:
+          array = (param[0], p[3], (*param[1],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -525,7 +563,8 @@ def p_proc_var_list(p):
                 | proc_var
   '''
   if len(p) == 4:
-    p[0] = p[1] + p[3]
+    print(p[1], p[3])
+    p[0] = p[1] + [p[3]]
   else:
     p[0] = [p[1]]
 
@@ -539,11 +578,17 @@ def p_proc_var(p):
            | CONCAT array_list %prec UET
   '''
   if len(p) == 2:
-    p[0] = p[1]
+    if isinstance(p[1], list): # Array
+      if len(p[1][0][1]) == 1:
+        p[0] = [p[1][0][0], p[1][0][1]]
+      else:
+        p[0] = [p[1][0][0], (*p[1][0][1],)]
+    else:
+      p[0] = p[1]
   else:
     if isinstance(p[2], list):
       if len(p[2][0][1]) == 1:
-        p[0] = [Reference(p[2][0][0]), p[2][0][1][0]]
+        p[0] = [Reference(p[2][0][0]), p[2][0][1]]
       else:
         p[0] = [Reference(p[2][0][0]), (*p[2][0][1],)]
     else:
@@ -746,6 +791,13 @@ def p_expression_chr_ord(p):
   else:
     p[0] = Ord(p[3])
 
+def p_expression_unixtimestamp(p):
+  '''
+  expression : UNIXTIMESTAMP LPAREN RPAREN
+  '''
+  p[0] = UnixTimestamp()
+
+
 def p_expression_type_conv(p):
   '''
   expression : TYPE_INTEGER LPAREN expression RPAREN
@@ -759,7 +811,6 @@ def p_expression_type_conv(p):
       p[0] = ToFloat(p[3])
     case 'Chaîne':
       p[0] = ToString(p[3])
-
 
 def p_expression_random(p):
   '''
@@ -799,4 +850,5 @@ def p_error(p):
   if 'FRALGOREPL' not in os.environ:
     raise FatalError(msg)
   raise FralgoException(f'*** {msg}')
+
 parser = yacc()

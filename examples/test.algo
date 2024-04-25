@@ -48,7 +48,7 @@ Procédure remplir_tableau(&t[7,7] en Entier)
   i Suivant
 FinProcédure
 
-Procédure affiche_tableau(&t[7,7] en Entier)
+Procédure affiche_tableau(t[7,7] en Entier)
   Variables i, j en Entier
   Pour i <- 0 à 7
     Pour j <- 0 à 7
@@ -65,6 +65,14 @@ Procédure remplir_tableau_simple(&t[] en Entier)
   i Suivant
 FinProcédure
 
+Procédure affiche_tableau_simple(t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à Taille(t) - 1
+    Ecrire t[i], "" \
+  i Suivant
+  Ecrire ""
+FinProcédure
+
 Début
   Ecrire "> addth(1810197417121976) (2) : " \
   Ecrire addth(1810197417121976)
@@ -72,9 +80,9 @@ Début
   Ecrire addth_recursive(1810197417121976)
   remplir_tableau(t)
   affiche_tableau(t)
+  Ecrire ""
   remplir_tableau_simple(t2)
-  affiche_tableau(t2)
-  Ecrire t2
+  affiche_tableau_simple(t2)
   gen_mot(mot, 10)
   Ecrire mot
 Fin

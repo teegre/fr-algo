@@ -55,72 +55,88 @@ Fonction tous_differents(t[] en Entier) en Booléen
   Retourne VRAI
 FinFonction
 
+Fonction fib_iter(n en Entier) en Entier
+  Variables i, a, b, t en Entier
+  a <- 0
+  b <- 1
+  Pour i <- 1 à n
+    t <- a + b
+    a <- b
+    b <- t
+  i Suivant
+  Retourne a
+FinFonction
+
 Début
   Ecrire "Test des fonctions en ALGO"
   Ecrire "-----------------------------------------------------------------------------"
 
   Ecrire "> Test de la fonction carré :"
-  Dormir(1)
+  Dormir(1.0/2)
   n <- carré(9)
   Ecrire "-- Le carré de 9 est égal à", n
-  Dormir(1)
+  Dormir(1.0/2)
   n <- 10
   Ecrire "-- le carré de 10 est égal à", carré(n)
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-----------------------------------------------------------------------------"
-  Dormir(2)
+  Dormir(1)
 
   Ecrire "> Test de la fonction plus :"
-  Dormir(1)
+  Dormir(1.0/2)
   x <- 9
   y <- 6
   Ecrire x, "+", y, "=", plus(x, y)
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "9 + 9 =", plus(9, 9)
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-----------------------------------------------------------------------------"
-  Dormir(2)
+  Dormir(1)
 
   Ecrire "> La fonction 'un'   retourne 1 :", un() = 1
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "> La fonction 'deux' retourne 2 :", deux() = 2
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "> 'un' + 'deux' ?", un() + deux()
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-----------------------------------------------------------------------------"
-  Dormir(2)
+  Dormir(1)
 
   Ecrire "> Somme de 1, 2, 3, 4 et 5 :", somme5(1, 2, 3, 4, 5)
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-----------------------------------------------------------------------------"
-  Dormir(2)
+  Dormir(1)
 
   Ecrire "> Anticonstitutionnellement contient", voyelles("Anticonstitutionnellement") \
   Ecrire " voyelles."
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-----------------------------------------------------------------------------"
-  Dormir(2)
+  Dormir(1)
 
   Ecrire "> Constitution d'un tableau d'entiers de longueur et de valeurs arbitraires :"
-  Dormir(1)
+  Dormir(1.0/2)
   # Redimensionnement du tableau
   Ecrire "- Dimensionnement du tableau"
-  Dormir(1)
+  Dormir(1.0/2)
   Redim t[Entier(Aléa() * 8 + 1)]
   # Remplissage du tableau avec des valeurs arbitraires (entre 1 et 10 inclus)
   Ecrire "- Remplissage du tableau"
-  Dormir(1)
+  Dormir(1.0/2)
   Pour n <- 0 à Taille(t) - 1
     t[n] <- Entier(Aléa() * 9 + 1)
   n Suivant
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-- Le tableau contient :", t
-  Dormir(1)
+  Dormir(1.0/2)
   Ecrire "-- Sa taille est de :", Taille(t)
   Dormir(1)
   Ecrire "-- La somme de ses éléments est égale à :", somme(t)
   Dormir(1)
   Ecrire "-- Ses éléments sont-ils tous différents ? :", tous_differents(t)
+  Ecrire "-----------------------------------------------------------------------------"
+  Ecrire "> Quel est le 300ème nombre dans la suite de Fibonacci ? :"
+  Ecrire fib_iter(300)
+  Dormir(1)
   Ecrire "-----------------------------------------------------------------------------"
   Ecrire ""
   Dormir(2)

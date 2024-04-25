@@ -1,12 +1,24 @@
+#! /usr/bin/env fralgo
+
 Variables alpha, omega, zeta en Entier
+
+Fonction addth(n en Entier) en Entier
+  Si n < 10 Alors
+    Retourne n
+  FinSi
+  Retourne addth(n / 10 + n % 10)
+FinFonction
+
 Début
-  Pour alpha <- 1 à 9
-    Pour omega <- 1 à 9
-      zeta <- alpha * omega
-      TantQue zeta > 9
-        zeta <- zeta / 10 + zeta % 10
-      FinTantQue
-      Ecrire zeta, " " \
+  Pour alpha <- 0 à 9
+    Pour omega <- 0 à 9
+      zeta <- addth(alpha * omega)
+      Si zeta = 0 OU zeta = 9 Alors
+        Ecrire "[", zeta, "]" \
+      Sinon
+        Ecrire " ", zeta, " " \
+      FinSi
+      Dormir(0.03125)
     omega Suivant
     Ecrire ""
   alpha Suivant

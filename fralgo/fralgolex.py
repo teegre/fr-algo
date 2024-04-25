@@ -1,3 +1,8 @@
+#  _______ ______        _______ _____   _______ _______ 
+# |    ___|   __ \______|   _   |     |_|     __|       |
+# |    ___|      <______|       |       |    |  |   -   |
+# |___|   |___|__|      |___|___|_______|_______|_______|
+#                                                       
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -28,6 +33,7 @@ from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.ply.lex import lex
 
 reserved = {
+  'Importer':      'IMPORT',
   'Variable':      'VAR_DECL',
   'Variables':     'VARS_DECL',
   'Tableau':       'ARRAY_DECL',
@@ -69,6 +75,7 @@ reserved = {
   'CodeCar':       'ORD',
   'Aléa':          'RANDOM',
   'Dormir':        'SLEEP',
+  'TempsUnix':     'UNIXTIMESTAMP',
   'Ouvrir':        'OPEN',
   'Fermer':        'CLOSE',
   'LireFichier':   'READFILE',

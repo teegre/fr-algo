@@ -1,4 +1,5 @@
 #! /usr/bin/env fralgo
+
 Variables alpha, omega, zeta en Entier
 
 Fonction addth(n en Entier) en Entier
@@ -12,10 +13,8 @@ Début
   Pour alpha <- 0 à 9
     Pour omega <- 0 à 9
       zeta <- addth(alpha * omega)
-      Si zeta = 9 Alors
-        Ecrire " [" & Chaîne(zeta) & "] " \
-      SinonSi zeta = 0 Alors
-        Ecrire " [" & Chaîne(zeta) & "] " \
+      Si zeta = 0 OU zeta = 9 Alors
+        Ecrire "[", zeta, "]" \
       Sinon
         Ecrire " ", zeta, " " \
       FinSi

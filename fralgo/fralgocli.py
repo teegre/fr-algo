@@ -1,8 +1,9 @@
-#  _______ ______        _______ _____   _______ _______ 
+''' File interpreter '''
+#  _______ ______        _______ _____   _______ _______
 # |    ___|   __ \______|   _   |     |_|     __|       |
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
-#                                                       
+#
 # Copyright © 2024 Stéphane MEYER (teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -45,10 +46,12 @@ def main():
     print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
     print(r'|    ___|      <______|       |       |    |  |   -   |')
     print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
-    print(f'A L G O R I T H M E S                          {__version__}mg')
+    print(f'|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 {__version__}mg')
     print()
-    print('Donnez-moi un fichier ALGO en paramètre et je ferai de')
-    print("mon mieux pour lire et exécuter les instructions qu'il contient...")
+    print('(c) 2024 Stéphane MEYER (Teegre)')
+    print()
+    print('Donnez-moi un fichier ALGO en paramètre et je ferai de mon')
+    print("mieux pour lire et exécuter les instructions qu'il contient.")
     print()
     print('Exemple : fralgo monfichier.algo')
     print()

@@ -1,10 +1,10 @@
-# FRALGO
+# FR-ALGO
 
-**FRALGO** (prononcé *F-R-ALGO*) est un interpréteur pour le pseudo-langage de programmation **ALGO**
+**FR-ALGO** (prononcé *F-R-ALGO*) est un interpréteur pour le pseudo-langage de programmation **ALGO**
 
 ## Installation
 
-Avant d'installer **FRALGO**, vérifiez que **Python**
+Avant d'installer **FR-ALGO**, vérifiez que **Python**
 
 ## Utilisation
 
@@ -50,11 +50,13 @@ Une invite de commande est alors affichée...
 
 ```
 $ fralgorepl
- _______ ______ _______ _____   _______ _______ 
-|    ___|   __ \   _   |     |_|     __|       |
-|    ___|      <       |       |    |  |   -   |
-|___|   |___|__|___|___|_______|_______|_______|
-A L G O R I T H M E S                   0.11.1mg
+ _______ ______        _______ _____   _______ _______ 
+|    ___|   __ \______|   _   |     |_|     __|       |
+|    ___|      <______|       |       |    |  |   -   |
+|___|   |___|__|      |___|___|_______|_______|_______|
+A L G O R I T H M E S                          0.11.2mg
+
+(c) 2024 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.
@@ -74,6 +76,8 @@ A L G O R I T H M E S                   0.11.1mg
 Bonjour, Teegre !
 En attente de vos instructions.
 
+::: 1 + 1
+--- 2
 ::: Ecrire "Bonjour le monde !"
 Bonjour le monde !
 ```

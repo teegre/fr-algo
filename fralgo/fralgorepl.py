@@ -1,3 +1,29 @@
+''' REPL '''
+#  _______ ______        _______ _____   _______ _______
+# |    ___|   __ \______|   _   |     |_|     __|       |
+# |    ___|      <______|       |       |    |  |   -   |
+# |___|   |___|__|      |___|___|_______|_______|_______|
+#
+# Copyright © 2024 Stéphane MEYER (teegre)
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+# OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 import os
 import sys
 import readline
@@ -118,7 +144,7 @@ class Interpreter:
       print(map_type(result))
     elif result is not None:
       try:
-        print(result)
+        print('---', result)
       except Exception as e:
         if self.traceback:
           traceback.print_exc()
@@ -139,7 +165,9 @@ def main():
   print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
   print(r'|    ___|      <______|       |       |    |  |   -   |')
   print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
-  print(f'A L G O R I T H M E S                          {__version__}mg')
+  print(f'|A|L|G|O|R|I|T|H|M|E|S|                 frv100-{__version__}mg')
+  print()
+  print('(c) 2024 Stéphane MEYER (Teegre)')
   print()
   print('Bonjour,', os.getenv('USER').capitalize(), '!')
   print('En attente de vos instructions.')

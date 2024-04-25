@@ -35,7 +35,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.ast import sym
+from fralgo.lib.ast import sym, libs
 from fralgo.lib.exceptions import FralgoException
 
 os.environ['FRALGOREPL'] = '1'
@@ -174,6 +174,7 @@ def main():
   print('Bonjour,', os.getenv('USER').capitalize(), '!')
   print('En attente de vos instructions.')
   print()
+  libs.set_main()
   repl = Interpreter()
   repl.input_loop()
 

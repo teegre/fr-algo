@@ -1,0 +1,15 @@
+Tableau tableau[] en Entier
+Variable global en Entier
+
+Structure Test
+  champ1 en Entier
+  champ2 en Entier
+FinStructure
+
+Fonction fonction_test(n en Entier) en Entier
+  Retourne 2 * n
+FinFonction
+
+Procédure procedure_test()
+  Ecrire "Ça marche !"
+FinProcédure

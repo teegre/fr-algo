@@ -33,6 +33,7 @@ from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.ply.lex import lex
 
 reserved = {
+  'Importer':      'IMPORT',
   'Variable':      'VAR_DECL',
   'Variables':     'VARS_DECL',
   'Tableau':       'ARRAY_DECL',

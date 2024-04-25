@@ -30,12 +30,13 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo import __version__
-from fralgo.fralgoparse import parser
+from fralgo.fralgoparse import parser, libs
 from fralgo.lib.exceptions import FatalError
 
 def main():
   try:
-    with open(sys.argv[1], 'r') as f:
+    algofile = sys.argv[1]
+    with open(algofile, 'r') as f:
       prog = f.read()
       prog = prog[:-1]
   except FileNotFoundError:
@@ -57,10 +58,11 @@ def main():
     print()
     sys.exit(1)
   try:
+    libs.set_main(algofile)
     statements = parser.parse(prog)
     statements.eval()
   except FatalError as e:
-    print('***', e.message)
+    print('*** Oh oh :', e.message)
     sys.exit(666)
 
 if __name__ == "__main__":

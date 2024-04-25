@@ -38,7 +38,7 @@ from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
-from fralgo.lib.ast import Reference, UnixTimestamp
+from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as lex
@@ -79,6 +79,13 @@ def p_program(p):
     root.append(p[1])
 
   p[0] = root
+
+def p_import_statement(p):
+  '''
+  import_statement : IMPORT STRING NEWLINE
+  '''
+  parser = yacc()
+  p[0] = Node(Import(p[2], parser), p.lineno(1))
 
 def p_structure_declarations(p):
   '''
@@ -134,6 +141,7 @@ def p_var_declaration(p):
                   | struct_declarations
                   | function_declaration
                   | procedure_declaration
+                  | import_statement
   '''
   if len(p) == 2:
     p[0] = p[1]
@@ -804,7 +812,6 @@ def p_expression_type_conv(p):
     case 'Chaîne':
       p[0] = ToString(p[3])
 
-
 def p_expression_random(p):
   '''
   expression : RANDOM LPAREN RPAREN
@@ -843,4 +850,5 @@ def p_error(p):
   if 'FRALGOREPL' not in os.environ:
     raise FatalError(msg)
   raise FralgoException(f'*** {msg}')
+
 parser = yacc()

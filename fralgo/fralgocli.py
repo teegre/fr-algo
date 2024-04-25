@@ -30,7 +30,8 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo import __version__
-from fralgo.fralgoparse import parser, libs
+from fralgo.fralgoparse import parser
+from fralgo.lib.ast import libs
 from fralgo.lib.exceptions import FatalError
 
 def main():

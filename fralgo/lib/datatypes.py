@@ -300,6 +300,8 @@ class Array(Base):
       raise BadType('Tableaux de taille differentes')
     if self.datatype != array.datatype:
       raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
+    # /!\ Not implemented in grammar.
+    # References are only available in procedure.
     if ref:
       self.indexes = array.indexes
       self.sizes = array.sizes

@@ -271,7 +271,7 @@ class FunctionCall:
         raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
   def _check_datatypes(self, params):
     for i, p in enumerate(self.params):
-      if isinstance(p, (BinOp, Node)):
+      if isinstance(p, (BinOp, Node, ArrayGetItem)):
         p = map_type(p.eval())
       datatype = p.data_type
       if isinstance(datatype, tuple): # Array or sized Char

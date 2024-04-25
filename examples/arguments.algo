@@ -1,0 +1,20 @@
+#! /usr/bin/env fralgo
+
+Procédure affiche_fichier(fichier en Chaîne)
+  Variable ligne en Chaîne
+  Ouvrir fichier sur 1 en Lecture
+  TantQue NON(FDF(1))
+    LireFichier 1, ligne
+    Ecrire ligne
+  FinTantQue
+  Fermer 1
+FinProcédure
+
+Début
+  Ecrire "Nom du programme :", _ARGS[0]
+  Si Taille(_ARGS) > 1 Alors
+    affiche_fichier(_ARGS[1])
+  Sinon
+    Ecrire "Utilisation : arguments.algo <fichier_texte>"
+  FinSi
+Fin

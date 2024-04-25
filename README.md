@@ -1,10 +1,38 @@
 # FR-ALGO
 
-**FR-ALGO** (prononcé *F-R-ALGO*) est un interpréteur pour le pseudo-langage de programmation **ALGO**
+**FR-ALGO** (prononcé *F-R-ALGO*) est un interpréteur pour le pseudo-langage de programmation **ALGO**.
 
 ## Installation
 
-Avant d'installer **FR-ALGO**, vérifiez que **Python**
+Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 ou plus,
+**python-build** et **pipx** sont installés sur votre système :
+
+```shell
+$ python --version
+Python 3.11.8
+$ python -c "import build"
+$ which pipx
+/usr/bin/pipx
+```
+### Méthode 1
+
+Cloner ce dépôt :
+`$ git clone https://github.com/teegre/fr-algo`
+
+Puis :
+```
+$ cd fr-algo
+$ python -m build
+$ pipx install dist/fralgo-0.11.2.tar.gz
+```
+
+### Méthode 2
+
+```shell
+$ wget https://github.com/teegre/fr-algo/releases/download/0.11.2/fr-algo_v0_11_2-beta_1.zip
+$ unzip fr-algo_v0_11_2-beta_1.zip
+$ pipx install fralgo-0.11.2.tar.gz
+```
 
 ## Utilisation
 
@@ -28,9 +56,9 @@ Pour exécuter le programme ci-dessus enregistré dans le fichier `bonjour.algo`
 
 `$ fralgo bonjour.algo`
 
-Après un appui sur la touche <kbd>Entrée</kbd>, l'on obtient :
+Après un appui sur la touche <kbd>Entrée</kbd>, nous obtenons :
 
-```shell
+```
 $ fralgo bonjour.algo
 Bonjour le monde !
 $
@@ -50,11 +78,11 @@ Une invite de commande est alors affichée...
 
 ```
 $ fralgorepl
- _______ ______        _______ _____   _______ _______ 
+ _______ ______        _______ _____   _______ _______
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-A L G O R I T H M E S                          0.11.2mg
+|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 0.11.2mg
 
 (c) 2024 Stéphane MEYER (Teegre)
 
@@ -67,11 +95,13 @@ En attente de vos instructions.
 
 ```
 $ fralgorepl
- _______ ______ _______ _____   _______ _______ 
-|    ___|   __ \   _   |     |_|     __|       |
-|    ___|      <       |       |    |  |   -   |
-|___|   |___|__|___|___|_______|_______|_______|
-A L G O R I T H M E S                   0.11.1mg
+ _______ ______        _______ _____   _______ _______
+|    ___|   __ \______|   _   |     |_|     __|       |
+|    ___|      <______|       |       |    |  |   -   |
+|___|   |___|__|      |___|___|_______|_______|_______|
+|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 0.11.2mg
+
+(c) 2024 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.
@@ -82,9 +112,16 @@ En attente de vos instructions.
 Bonjour le monde !
 ```
 
-Pour annuler une saisie en cours, appuyer sur <kbd>CTRL</kbd>+<kbd>C</kbd>
-Pour réinitialiser **l'environnement interactif**, taper `REINIT`
-Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>D</kbd>
+Pour annuler une saisie en cours, appuyer sur <kbd>CTRL</kbd>+<kbd>c</kbd>.
+
+Pour réinitialiser **l'environnement interactif**, taper `REINIT`.
+
+Il est possible de naviguer dans l'historique avec les touches <kbd>↑</kbd> et <kbd>↓</kbd>
+et d'effectuer une recherche avec <kbd>CTRL</kbd>+<kbd>r</kbd>.
+
+Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>d</kbd>.
+
+
 
 ## Syntaxe
 
@@ -94,7 +131,8 @@ Elle doit être scrupuleusement appliquée sous peine d'avoir des erreurs lors d
 
 Les <u>mots reservés</u> sont <u>sensibles à la casse</u> et aux <u>accents</u>, par exemple :
 
-`Debut`, `debut`, `Début` seront traîtés différemment par l'interpréteur. En effet, si `Début` est un mot reservé indiquant le commencement d'un programme **Algo**, `Debut` et `debut` sont considérés comme des <u>variables</u>.
+`Debut`, `debut`, `Début` seront traîtés différemment par l'interpréteur.
+En effet, si `Début` est un mot reservé indiquant le commencement d'un programme **ALGO**, `Debut` et `debut` sont considérés comme des <u>variables</u>.
 
 Il est à noter que **chaque instruction d'un programme ALGO**, s'il se trouve dans un fichier, **doit être suivie d'au moins un retour à la ligne** et les éventuels sauts de ligne après le mot réservé `Fin` provoquent une erreur de syntaxe.
 
@@ -120,7 +158,7 @@ Les commentaires en fin de ligne ne sont pas acceptés.
 
 ### Entier
 
-`1`, `-6`, `33`
+`1`, `-2`, `3`
 
 ### Numérique
 
@@ -140,7 +178,7 @@ soit la valeur est tronquée, soit des espaces sont ajoutés à
 la fin. En d'autres termes, une variable de type Caractère aura
 toujours la même longueur, peu importe sa valeur.
 
-Exemple :
+Exemples :
 
 ```
 Variable c en Caractère*5
@@ -152,6 +190,15 @@ c <- "ABCDEF"
 Longueur(c) = 5
 # VRAI
 # c = "ABCDE"
+```
+
+```
+Variable a en Caractère
+a <- ""
+Longueur(a)
+# 1
+a = ""
+# FAUX
 ```
 
 ## Variables
@@ -166,10 +213,14 @@ Variables c1, c2, c3 en Chaîne
 ### Affectation
 
 ```
-a <- 12
+a <- (12 * 2 / 4) + 1
 c1 <- "Chaîne1"
 c2 <- "Chaîne2"
 c3 <- c1 & " et " & c2
+a = 7
+# VRAI
+c3 = "Chaîne1 et Chaîne2"
+# VRAI
 ```
 
 ## Tableaux
@@ -204,6 +255,10 @@ w[7,7,7] <- 512
 ```
 u <- t
 u = t
+# VRAI
+u[3] = t[3]
+# VRAI
+u[3] = 4
 # VRAI
 ```
 
@@ -240,49 +295,65 @@ p2 = p1
 
 ```
 # Addition
-+
+a + b
+
 # Soustraction
--
+a - b
+
 # Multiplication
-*
+a * b
+
 # Division
-/
-# Modulo
-%
-# Divisible par (renvoie VRAI si a est divisible par b)
-DP
+a / b
+# Note : si a et b sont de type Entier, le quotient sera également de type Entier.
+
+# Modulo (reste de la division)
+a % b
+
+# Divisible par (retourne VRAI si a est divisible par b)
+a DP b
+
 # Puissance
-^
+a ^ b
+
 # Concaténation de chaînes de caractères
-&
+a & b
 ```
 
 ### Comparaisons
 
 ```
 # Egal
-=
+a = b
+
 # Différent
-<>
+a <> b
+
 # Supérieur
->
+ a > b
+
 # Supérieur ou égal
->=
+a >= b
+
 # Inférieur
-<
+a < b
+
 # Inférieur ou égal
-<=
+a <= b
 ```
 
 ### Opérateurs binaires
 
 ```
 # Et
-ET
+a ET b
+
 # Ou
-OU
+a OU b
+
 # Ou exclusif
-OUX
+a OUX b
+
 # Pas
 NON(x)
 # Si x est FAUX, NON(x) retourne VRAI et vice et versa.
@@ -294,16 +365,20 @@ NON(x)
 Variable n en Entier
 Lire n
 # Affecte la valeur entrée par l'utilisateur à la variable 'n'.
+
 Ecrire n
 # Affiche la valeur de n.
+
 Ecrire n, x
 # Affiche les valeurs de n et de x séparées par un espace.
 # Par exemple :
 # 74 19
+
 Ecrire n
 Ecrire x
 # 74
 # 19
+
 Ecrire n \
 Ecrire x
 # 7419
@@ -311,6 +386,7 @@ Ecrire x
 # passer à la ligne suivante, et lors du second appel à
 # Ecrire, la valeur de x est affichée directement après 
 # celle de n.
+#
 # Application :
 Ecrire "Entrer un nombre : " \
 Lire n
@@ -407,20 +483,22 @@ i Suivant
 # 'Longueur' renvoie la longueur d'une chaîne de caractères.
 Longueur("ABC")
 # 3
-#
+
 # 'Extraire' renvoie une sous-chaîne contenue dans une chaîne selon un
 # index et une longueur donnés.
 Extraire("Carte de crédit", 1, 5)
 # Carte
-#
+
 # 'Gauche' renvoie la sous-chaîne d'une longueur donnée à partir du
 # début d'une chaîne.
 Gauche("Carte de crédit", 5)
 # Carte
+
 # 'Droite' renvoie la sous-chaîne d'une longueur donnée à partir de
 # la fin d'une chaîne.
 Droite("Carte de crédit", 6)
 # crédit
+
 # 'Trouve' renvoie l'index d'une sous-chaîne dans une chaîne.
 Trouve("Carte de crédit", "crédit")
 # 10
@@ -433,6 +511,7 @@ Trouve("Carte de crédit", "crédit")
 # Ligne 1
 # Ligne 2
 # Ligne 3
+
 Variable tampon en Chaîne
 # Ouverture du ficher sur le 'canal' 1 en mode lecture.
 Ouvrir "fichier.txt" sur 1 en Lecture
@@ -446,21 +525,21 @@ TantQue NON(FDF(1))
 FinTantQue
 # Fermeture du fichier ouvert sur le 'canal' 1
 Fermer 1
-#
+
 # 10 'canaux' étant disponibles, il est possible d'ouvrir
 # 10 fichiers simultanément.
 #
 # La fonction FDF retourne VRAI si la fin du fichier est atteinte sur
 # le 'canal' spécifié en paramètre.
 # Elle retourne FAUX dans le cas contraire.
-#
+
 # Modes d'ouverture :
 # * Lecture permet de lire un fichier.
 # * Ecriture permet d'écrire dans un fichier. Dans ce mode le contenu
 # du fichier est préalablement effacé si le fichier existe, sinon le
 # fichier est créé.
 # * Ajout permet d'ajouter des lignes dans un fichier.
-#
+
 # Pour écrire dans un fichier, on utilise la fonction 'EcrireFichier'
 # Exemple :
 Variable i en Entier
@@ -469,6 +548,7 @@ Pour i <- 1 à 3
   EcrireFichier 2, "Ligne " & Chaîne(i)
 i Suivant
 Fermer 2
+
 # De même en mode Ajout :
 Ouvrir "fichier.txt" sur 1 en Ajout
 EcrireFichier 1, "Ligne 4"
@@ -480,14 +560,19 @@ Fermer 1
 ```
 Chaîne(123)
 # "123"
+
 Chaîne(1.23)
 # "1.23"
+
 Entier("123")
 # 123
+
 Entier(1.23)
 # 1
+
 Numérique("1.23")
 # 1.23
+
 Numérique(1)
 # 1.0
 ```
@@ -499,6 +584,7 @@ Tableau t[7] en Entier
 # 'Taille' retourne la taille du tableau donné en paramètre.
 Taille(t)
 # 8
+
 # Dans le cas d'un tableau multidimensionnel, 'Taille' retourne
 # un tableau contenant les tailles de chaque sous-tableau.
 Tableau t2[7,7]
@@ -515,6 +601,11 @@ Taille(t2)
 # Exemples :
 Dormir(1)
 Dormir(0.5)
+
+# 'TempsUnix' retourne un "unix timestamp" de la date et l'heure courante.
+# Exemple :
+TempsUnix()
+# 1714070687.823757
 ```
 
 ## Fonctions
@@ -526,6 +617,8 @@ Fonction somme(a, b en Entier) en Entier
   Retourne a + b
 FinFonction
 ```
+
+Note : une fonction doit nécessairement retourner une valeur.
 
 ### Appel
 
@@ -585,7 +678,90 @@ FinProcédure
 
 ```
 Tableau tab[] en Entier
-remplir(t, 8)
+Variable n en Entier
+n <- 8
+remplir(tab, n)
 # Exemple de résultat :
 # t = [1, 2, 8, 6, 8, 5, 7, 3]
 ```
+
+### Passage de variable par valeur ou par référence
+
+Dans l'exemple précédent, le tableau `tab[]` est passé par référence (`&t[]`)
+en paramètre de la procédure. C'est-à-dire que la variable ___globale___ `tab` est directement modifiée dans la procédure.
+
+En ce qui concerne le paramètre `taille`, au contraire, seule la valeur de `n`, soit `8`
+dans notre exemple, est passée. Une variable `taille` est d'abord créée ___localement___
+lors de l'appel à la procédure `remplir`. Puis la valeur `8` est affectée à `taille`.
+Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée.
+
+## Importation de librairies ALGO
+
+```
+.
+..
+lib/
+|__ ma_librairie.algo
+|
+|_ mon_projet.algo
+```
+
+```
+# Ma librairie
+
+Fonction ma_fonction(...) en ...
+  ...
+FinFonction
+
+Procédure ma_procedure(...)
+ ...
+FinProcédure
+
+# Mon projet
+Importer "lib/ma_librairie"
+
+Début
+  ma_fonction(...)
+  ma_procedure(...)
+Fin
+
+```
+## Arguments de la ligne de commande
+
+Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour
+gérer des arguments de la ligne de commande.
+
+Exemple :
+```
+# mon_programme.algo
+Procédure dire(phrase en Chaîne)
+  Ecrire "Moi dire :", phrase
+FinProcédure
+
+Début
+  dire(_ARGS[1])
+Fin
+```
+
+```shell
+$ fralgo mon_programme "Bonjour tout le monde !"
+Bonjour tout le monde !
+```
+Par défaut `_ARGS[0]` contient le nom du programme **ALGO** courant. Dans notre exemple,
+`_ARGS[0]` est égal à `mon_programme.algo`.
+
+## Programmes exécutables
+
+Pour rendre un programe **ALGO** exécutable, il suffit d'abord d'y insérer la ligne
+suivante en en-tête :
+
+`#! /usr/bin/env fralgo`
+
+Puis de changer les permissions du programme comme suit :
+`chmod +x mon_programme.algo`
+
+## Désinstallation
+
+**Êtes-vous sûr de vouloir désinstaller FR-ALGO ?**
+
+`$ pipx uninstall fralgo`

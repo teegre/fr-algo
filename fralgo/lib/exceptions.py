@@ -1,8 +1,8 @@
-#  _______ ______        _______ _____   _______ _______ 
+#  _______ ______        _______ _____   _______ _______
 # |    ___|   __ \______|   _   |     |_|     __|       |
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
-#                                                       
+#
 # This file is part of FRALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
@@ -55,4 +55,6 @@ class ZeroDivide(FralgoException):
   ''' Division par 0 ! '''
 class FuncInvalidParameterCount(FralgoException):
   '''Nombre de paramètres invalide'''
+class FralgoInterruption(FralgoException):
+  '''Exécution interrompue '''
 

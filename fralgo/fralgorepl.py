@@ -120,7 +120,8 @@ class Interpreter:
     try:
       result = parser.parse(instruction + '\n')
     except FralgoException as e:
-      print(e.message)
+      if e.message:
+        print(e.message)
       return
     except Exception as e:
       if self.traceback:
@@ -133,7 +134,8 @@ class Interpreter:
     try:
       result = result.eval()
     except FralgoException as e:
-      print(e.message)
+      if e.message:
+        print(e.message)
       return
     except Exception as e:
       if self.traceback:
@@ -141,7 +143,7 @@ class Interpreter:
       parser.restart()
       print(e)
     if isinstance(result, bool):
-      print(map_type(result))
+      print('---', map_type(result))
     elif result is not None:
       try:
         print('---', result)

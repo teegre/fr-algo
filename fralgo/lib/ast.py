@@ -40,6 +40,7 @@ from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
+from fralgo.lib.exceptions import FralgoInterruption
 
 sym = Symbols()
 
@@ -57,18 +58,26 @@ class Node:
         result = statement.eval()
         if result is not None:
           return result
+      except RecursionError:
+        print('*** STOP : excès de récursivité !')
+        if 'FRALGOREPL' not in os.environ:
+          print(f'-v- Ligne {self.lineno}')
+          sys.exit(666)
+        raise FralgoInterruption('')
       except FatalError as e:
         print(f'*** {e.message}')
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           sys.exit(666)
+        raise FralgoInterruption('')
       except FralgoException as e:
-        print('***', e.message)
+        if e.message:
+          print('***', e.message)
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           print('*** Erreur fatale')
           sys.exit(666)
-        return None
+        raise FralgoInterruption('')
     return result
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
@@ -81,8 +90,6 @@ class Node:
     return '\n'.join(statements)
   def __repr__(self):
     return f'Node({self.lineno}) {self.children}'
-  # def __add__(self, other):
-  #   self.append(other)
 
 class Declare:
   def __init__(self, name, var_type):
@@ -548,9 +555,10 @@ class While:
         if result is not None:
           return result
       except KeyboardInterrupt:
+        print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
-      except FralgoException as e:
-        raise e
+      except FralgoInterruption:
+        return None
     return None
   def __repr__(self):
     return f'TantQue {self.condition} → {self.dothis}'
@@ -573,12 +581,13 @@ class For:
     while i <= end if step > 0 else i >= end:
       try:
         result = self.dothis.eval()
-        if result is not None:
-          return result
-      except FralgoException as e:
-        raise e
       except KeyboardInterrupt:
+        print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
+      except FralgoInterruption:
+        return None
+      if result is not None:
+        return result
       i += step
       sym.assign_value(self.var, i)
     return None

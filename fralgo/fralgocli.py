@@ -30,14 +30,15 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo import __version__
+from fralgo.lib.datatypes import map_type
 from fralgo.fralgoparse import parser
-from fralgo.lib.ast import libs
+from fralgo.lib.ast import libs, sym
 from fralgo.lib.exceptions import FatalError
 
 def main():
   try:
     algofile = sys.argv[1]
-    with open(algofile, 'r') as f:
+    with open(algofile, 'r', encoding='utf-8') as f:
       prog = f.read()
       prog = prog[:-1]
   except FileNotFoundError:
@@ -58,6 +59,13 @@ def main():
     print('Exemple : fralgo monfichier.algo')
     print()
     sys.exit(1)
+
+  sym.declare_array('_ARGS', 'Chaîne', len(sys.argv[2:]))
+  args_array = sym.get_variable('_ARGS')
+  args_array.set_value((0,), map_type(sys.argv[1]))
+  if len(sys.argv) > 2:
+    for idx, arg in enumerate(sys.argv[2:]):
+      args_array.set_value((idx + 1,), map_type(arg))
   try:
     libs.set_main(algofile)
     statements = parser.parse(prog)

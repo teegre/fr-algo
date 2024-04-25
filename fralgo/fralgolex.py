@@ -74,6 +74,7 @@ reserved = {
   'CodeCar':       'ORD',
   'Aléa':          'RANDOM',
   'Dormir':        'SLEEP',
+  'TempsUnix':     'UNIXTIMESTAMP',
   'Ouvrir':        'OPEN',
   'Fermer':        'CLOSE',
   'LireFichier':   'READFILE',

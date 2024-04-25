@@ -38,7 +38,7 @@ from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
-from fralgo.lib.ast import Reference
+from fralgo.lib.ast import Reference, UnixTimestamp
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as lex
@@ -782,6 +782,13 @@ def p_expression_chr_ord(p):
     p[0] = Chr(p[3])
   else:
     p[0] = Ord(p[3])
+
+def p_expression_unixtimestamp(p):
+  '''
+  expression : UNIXTIMESTAMP LPAREN RPAREN
+  '''
+  p[0] = UnixTimestamp()
+
 
 def p_expression_type_conv(p):
   '''

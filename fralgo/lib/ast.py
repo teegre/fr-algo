@@ -31,6 +31,7 @@ from sys import stdout
 import operator
 from time import sleep
 from random import random
+from datetime import datetime
 
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
@@ -843,6 +844,15 @@ class Sleep:
   def __repr__(self):
     return f'Dormir({self.duration})'
 
+class UnixTimestamp:
+  def eval(self):
+    return datetime.now().timestamp()
+  def __repr__(self):
+    return 'TempsUnix()'
+  @property
+  def data_type(self):
+    return 'Numérique'
+
 def algo_to_python(expression):
   '''
   Evaluate an Algo expression/type to a Python type
@@ -863,6 +873,7 @@ def algo_to_python(expression):
       String,
       StructureGetItem,
       ToFloat, ToInteger, ToString, Trim,
+      UnixTimestamp,
       Variable,
   )
   exp = expression

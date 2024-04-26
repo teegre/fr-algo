@@ -66,7 +66,8 @@ $
 
 ### fralgorepl
 
-Ce programme est un **REPL** (**R**ead-**E**val-**P**rint-**L**oop), en français : *boucle de lecture, d'évaluation et d'affichage*. C'est un *environnement interactif* qui permet d'exécuter des expressions écrites en **ALGO**.
+Ce programme est un **REPL** (**R**ead-**E**val-**P**rint-**L**oop), en français : **boucle de lecture, d'évaluation et d'affichage**.
+C'est un *environnement interactif* qui permet d'exécuter des expressions écrites en **ALGO**.
 
 Pour charger **l'environnement interactif**, entrer la commande suivante :
 
@@ -130,7 +131,10 @@ Les <u>mots reservés</u> sont <u>sensibles à la casse</u> et aux <u>accents</u
 `Debut`, `debut`, `Début` seront traîtés différemment par l'interpréteur.
 En effet, si `Début` est un mot reservé indiquant le commencement d'un programme **ALGO**, `Debut` et `debut` sont considérés comme des <u>variables</u>.
 
-Il est à noter que **chaque instruction d'un programme ALGO**, s'il se trouve dans un fichier, **doit être suivie d'au moins un retour à la ligne** et les éventuels sauts de ligne après le mot réservé `Fin` provoquent une erreur de syntaxe.
+Il est à noter que **chaque instruction d'un programme ALGO**, **doit être suivie d'un retour à la ligne** et les éventuels sauts
+de ligne après le mot réservé `Fin` provoquent une erreur de syntaxe.
+
+### Commentaires
 
 Il est possible d'ajouter des commentaires comme suit :
 
@@ -144,7 +148,7 @@ Début
 Fin
 ```
 
-Les commentaires en fin de ligne ne sont pas acceptés.
+**Les commentaires en fin de ligne ne sont pas acceptés.**
 
 ## Types de données
 
@@ -224,8 +228,13 @@ c3 = "Chaîne1 et Chaîne2"
 ### Déclaration
 
 ```
-Tableau t1[4] en Entier
-Tableaux u[], v[1,1], w[7,7,7] en Entier
+Tableau t1[3] en Entier
+# t1[3] désigne un tableau pouvant contenir 4 éléments (numérotés de 0 à 3).
+
+Tableau u[]
+# u[] désigne un tableau qui sera dimensionné ultérieurement (voir plus bas).
+
+Tableaux v[1,1], w[7,7,7] en Entier
 ```
 
 ### Affectation
@@ -236,6 +245,8 @@ t[2] <- 3
 t[3] <- 4
 v[0,0] <- 1
 v[0,1] <- 2
+v[1,0] <- 3
+v[1,1] <- 4
 ...
 w[0,0,0] <- 1
 ...
@@ -244,7 +255,7 @@ w[7,7,7] <- 512
 
 ### Dimensionnement
 
-`Redim u[4]`
+`Redim u[3]`
 
 ### Affectation d'un tableau à un autre tableau de même dimension :
 
@@ -508,8 +519,6 @@ Car(65)
 # A
 ```
 
-
-
 ### Lecture / Ecriture de fichiers texte
 
 ```
@@ -706,6 +715,11 @@ dans notre exemple, est passée. Une variable `taille` est d'abord créée ___lo
 lors de l'appel à la procédure `remplir`. Puis la valeur `8` est affectée à `taille`.
 Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée.
 
+```
+n = 8
+# VRAI
+```
+
 ## Importation de librairies ALGO
 
 ```
@@ -747,7 +761,7 @@ Exemple :
 ```
 # mon_programme.algo
 Procédure repete(phrase en Chaîne, nombre en Entier)
-  Tant nombre > 0
+  TantQue nombre > 0
     Ecrire phrase
     nombre <- nombre - 1
   FinTantQue

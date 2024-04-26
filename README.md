@@ -121,11 +121,7 @@ et d'effectuer une recherche avec <kbd>CTRL</kbd>+<kbd>r</kbd>.
 
 Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>d</kbd>.
 
-
-
 ## Syntaxe
-
-La syntaxe est globalement similaire à celle du cours à quelques exceptions près qui seront évoquées plus loin dans ce document.
 
 Elle doit être scrupuleusement appliquée sous peine d'avoir des erreurs lors de l'exécution des programmes !
 
@@ -273,7 +269,7 @@ Structure Personne
 FinStructure
 
 # Déclaration d'une variable de type Personne
-Variable p1, p2 en Personne
+Variables p1, p2 en Personne
 ```
 
 ### Affectation
@@ -502,7 +498,17 @@ Droite("Carte de crédit", 6)
 # 'Trouve' renvoie l'index d'une sous-chaîne dans une chaîne.
 Trouve("Carte de crédit", "crédit")
 # 10
+
+# 'CodeCar' retourne le code ASCII du caractère donné en paramètre :
+CodeCar("A")
+# 65
+
+# Car retourne le caractère correspondant au code ASCII donné en paramètre :
+Car(65)
+# A
 ```
+
+
 
 ### Lecture / Ecriture de fichiers texte
 
@@ -595,6 +601,11 @@ Taille(t2)
 ### Autres
 
 ```
+# 'Aléa' retourne un `Numérique` entre 0 et 1.
+# Exemple :
+# Aléa()
+# 0.54575648
+
 # 'Dormir' suspend l'exécution du programme pendant une durée en
 # secondes donnée en paramètre.
 # La durée peut être de type Entier ou Numérique.
@@ -729,23 +740,27 @@ Fin
 ## Arguments de la ligne de commande
 
 Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour
-gérer des arguments de la ligne de commande.
+gérer des arguments de la ligne de commande. Ses éléments sont tous du type
+`Chaîne`
 
 Exemple :
 ```
 # mon_programme.algo
-Procédure dire(phrase en Chaîne)
-  Ecrire "Moi dire :", phrase
+Procédure repete(phrase en Chaîne, nombre en Entier)
+  Tant nombre > 0
+    Ecrire phrase
+    nombre <- nombre - 1
+  FinTantQue
 FinProcédure
 
 Début
-  dire(_ARGS[1])
+  repete(_ARGS[1], Entier(_ARGS[2]))
 Fin
 ```
 
 ```shell
 $ fralgo mon_programme "Bonjour tout le monde !"
-Bonjour tout le monde !
+Moi dire : Bonjour tout le monde !
 ```
 Par défaut `_ARGS[0]` contient le nom du programme **ALGO** courant. Dans notre exemple,
 `_ARGS[0]` est égal à `mon_programme.algo`.

@@ -36,7 +36,7 @@ class LibMan:
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
     if mainfile is not None:
-      self.__path = os.path.abspath(mainfile)
+      self.__path = os.path.dirname(os.path.abspath(mainfile))
     else:
       self.__path = os.getcwd()
   def set_parser(self, parser):
@@ -59,7 +59,7 @@ class LibMan:
   def checklib(self, algocontent):
     for line in algocontent:
       if 'Début' in line:
-        raise FatalError('Importer : ceci n\' est pas une librairie.')
+        raise FatalError('Importer : ceci n\'est pas une librairie.')
   @property
   def path(self):
     return self.__path

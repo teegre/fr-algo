@@ -156,6 +156,8 @@ class String(Base):
     if isinstance(other, String):
       return self.value <= other.value
     return False
+  def __str__(self):
+    return self.value
   def __repr__(self):
     if self.value is None:
       return '?'

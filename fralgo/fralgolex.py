@@ -49,6 +49,8 @@ reserved = {
   'Numérique':     'TYPE_FLOAT',
   'Début':         'START',
   'Fin':           'END',
+  'Librairie':     'LIB',
+  'Initialise':    'INIT',
   'Ecrire':        'PRINT',
   'Lire':          'READ',
   'DP':            'DIVBY',

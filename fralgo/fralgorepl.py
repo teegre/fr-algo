@@ -167,7 +167,7 @@ def main():
   print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
   print(r'|    ___|      <______|       |       |    |  |   -   |')
   print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
-  print(f'|A|L|G|O|R|I|T|H|M|E|S|                 frv100-{__version__}mg')
+  print(f'|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 {__version__}mg')
   print()
   print('(c) 2024 Stéphane MEYER (Teegre)')
   print()

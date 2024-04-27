@@ -19,6 +19,71 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_procedure_split(self):
+    prog = '''Procédure scinder(chaine, separateur, &elements[] en Chaîne)
+     Variable sous_chaine en Chaîne
+     Variable index en Entier
+     index <- -1
+     TantQue Trouve(chaine, separateur) > 0
+       sous_chaine <- Gauche(chaine, Trouve(chaine, separateur) - 1)
+       index <- index + 1
+       Redim elements[index]
+       elements[index] <- sous_chaine
+       chaine <- Droite(chaine, Longueur(chaine) - Trouve(chaine, separateur))
+     FinTantQue
+     index <- index + 1
+     Redim elements[index]
+     elements[index] <- chaine
+    FinProcédure
+    Tableau elements[] en Chaîne
+    Variables test1, test2 en Booléen
+    Début
+      Ecrire "16. Test procédure et passage de variable par référence"
+      scinder("TEST=REUSSI", "=", elements)
+      test1 <- elements[0] = "TEST"
+      test2 <- elements[1] = "REUSSI"
+      Ecrire test1, test2
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('test1')
+    t2 = sym.get_variable('test2')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    print()
+
+  def test_structure_in_resized_array(self):
+    prog = '''Structure S
+      a en Entier
+      b en Entier
+    FinStructure
+    Tableau t[] en S
+    Variables n, v en Entier
+    Variables test1, test2 en Booléen
+    Début
+      Ecrire "15. Structure dans Tableau redimensionné"
+      n <- -1
+      Pour v <- 1 à 10 Pas 2
+        n <- n + 1
+        Redim t[n]
+        t[n] <- v, v + 1
+      v Suivant
+      test1 <- t[0].a = 1 ET t[0].b = 2
+      test2 <- t[n].a = 9 ET t[n].b = 10
+      Ecrire test1, test2
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('test1')
+    t2 = sym.get_variable('test2')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    print()
+
   def test_function(self):
     prog = '''Fonction somme_chaine(n1, n2 en Entier) en Chaîne
       # Retourne la somme de n1 et n2 en chaîne de caractères

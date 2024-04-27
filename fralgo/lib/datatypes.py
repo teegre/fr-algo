@@ -498,6 +498,12 @@ class StructureData(Base):
       if field[0] == name:
         return field[1]
     return None
+  @property
+  def is_empty(self):
+    for element in self.data:
+      if not map_type(element).is_empty:
+        return False
+    return True
   def __eq__(self, other):
     if isinstance(other, StructureData):
       return self.data == other.data

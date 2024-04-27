@@ -17,7 +17,8 @@ $ which pipx
 ### Méthode 1
 
 Cloner ce dépôt :
-`$ git clone https://github.com/teegre/fr-algo`
+
+`git clone https://github.com/teegre/fr-algo`
 
 Puis :
 ```
@@ -67,7 +68,7 @@ $
 ### fralgorepl
 
 Ce programme est un **REPL** (**R**ead-**E**val-**P**rint-**L**oop), en français : **boucle de lecture, d'évaluation et d'affichage**.
-C'est un *environnement interactif* qui permet d'exécuter des expressions écrites en **ALGO**.
+C'est un **environnement interactif** qui permet d'exécuter des expressions écrites en **ALGO**.
 
 Pour charger **l'environnement interactif**, entrer la commande suivante :
 
@@ -150,7 +151,7 @@ Fin
 
 **Les commentaires en fin de ligne ne sont pas acceptés.**
 
-## Types de données
+## Types de données  <a name="type"></a>
 
 ### Booléen
 
@@ -201,7 +202,7 @@ a = ""
 # FAUX
 ```
 
-## Variables
+## Variables <a name="variable"></a>
 
 ### Déclaration
 
@@ -223,7 +224,7 @@ c3 = "Chaîne1 et Chaîne2"
 # VRAI
 ```
 
-## Tableaux
+## Tableaux <a name="tableau"></a>
 
 ### Déclaration
 
@@ -253,7 +254,7 @@ w[0,0,0] <- 1
 w[7,7,7] <- 512
 ```
 
-### Dimensionnement
+### Dimensionnement <a name="redim"></a>
 
 `Redim u[3]`
 
@@ -269,7 +270,7 @@ u[3] = 4
 # VRAI
 ```
 
-## Structures
+## Structures <a name="structure"></a>
 
 ### Déclaration
 
@@ -296,7 +297,7 @@ p2 = p1
 # VRAI
 ```
 
-## Opérateurs
+## Opérateurs <a name="opérateur"></a>
 
 ### Opérations
 
@@ -327,7 +328,7 @@ a ^ b
 a & b
 ```
 
-### Comparaisons
+### Comparaisons <a name="comparaison"></a>
 
 ```
 # Egal
@@ -349,7 +350,7 @@ a < b
 a <= b
 ```
 
-### Opérateurs binaires
+### Opérateurs binaires <a name="opérateur_binaire"></a>
 
 ```
 # Et
@@ -366,7 +367,7 @@ NON(x)
 # Si x est FAUX, NON(x) retourne VRAI et vice et versa.
 ```
 
-## Lire et Ecrire
+## Lire et Ecrire <a name="lire"></a>
 
 ```
 Variable n en Entier
@@ -415,7 +416,7 @@ Lire n
 *** Type Entier attendu
 ```
 
-## Tests
+## Tests <a name="test"></a>
 
 ```
 Variable temperature en Entier
@@ -432,7 +433,7 @@ FinSi
 
 ## Boucles
 
-### TantQue
+### TantQue <a name="tant"></a>
 
 ```
 Variable i en Entier
@@ -449,7 +450,7 @@ FinTantQue
 # 5
 ```
 
-### Pour
+### Pour <a name="pour"></a>
 
 ```
 Variable i en Entier
@@ -484,7 +485,7 @@ i Suivant
 
 ## Fonctions prédéfinies
 
-### Manipulation de chaînes de caractères
+### Manipulation de chaînes de caractères <a name="chaîne"></a>
 
 ```
 # 'Longueur' renvoie la longueur d'une chaîne de caractères.
@@ -519,7 +520,7 @@ Car(65)
 # A
 ```
 
-### Lecture / Ecriture de fichiers texte
+### Lecture / Ecriture de fichiers texte <a name="fichier"></a>
 
 ```
 # Lecture simple d'un fichier contenant les lignes suivantes :
@@ -528,7 +529,7 @@ Car(65)
 # Ligne 3
 
 Variable tampon en Chaîne
-# Ouverture du ficher sur le 'canal' 1 en mode lecture.
+# Ouverture du fichier sur le 'canal' 1 en mode lecture.
 Ouvrir "fichier.txt" sur 1 en Lecture
 # Tant que la fin du fichier (FDF(1)) n'est pas atteinte...
 TantQue NON(FDF(1))
@@ -570,7 +571,7 @@ EcrireFichier 1, "Ligne 4"
 Fermer 1
 ```
 
-### Conversion de types de données
+### Conversion de types de données <a name="conversion"></a>
 
 ```
 Chaîne(123)
@@ -592,7 +593,7 @@ Numérique(1)
 # 1.0
 ```
 
-### Tableaux
+### Tableaux <a name="fonction_tableau"></a>
 
 ```
 Tableau t[7] en Entier
@@ -607,7 +608,7 @@ Taille(t2)
 # [8, 8]
 ```
 
-### Autres
+### Autres <a name="autre"></a>
 
 ```
 # 'Aléa' retourne un `Numérique` entre 0 et 1.
@@ -628,7 +629,7 @@ TempsUnix()
 # 1714070687.823757
 ```
 
-## Fonctions
+## Fonctions <a name="fonction"></a>
 
 ### Déclaration
 
@@ -676,7 +677,7 @@ factorielle(10)
 # 3628800
 ```
 
-## Procédures
+## Procédures <a name="procédure"></a>
 
 ### Déclaration
 
@@ -721,11 +722,15 @@ n = 8
 # VRAI
 ```
 
-## Structure d'un programme ALGO
+## Structure d'un programme ALGO <a name="programme"></a>
+
+### Minimum
 
 *  `Début`
 *  Instructions
 *  `Fin`
+
+### Maximum
 
 *  Déclaration de variables, de tableaux, de structures...
 *  Déclaration de fonctions, de procédures...
@@ -733,13 +738,13 @@ n = 8
 *  Instructions
 *  `Fin`
 
-## Librairies et importation de librairies ALGO
+## Librairies et importation de librairies ALGO <a name="librairie"></a>
 
 Une **librairie** est un fichier qui peut contenir des variables, des structures,
 des tableaux, des fonctions et des procédures qui pourront être réutilisées dans
 d'autres programmes **ALGO**.
 
-La structure d'une librairie est à peu près identique à celle d'un programme :
+La structure d'une librairie se présente comme suit :
 
 *  `Librairie`
 *  Déclarations
@@ -753,7 +758,7 @@ on utilise le mot réservé `Initialise` :
 *  `Initialise`
 *  Instructions
 
-### Exemple de librairie et importation
+### Exemple de librairie et importation dans un programme
 
 ```
 .
@@ -791,7 +796,7 @@ Début
 Fin
 
 ```
-## Arguments de la ligne de commande
+## Arguments de la ligne de commande <a name="argument"></a>
 
 Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour
 gérer des arguments de la ligne de commande. Ses éléments sont tous du type
@@ -835,3 +840,110 @@ Puis de changer les permissions du programme comme suit :
 **Êtes-vous sûr de vouloir désinstaller FR-ALGO ?**
 
 `$ pipx uninstall fralgo`
+
+## Index des mots reservés et fonctions prédéfinies
+
+### -
+[%](#opérateur)
+[&](#opérateur)
+[*](#opérateur)
+[+](#opérateur)
+[-](#opérateur)
+[/](#opérateur)
+[^](#opérateur)
+[_ARGS](#argument)
+
+### A
+[à](#pour)
+[Ajout](#fichier)
+[Alors](#test)
+[Aléa](#autre)
+
+### B
+[Booléen](#type)
+
+### C
+[Car](#chaîne)
+[Caractère](#type)
+[Chaîne](#type)
+[Chaîne()](#conversion)
+[CodeCar](#chaîne)
+
+### D
+[DP](#opérateur)
+[Dormir](#autre)
+[Droite](#chaîne)
+[Début](#programme)
+
+### E
+[en](#variable)
+[en (mode d'ouverture)](#fichier)
+[ET](#opérateur_binaire)
+[Ecrire](#lire)
+[EcrireFichier](#fichier)
+[Ecriture](#fichier)
+[Entier](#type)
+[Entier()](#conversion)
+[Extraire](#chaîne)
+
+### F
+[FDF](#fichier)
+[Fermer](#fichier)
+[Fin](#programme)
+[FinProcédure](#procédure)
+[FinSi](#test)
+[FinStructure](#structure)
+[FinTantQue](#tant)
+[Fonction](#fonction)
+
+### G
+[Gauche](#chaîne)
+
+### I
+[Importer](#librairie)
+[Initialise](#librairie)
+
+### L
+[Lecture](#fichier)
+[Librairie](#librairie)
+[Lire](#lire)
+[LireFichier](#fichier)
+[Longueur](#chaîne)
+
+### N
+[NON](#opérateur_binaire)
+[Numérique](#type)
+[Numérique()](#conversion)
+
+### O
+[OU](#opérateur_binaire)
+[OUX](#opérateur_binaire)
+[Ouvrir](#fichier)
+
+### P
+[Pas](#pour)
+[Pour](#pour)
+[Procédure](#procédure)
+
+### R
+[Redim](#redim)
+[Retourne](#fonction)
+
+### S
+[Si](#test)
+[Sinon](#test)
+[SinonSi](#test)
+[Structure](#structure)
+[Suivant](#pour)
+[sur](#fichier)
+
+### T
+[Tableau](#tableau)
+[Tableaux](#tableau)
+[Taille](#fonction_tableau)
+[TempsUnix](#autre)
+[Trouve](#chaîne)
+
+### V
+[Variable](#variable)
+[Variables](#variable)

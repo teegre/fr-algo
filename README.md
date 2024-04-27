@@ -685,7 +685,7 @@ factorielle(10)
 Procédure remplir(&t[] en Entier, taille en Entier)
   Variable i en Entier
   Si taille < 1 Alors
-    Ecrire "Erreur : taille invalide ", taille, "]"
+    Ecrire "Erreur : taille invalide [", taille, "]"
   Sinon
     Redim t[taille - 1]
     Pour i <- 0 à taille - 1

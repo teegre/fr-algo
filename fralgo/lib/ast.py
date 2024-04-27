@@ -388,7 +388,7 @@ class Reference(Variable):
   def __repr__(self):
     return f'&{self.name}'
 
-class Print: # TODO: use stdout!
+class Print:
   '''Print statement. Display one or several elements'''
   def __init__(self, data, newline=True):
     self.data = data

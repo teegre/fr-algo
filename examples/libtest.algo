@@ -1,3 +1,5 @@
+Librairie
+
 Tableau tableau[] en Entier
 Variable global en Entier
 
@@ -13,3 +15,4 @@ FinFonction
 Procédure procedure_test()
   Ecrire "Ça marche !"
 FinProcédure
+

@@ -713,14 +713,47 @@ en paramètre de la procédure. C'est-à-dire que la variable ___globale___ `tab
 En ce qui concerne le paramètre `taille`, au contraire, seule la valeur de `n`, soit `8`
 dans notre exemple, est passée. Une variable `taille` est d'abord créée ___localement___
 lors de l'appel à la procédure `remplir`. Puis la valeur `8` est affectée à `taille`.
-Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée.
+Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée, laissant
+intacte la variable originale `n`.
 
 ```
 n = 8
 # VRAI
 ```
 
-## Importation de librairies ALGO
+## Structure d'un programme ALGO
+
+*  `Début`
+*  Instructions
+*  `Fin`
+
+*  Déclaration de variables, de tableaux, de structures...
+*  Déclaration de fonctions, de procédures...
+*  `Début`
+*  Instructions
+*  `Fin`
+
+## Librairies et importation de librairies ALGO
+
+Une **librairie** est un fichier qui peut contenir des variables, des structures,
+des tableaux, des fonctions et des procédures qui pourront être réutilisées dans
+d'autres programmes **ALGO**.
+
+La structure d'une librairie est à peu près identique à celle d'un programme :
+
+*  `Librairie`
+*  Déclarations
+
+Au besoin, si des variables doivent être initialisées ou si des ajustements sont
+nécessaires (comme par exemple remplir un tableau, appeler une fonction, etc.),
+on utilise le mot réservé `Initialise` :
+
+*  `Librairie`
+*  Déclarations
+*  `Initialise`
+*  Instructions
+
+### Exemple de librairie et importation
 
 ```
 .
@@ -733,6 +766,9 @@ lib/
 
 ```
 # Ma librairie
+Librairie
+
+Variable ma_variable en Chaîne
 
 Fonction ma_fonction(...) en ...
   ...
@@ -742,12 +778,16 @@ Procédure ma_procedure(...)
  ...
 FinProcédure
 
+Initialise
+  ma_variable <- "Bonjour"
+
 # Mon projet
 Importer "lib/ma_librairie"
 
 Début
   ma_fonction(...)
   ma_procedure(...)
+  Ecrire ma_variable
 Fin
 
 ```
@@ -773,8 +813,9 @@ Fin
 ```
 
 ```shell
-$ fralgo mon_programme "Bonjour tout le monde !"
-Moi dire : Bonjour tout le monde !
+$ fralgo mon_programme.algo "Bonjour tout le monde !" 2
+Bonjour tout le monde !
+Bonjour tout le monde !
 ```
 Par défaut `_ARGS[0]` contient le nom du programme **ALGO** courant. Dans notre exemple,
 `_ARGS[0]` est égal à `mon_programme.algo`.

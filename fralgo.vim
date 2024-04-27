@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/04/26
+" Last change: 2024/04/27
 
 if exists("b:current_syntax")
   finish
@@ -31,9 +31,11 @@ syn match BinOp "OUX"
 
 syn match Assignment "←\|<-"
 
+syn keyword Import Importer
 syn keyword VarDeclaration Variable Variables Tableau Tableaux Structure FinStructure
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique
 syn keyword Program Début Fin
+syn keyword Library Librairie Initialise
 syn keyword File Ajout Ecriture Lecture
 syn keyword Func Fonction Retourne FinFonction
 syn keyword Proc Procédure FinProcédure
@@ -67,6 +69,7 @@ syn sync lines=100
 let b:current_syntax = "algo"
 
 hi def link Program Constant
+hi def link Library Constant
 hi def link Assignment Constant
 hi def link _ARGS Constant
 hi def link StockFunc Keyword
@@ -80,6 +83,7 @@ hi def link AlgoString String
 hi def link AlgoNumber Number
 hi def link File PreProc
 hi def link ID Identifier
+hi def link Import Statement
 hi def link VarDeclaration Statement
 hi def link AlgoComment Comment
 hi def link AlgoTodo Todo

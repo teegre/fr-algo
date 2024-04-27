@@ -65,9 +65,17 @@ def p_program(p):
           | START NEWLINE statements END
           | var_declarations
           | statement
+          | LIB NEWLINE var_declarations INIT NEWLINE statements
+          | LIB NEWLINE var_declarations
   '''
   root = Node()
-  if len(p) == 5:
+  if p[1] == 'Librairie':
+    if len(p) == 7:
+      root.append(p[3])
+      root.append(p[6])
+    else:
+      root.append(p[3])
+  elif len(p) == 5:
     root.append(p[3])
   elif len(p) == 6:
     root.append(p[1])
@@ -84,8 +92,7 @@ def p_import_statement(p):
   '''
   import_statement : IMPORT STRING NEWLINE
   '''
-  parser = yacc()
-  p[0] = Node(Import(p[2], parser), p.lineno(1))
+  p[0] = Node(Import(p[2], yacc()), p.lineno(1))
 
 def p_structure_declarations(p):
   '''
@@ -563,7 +570,6 @@ def p_proc_var_list(p):
                 | proc_var
   '''
   if len(p) == 4:
-    print(p[1], p[3])
     p[0] = p[1] + [p[3]]
   else:
     p[0] = [p[1]]

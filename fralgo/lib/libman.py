@@ -33,6 +33,7 @@ class LibMan:
   def __init__(self):
     self.parser = None
     self.mainfile = None
+    self.__path = None
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
     if mainfile is not None:
@@ -44,22 +45,25 @@ class LibMan:
   def import_lib(self, libfile):
     libpath = os.path.join(self.path, libfile + '.algo')
     try:
-      with open(libpath, 'r') as f:
+      with open(libpath, 'r', encoding='utf-8') as f:
         lib = f.readlines()
     except FileNotFoundError:
       name = os.path.basename(libpath)
       raise FatalError(f'Importer : fichier {name} non trouvé')
     try:
-      self.checklib(lib)
+      self.checklib(lib, libfile)
     except FatalError as e:
-      print(f'*** Importer : fichier {libfile}')
       raise e
     statements = self.parser.parse(''.join(lib))
     statements.eval()
-  def checklib(self, algocontent):
+  def checklib(self, algocontent, libfile):
+    start = False
     for line in algocontent:
-      if 'Début' in line:
-        raise FatalError('Importer : ceci n\'est pas une librairie.')
+      if 'Librairie\n' in line:
+        start = True
+        break
+    if not start:
+      raise FatalError(f'{libfile} : ceci n\'est pas une librairie.')
   @property
   def path(self):
     return self.__path

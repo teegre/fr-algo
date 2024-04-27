@@ -1,0 +1,133 @@
+Librairie
+
+Variable _prefixe en Chaîne
+Variables _noir,    __noir      en Chaîne
+Variables _rouge,   __rouge     en Chaîne
+Variables _vert,    __vert      en Chaîne
+Variables _jaune,   __jaune     en Chaîne
+Variables _bleu,    __bleu      en Chaîne
+Variables _magenta, __magenta   en Chaîne
+Variables _cyan,    __cyan      en Chaîne
+Variables _blanc,   __blanc     en Chaîne
+
+Variable _eteint en Chaîne
+Variables _gras,     __gras     en Chaîne
+Variables _attenue,  __attenue  en Chaîne
+Variables _italique, __italique en Chaîne
+Variables _souligne, __souligne en Chaîne
+Variables _clignote, __clignote en Chaîne
+Variables _inconnu,  __inconnu  en Chaîne
+Variables _inverse,  __inverse  en Chaîne
+
+Procédure Scinder(chaine, separateur, &elements[] en Chaîne)
+  # Scinde une chaine de caractères en éléments d'un tableau
+  # selon un séparateur.
+
+  Variable sous_chaine en Chaîne
+  Variable index en Entier
+
+  index <- -1
+
+  TantQue Trouve(chaine, separateur) > 0
+    sous_chaine <- Gauche(chaine, Trouve(chaine, separateur) - 1)
+    index <- index + 1
+    Redim elements[index]
+    elements[index] <- sous_chaine
+    chaine <- Droite(chaine, Longueur(chaine) - Trouve(chaine, separateur))
+  FinTantQue
+
+  index <- index + 1
+  Redim elements[index]
+  elements[index] <- chaine
+
+FinProcédure
+
+Procédure efface_ecran()
+  Ecrire "\033[2J\033[H" \
+FinProcédure
+
+Procédure pos_curseur(lgn, col en Entier)
+  # Positionne le curseur : lgn (ligne) et col (colonne).
+  Ecrire "\033[" & Chaîne(lgn) & ";" & Chaîne(col) & "H" \
+FinProcédure
+
+Procédure pos_ecrire(lgn, col en Entier, texte en Chaîne)
+  # Ecrit le texte à la position donnée.
+  pos_curseur(lgn, col)
+  Ecrire texte \
+FinProcédure
+
+Procédure efface_fdl()
+  # Efface depuis la position du curseur jusqu'à la fin de la ligne.
+  Ecrire "\033[K" \
+FinProcédure
+
+Procédure efface_bde()
+  # Efface depuis la position du curseur jusqu'au bas de l'écran.
+  Ecrire "\033[0J" \
+FinProcédure
+
+Procédure efface_ligne()
+  # Efface la ligne à la position du curseur.
+  Ecrire "\033[2K" \
+FinProcédure
+
+Procédure cache_curseur()
+  Ecrire "\033[?25l" \
+FinProcédure
+
+Procédure montre_curseur()
+  Ecrire "\033[?25h" \
+FinProcédure
+
+Procédure sauve_curseur()
+  # Enregistre la position du curseur.
+  Ecrire "\033[s" \
+FinProcédure
+
+Procédure restaure_curseur()
+  # Restaure la position du curseur enregistée precédemment.
+  Ecrire "\033[u" \
+FinProcédure
+
+Procédure reinit_terminal()
+  # Réinitialise les attributs du terminal.
+  Ecrire "\033[21m\033[22m\033[23m\033[24m\033[25m\033[27m"
+FinProcédure
+
+Initialise
+  _prefixe   ← "\033["
+  # Couleur du texte :
+  _noir      ← _prefixe & "30m"
+  _rouge     ← _prefixe & "31m"
+  _vert      ← _prefixe & "32m"
+  _jaune     ← _prefixe & "32m"
+  _bleu      ← _prefixe & "34m"
+  _magenta   ← _prefixe & "35m"
+  _cyan      ← _prefixe & "36m"
+  _blanc     ← _prefixe & "37m"
+  # Couleur du fond.
+  __noir     ← _prefixe & "40m"
+  __rouge    ← _prefixe & "41m"
+  __vert     ← _prefixe & "42m"
+  __jaune    ← _prefixe & "42m"
+  __bleu     ← _prefixe & "44m"
+  __magenta  ← _prefixe & "45m"
+  __cyan     ← _prefixe & "46m"
+  __blanc    ← _prefixe & "47m"
+  # Effets du texte.
+  _eteint    ← _prefixe & "0m"
+  _gras      ← _prefixe & "1m"
+  _attenue   ← _prefixe & "2m"
+  _italique  ← _prefixe & "3m"
+  _souligne  ← _prefixe & "4m"
+  _clignote  ← _prefixe & "5m"
+  _inconnu   ← _prefixe & "6m"
+  _inverse   ← _prefixe & "7m"
+  __gras     ← _prefixe & "21m"
+  __attenue  ← _prefixe & "22m"
+  __italique ← _prefixe & "23m"
+  __souligne ← _prefixe & "24m"
+  __clignote ← _prefixe & "25m"
+  __inconnu  ← _prefixe & "26m"
+  __inverse  ← _prefixe & "27m"

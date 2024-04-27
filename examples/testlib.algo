@@ -1,0 +1,4 @@
+Importer "std/lib"
+Début
+  Ecrire _rouge & " H EL LO " & _eteint
+Fin

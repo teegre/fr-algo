@@ -845,18 +845,28 @@ Puis de changer les permissions du programme comme suit :
 
 ### -
 [%](#opérateur)
+
 [&](#opérateur)
+
 [*](#opérateur)
+
 [+](#opérateur)
+
 [-](#opérateur)
+
 [/](#opérateur)
+
 [^](#opérateur)
+
 [_ARGS](#argument)
 
 ### A
 [à](#pour)
+
 [Ajout](#fichier)
+
 [Alors](#test)
+
 [Aléa](#autre)
 
 ### B
@@ -864,36 +874,58 @@ Puis de changer les permissions du programme comme suit :
 
 ### C
 [Car](#chaîne)
+
 [Caractère](#type)
+
 [Chaîne](#type)
+
 [Chaîne()](#conversion)
+
 [CodeCar](#chaîne)
 
 ### D
 [DP](#opérateur)
+
 [Dormir](#autre)
+
 [Droite](#chaîne)
+
 [Début](#programme)
 
 ### E
 [en](#variable)
+
 [en (mode d'ouverture)](#fichier)
+
 [ET](#opérateur_binaire)
+
 [Ecrire](#lire)
+
 [EcrireFichier](#fichier)
+
 [Ecriture](#fichier)
+
 [Entier](#type)
+
 [Entier()](#conversion)
+
 [Extraire](#chaîne)
 
 ### F
 [FDF](#fichier)
+
 [Fermer](#fichier)
+
 [Fin](#programme)
+
 [FinProcédure](#procédure)
+
 [FinSi](#test)
+
 [FinStructure](#structure)
+
 [FinTantQue](#tant)
+
 [Fonction](#fonction)
 
 ### G
@@ -901,49 +933,71 @@ Puis de changer les permissions du programme comme suit :
 
 ### I
 [Importer](#librairie)
+
 [Initialise](#librairie)
 
 ### L
 [Lecture](#fichier)
+
 [Librairie](#librairie)
+
 [Lire](#lire)
+
 [LireFichier](#fichier)
+
 [Longueur](#chaîne)
 
 ### N
 [NON](#opérateur_binaire)
+
 [Numérique](#type)
+
 [Numérique()](#conversion)
 
 ### O
 [OU](#opérateur_binaire)
+
 [OUX](#opérateur_binaire)
+
 [Ouvrir](#fichier)
 
 ### P
 [Pas](#pour)
+
 [Pour](#pour)
+
 [Procédure](#procédure)
 
 ### R
 [Redim](#redim)
+
 [Retourne](#fonction)
 
 ### S
 [Si](#test)
+
 [Sinon](#test)
+
 [SinonSi](#test)
+
 [Structure](#structure)
+
 [Suivant](#pour)
+
 [sur](#fichier)
 
 ### T
 [Tableau](#tableau)
+
 [Tableaux](#tableau)
+
 [Taille](#fonction_tableau)
+
 [TempsUnix](#autre)
+
 [Trouve](#chaîne)
 
 ### V
 [Variable](#variable)
+
 [Variables](#variable)

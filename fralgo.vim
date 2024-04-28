@@ -32,7 +32,8 @@ syn match BinOp "OUX"
 syn match Assignment "←\|<-"
 
 syn keyword Import Importer
-syn keyword VarDeclaration Variable Variables Tableau Tableaux Structure FinStructure
+syn keyword VarDeclaration Variable Variables Tableau Tableaux
+syn keyword Structure Structure FinStructure
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique
 syn keyword Program Début Fin
 syn keyword Library Librairie Initialise
@@ -83,9 +84,10 @@ hi def link AlgoString String
 hi def link AlgoNumber Number
 hi def link File PreProc
 hi def link ID Identifier
-hi def link Import Statement
+hi def link Import Include
 hi def link VarDeclaration Statement
+hi def link Structure Structure
 hi def link AlgoComment Comment
 hi def link AlgoTodo Todo
-hi def link Loop Statement
+hi def link Loop Repeat
 hi def link Conjonction Constant

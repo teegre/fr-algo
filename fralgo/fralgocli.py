@@ -72,6 +72,7 @@ def main():
     statements.eval()
   except FatalError as e:
     print('*** Oh oh :', e.message)
+    print('\033[?25h\033[0m', end='')
     sys.exit(666)
 
 if __name__ == "__main__":

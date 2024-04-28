@@ -60,6 +60,7 @@ class Interpreter:
   def input_loop(self):
     while True:
       try:
+        print('\033[?25h\033[0m', end='')
         instruction = input(self.set_prompt())
       except KeyboardInterrupt:
         print()

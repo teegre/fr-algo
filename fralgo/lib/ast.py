@@ -65,12 +65,14 @@ class Node:
         print('*** STOP : excès de récursivité !')
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
+          print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')
       except FatalError as e:
         print(f'*** {e.message}')
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
+          print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')
       except FralgoException as e:
@@ -79,6 +81,7 @@ class Node:
         if 'FRALGOREPL' not in os.environ:
           print(f'-v- Ligne {self.lineno}')
           print('*** Erreur fatale')
+          print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')
     return result

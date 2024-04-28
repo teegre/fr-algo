@@ -332,7 +332,7 @@ class FunctionCall:
       result = body.eval()
       if result is not None:
         self._check_returned_type(func.return_type, result)
-        return map_type(result)
+        return result
     except FralgoException as e:
       raise e
     finally:

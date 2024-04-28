@@ -300,6 +300,7 @@ class FunctionCall:
   def eval(self):
     func = sym.get_function(self.name)
     params = func.params
+    sym.set_local()
     if params is not None:
       # check parameter count
       self._check_param_count(params)
@@ -310,7 +311,6 @@ class FunctionCall:
       # Eval params only when needed
       values = [param.eval() if types[i] else param for i, param in enumerate(self.params)]
       # set variables
-      sym.set_local()
       for i, param in enumerate(params):
         if isinstance(param[0], Reference):
           sym.declare_ref(param[0].name, self.params[i])

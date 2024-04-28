@@ -336,8 +336,7 @@ class FunctionCall:
     except FralgoException as e:
       raise e
     finally:
-      if self.params is not None:
-        sym.del_local()
+      sym.del_local()
     return None
   def __repr__(self):
     params = [str(param) for param in self.params]

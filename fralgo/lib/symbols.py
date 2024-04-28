@@ -158,6 +158,7 @@ class Symbols:
     self.table[self.__vars].clear()
     self.table[self.__localrefs].clear()
     self.table[self.__localfunc].clear()
+    __structures.clear()
 
 def declare_structure(structure):
   if __structures.get(structure.name, None) is not None:

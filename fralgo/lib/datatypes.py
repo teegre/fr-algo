@@ -171,7 +171,6 @@ class Char(String):
     sz = self.size.eval()
     if sz > 255 or sz < 1:
       raise InvalidCharacterSize(f'Taille invalide : {sz}')
-    self._type = 'Caractère*'+str(sz)
     if self.value is not None:
       self.set_value(value)
   def set_value(self, value):
@@ -196,6 +195,10 @@ class Char(String):
     if self.value is None:
       return '?'
     return f'"{self.value}"'
+  @property
+  def data_type(self):
+    return (self._type, self.size.eval())
+
 
 class Boolean(Base):
   _type = 'Booléen'
@@ -425,6 +428,15 @@ class Array(Base):
     for idx, value in enumerate(self.sizes):
       array.set_value((idx,), Integer(value))
     return array
+  @property
+  def data_type(self):
+    if len(self.indexes) == 1:
+      index = self.indexes[0]
+      if index <= 0:
+        index = -1
+    else:
+      index = self.indexes
+    return (self._type, self.datatype, index)
 
 class Structure(Base):
   '''Structure skeleton'''

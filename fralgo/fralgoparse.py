@@ -504,9 +504,9 @@ def p_parameter(p):
     for param in p[1]:
       if isinstance(param, list): # Array
         if len(param[1]) == 1:
-          array = (param[0], p[3], param[1][0])
+          array = (param[0], 'Tableau', p[3], param[1][0])
         else:
-          array = (param[0], p[3], (*param[1][0],))
+          array = (param[0], 'Tableau', p[3], (*param[1][0],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))
@@ -554,9 +554,9 @@ def p_proc_param(p):
     for param in p[1]:
       if isinstance(param, list): # Array
         if len(param[1]) == 1:
-          array = (param[0], p[3], param[1][0])
+          array = (param[0], 'Tableau', p[3], param[1][0])
         else:
-          array = (param[0], p[3], (*param[1],))
+          array = (param[0], 'Tableau', p[3], (*param[1],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))

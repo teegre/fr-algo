@@ -219,7 +219,7 @@ def p_array_max_index(p):
 def p_var_list(p):
   '''
   var_list : var_list COMMA d_var
-           | d_var
+           | d_var COMMA d_var
   '''
   if len(p) == 2:
     p[0] = p[1]

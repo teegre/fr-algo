@@ -27,6 +27,7 @@
 import os
 import sys
 import readline
+from time import sleep
 from pathlib import Path
 import traceback
 
@@ -164,13 +165,21 @@ class Interpreter:
 def main():
   readline.parse_and_bind(r'"[" "\C-v[]\e[D"')
   readline.parse_and_bind(r'"(" "\C-v()\e[D"')
-  print(r' _______ ______        _______ _____   _______ _______ ')
-  print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
-  print(r'|    ___|      <______|       |       |    |  |   -   |')
-  print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
-  print(f'|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 {__version__}mg')
+  print(r' _______ ______        _______ _____   _______ _______',  flush=True)
+  sleep(0.0625)
+  print(r'|    ___|   __ \______|   _   |     |_|     __|       |', flush=True)
+  sleep(0.0625)
+  print(r'|    ___|      <______|       |       |    |  |   -   |', flush=True)
+  sleep(0.0625)
+  print(r'|___|   |___|__|      |___|___|_______|_______|_______|', flush=True)
+  sleep(0.0625)
+  version = f'fr-v100 {__version__}mg'
+  print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
   print()
-  print('(c) 2024 Stéphane MEYER (Teegre)')
+  sleep(0.0625)
+  print()
+  print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
+  sleep(0.0625)
   print()
   print('Bonjour,', os.getenv('USER').capitalize(), '!')
   print('En attente de vos instructions.')

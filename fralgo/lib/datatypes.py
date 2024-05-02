@@ -433,7 +433,7 @@ class Array(Base):
     if len(self.indexes) == 1:
       indexes = self.indexes[0]
     else:
-      index = self.indexes
+      indexes = self.indexes
     return (self._type, self.datatype, indexes)
 
 class Structure(Base):

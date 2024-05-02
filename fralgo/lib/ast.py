@@ -305,10 +305,7 @@ class FunctionCall:
           continue
         if t5 == -1 and not isinstance(t6, tuple):
           continue
-
       raise BadType(f'{self.name} : type {p1} attendu [paramètre {i + 1}]')
-
-
   def _check_returned_type(self, rt, value):
     mv = map_type(value)
     if isinstance(rt, tuple): # Sized char.

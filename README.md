@@ -14,8 +14,6 @@ $ python -c "import build"
 $ which pipx
 /usr/bin/pipx
 ```
-### Méthode 1
-
 Cloner ce dépôt :
 
 `git clone https://github.com/teegre/fr-algo`
@@ -24,16 +22,15 @@ Puis :
 ```
 $ cd fr-algo
 $ python -m build
-$ pipx install dist/fralgo-0.11.2.tar.gz
 ```
 
-### Méthode 2
+Et installer **FR-ALGO** à l'aide de la commande suivante :
 
-```shell
-$ wget https://github.com/teegre/fr-algo/releases/download/0.11.2/fr-algo_v0_11_2-beta_1.zip
-$ unzip fr-algo_v0_11_2-beta_1.zip
-$ pipx install fralgo-0.11.2.tar.gz
 ```
+$ pipx install dist/fralgo-0.11.2.beta.2.tar.gz
+```
+
+**/!\ Le numéro de version peut être différent.**
 
 ## Utilisation
 
@@ -84,7 +81,7 @@ $ fralgorepl
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 0.11.2mg
+|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.2mg
 
 (c) 2024 Stéphane MEYER (Teegre)
 
@@ -101,7 +98,7 @@ $ fralgorepl
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 0.11.2mg
+|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.2mg
 
 (c) 2024 Stéphane MEYER (Teegre)
 
@@ -174,10 +171,10 @@ Fin
 `"A"`
 
 On peut spécifier une longueur comme suit : `Caractère*10`
-Attention, si l'on affecte une chaîne de longueur différente,
-soit la valeur est tronquée, soit des espaces sont ajoutés à
-la fin. En d'autres termes, une variable de type Caractère aura
-toujours la même longueur, peu importe sa valeur.
+
+Attention, si l'on affecte une chaîne de longueur différente, soit la valeur est tronquée, soit des espaces sont ajoutés à la fin.
+
+En d'autres termes, une variable de type Caractère aura toujours la même longueur, peu importe sa valeur.
 
 Exemples :
 
@@ -186,11 +183,15 @@ Variable c en Caractère*5
 c <- "ABC"
 Longueur(c) = 5
 # VRAI
-# c = "ABC  "
+c = "ABC  "
+# VRAI
 c <- "ABCDEF"
+c = "ABCDEF"
+# FAUX
+c = "ABCDE"
+# VRAI
 Longueur(c) = 5
 # VRAI
-# c = "ABCDE"
 ```
 
 ```

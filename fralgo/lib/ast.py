@@ -283,29 +283,27 @@ class FunctionCall:
       p2 = (p2,) if not isinstance(p2, tuple) else p2
       if p1 == p2:
         continue
-      ok = False
       for n, q in enumerate(zip(p1, p2)):
         match n:
           case 0:
             t1, t2 = q
-            if t1 == t2:
-              ok = True
-              continue
-            if t1 == 'Chaîne' and t2 == 'Caractère':
-              ok = True
-              continue
           case 1:
             t3, t4 = q
           case 2:
             t5, t6 = q
-      if ok:
+
+      ok = True
+      if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
       if t1 == t2 == 'Tableau':
-        if t3 == t4:
-          continue
+        if t3 == 'Chaîne' and t4[0] == 'Caractère':
+          ok &= True
+        elif t3 != t4:
+          ok &= False
         if t5 == -1 and not isinstance(t6, tuple):
-          continue
-      raise BadType(f'{self.name} : type {p1} attendu [paramètre {i + 1}]')
+          ok &= True
+      if not ok:
+        raise BadType(f'{self.name} : type {repr_datatype(p1)} attendu [paramètre {i + 1}]')
   def _check_returned_type(self, rt, value):
     mv = map_type(value)
     if isinstance(rt, tuple): # Sized char.
@@ -909,3 +907,15 @@ def algo_to_python(expression):
   while isinstance(exp, types):
     exp = exp.eval()
   return exp
+
+def repr_datatype(datatype):
+  match datatype[0]:
+    case 'Caractère':
+      return f'{datatype[0]}*{datatype[1]}'
+    case 'Tableau':
+      if isinstance(datatype[2], tuple):
+        indexes = ', '.join(str(idx) for idx in datatype[2])
+      else:
+        indexes = datatype[2] if datatype[2] != -1 else ''
+      return f'{datatype[0]}[{indexes}] en {repr_datatype(datatype[1])}'
+  return datatype if not isinstance(datatype, tuple) else datatype[0]

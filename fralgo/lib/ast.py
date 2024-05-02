@@ -266,27 +266,46 @@ class FunctionCall:
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
-      raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : 0, attendu {x} ')
+      raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalid : 0, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
         x = len(params) # expected
-        raise FuncInvalidParameterCount(f'Nombre de paramètres invalide : {a}, attendu {x} ')
+        raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalide : {a}, attendu {x} ')
   def _check_datatypes(self, params):
     for i, p in enumerate(self.params):
-      if isinstance(p, (BinOp, Node, ArrayGetItem)):
-        p = map_type(p.eval())
-      datatype = p.data_type
-      if isinstance(datatype, tuple): # Array or sized Char
-        if len(datatype) == 3: # Array
-          # check size
-          if params[i][2] != -1 and datatype[2] != params[i][2]:
-            raise BadType(f'Tableau{str(params[i][2])} attendu')
-          datatype = datatype[1]
-        elif datatype[0] != params[i][1][0] or datatype[1] != params[i][1][1] :
-          raise BadType(f'Type invalide : type Caractère*{datatype[1]} attendu')
-      elif datatype != params[i][1]:
-        raise BadType(f'Type invalide : >{params[i][0]}< type {params[i][1]} attendu')
+      if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
+        p2 = map_type(p.eval())
+        p2 = p2.data_type
+      else:
+        p2 = p.data_type
+      p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
+      p2 = (p2,) if not isinstance(p2, tuple) else p2
+      if p1 == p2:
+        continue
+      ok = False
+      for n, q in enumerate(zip(p1, p2)):
+        match n:
+          case 0:
+            t1, t2 = q
+            if t1 == t2:
+              ok = True
+              continue
+            if t1 == 'Chaîne' and t2 == 'Caractère':
+              ok = True
+              continue
+          case 1:
+            t3, t4 = q
+          case 2:
+            t5, t6 = q
+      if ok:
+        continue
+      if t1 == t2 == 'Tableau':
+        if t3 == t4:
+          continue
+        if t5 == -1 and not isinstance(t6, tuple):
+          continue
+      raise BadType(f'{self.name} : type {p1} attendu [paramètre {i + 1}]')
   def _check_returned_type(self, rt, value):
     mv = map_type(value)
     if isinstance(rt, tuple): # Sized char.
@@ -380,10 +399,6 @@ class Variable:
   @property
   def data_type(self):
     var = sym.get_variable(self.name)
-    if var.data_type == 'Tableau':
-      return (var.data_type, var.datatype, var.indexes)
-    if var.data_type.startswith('Caractère*'):
-      return ('Caractère', algo_to_python(var.size))
     return var.data_type
 
 class Reference(Variable):

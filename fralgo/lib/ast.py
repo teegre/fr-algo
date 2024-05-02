@@ -335,13 +335,17 @@ class FunctionCall:
         if isinstance(param[0], Reference):
           sym.declare_ref(param[0].name, self.params[i])
           continue
-        if len(param) == 3: # Array
-          n, t, s = param
+        if len(param) == 4: # Array
+          n, _, t, s = param
           if s == -1:
             array = sym.get_variable(self.params[i].name)
             sym.declare_array(n, t, *array.indexes)
           else:
             sym.declare_array(n, t, *s)
+        elif isinstance(param[1], tuple): # Sized char
+           n, dt = param
+           _, s = dt
+           sym.declare_sized_char(n, s)
         else:
           n, t = param
           sym.declare_var(n, t)

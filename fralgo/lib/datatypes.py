@@ -431,12 +431,10 @@ class Array(Base):
   @property
   def data_type(self):
     if len(self.indexes) == 1:
-      index = self.indexes[0]
-      if index <= 0:
-        index = -1
+      indexes = self.indexes[0]
     else:
       index = self.indexes
-    return (self._type, self.datatype, index)
+    return (self._type, self.datatype, indexes)
 
 class Structure(Base):
   '''Structure skeleton'''

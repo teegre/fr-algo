@@ -420,9 +420,9 @@ class Array(Base):
     return str(self.value)
   @property
   def size(self):
-    if self.indexes[0] == -1:
-      return map_type(-1)
     if len(self.sizes) == 1:
+      if self.indexes[0] == -1:
+        return map_type(0)
       return map_type(self.sizes[0])
     array = Array('Entier', len(self.sizes) - 1)
     for idx, value in enumerate(self.sizes):

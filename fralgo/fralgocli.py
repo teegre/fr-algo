@@ -26,6 +26,7 @@
 
 import os
 import sys
+from time import sleep
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -45,13 +46,21 @@ def main():
     print('*** Fichier non trouvé')
     sys.exit(1)
   except IndexError:
-    print(r' _______ ______        _______ _____   _______ _______ ')
-    print(r'|    ___|   __ \______|   _   |     |_|     __|       |')
-    print(r'|    ___|      <______|       |       |    |  |   -   |')
-    print(r'|___|   |___|__|      |___|___|_______|_______|_______|')
-    print(f'|A|L|G|O|R|I|T|H|M|E|S|                fr-v100 {__version__}mg')
+    print(r' _______ ______        _______ _____   _______ _______',  flush=True)
+    sleep(0.0625)
+    print(r'|    ___|   __ \______|   _   |     |_|     __|       |', flush=True)
+    sleep(0.0625)
+    print(r'|    ___|      <______|       |       |    |  |   -   |', flush=True)
+    sleep(0.0625)
+    print(r'|___|   |___|__|      |___|___|_______|_______|_______|', flush=True)
+    sleep(0.0625)
+    version = f'fr-v100 {__version__}mg'
+    print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
     print()
-    print('(c) 2024 Stéphane MEYER (Teegre)')
+    print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
+    sleep(0.0625)
+    print()
+    sleep(0.0625)
     print()
     print('Donnez-moi un fichier ALGO en paramètre et je ferai de mon')
     print("mieux pour lire et exécuter les instructions qu'il contient.")

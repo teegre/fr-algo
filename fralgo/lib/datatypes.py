@@ -486,11 +486,14 @@ class StructureData(Base):
             # Mono-field structure
             self.data[name].set_value(map_type(value).eval())
   def get_item(self, name):
-    if name in self.data.keys():
-      if self.data[name] is None:
-        raise VarUndefined(f'{self.name}.{name} : Valeur indéfinie')
-      return self.data[name]
-    raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
+    try:
+      if name in self.data.keys():
+        if self.data[name] is None:
+          raise VarUndefined(f'{self.name}.{name} : Valeur indéfinie')
+        return self.data[name]
+      raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
+    except TypeError:
+      raise BadType(f'{self.name} : Type d\'accès invalide')
   def _new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
@@ -519,10 +522,10 @@ class StructureData(Base):
       return self.name == other.name and self.data == other.data
     return False
   def __str__(self):
-    if 'FRALGOREPL' in os.environ:
-      return self.__repr__()
+    # if 'FRALGOREPL' in os.environ:
+      # return self.__repr__()
     data = [str(v.eval()) for v in self.data.values()]
-    return ''.join(data)
+    return ', '.join(data)
   def __repr__(self):
     data = [k+" ← "+repr(v) for k,v in self.data.items()]
     return f'{self.name}({", ".join(data)})'

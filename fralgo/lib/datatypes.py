@@ -516,7 +516,7 @@ class StructureData(Base):
     return True
   def __eq__(self, other):
     if isinstance(other, StructureData):
-      return self.data == other.data
+      return self.name == other.name and self.data == other.data
     return False
   def __str__(self):
     if 'FRALGOREPL' in os.environ:

@@ -183,12 +183,9 @@ def p_char(p):
 def p_array_list(p):
   '''
   array_list : array_list COMMA array
-             | array
+             | array COMMA array
   '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = p[1] + p[3]
+  p[0] = p[1] + p[3]
 
 def p_array(p):
   '''
@@ -221,10 +218,7 @@ def p_var_list(p):
   var_list : var_list COMMA d_var
            | d_var COMMA d_var
   '''
-  if len(p) == 2:
-    p[0] = p[1]
-  else:
-    p[0] = p[1] + p[3]
+  p[0] = p[1] + p[3]
 
 def p_d_var(p):
   '''

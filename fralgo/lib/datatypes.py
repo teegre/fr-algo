@@ -319,7 +319,7 @@ class Array(Base):
     datatype = self.datatype
     if isinstance(datatype, tuple): # sized char
       typed_value = Char(value.eval(), datatype[1])
-      datatype = self.datatype[0] + '*' + str(self.datatype[1])
+      datatype = self.datatype
     else:
       typed_value = map_type(value.eval())
     if typed_value.data_type != datatype:
@@ -417,7 +417,7 @@ class Array(Base):
       return '?' if array is None else str(map_type(array))
     return recursive_repr(self.value)
   def __str__(self):
-    return self.__repr__()
+    return str(self.value)
   @property
   def size(self):
     if self.indexes[0] == -1:

@@ -462,6 +462,10 @@ class StructureData(Base):
     self.data = self._new_structure_data()
   def eval(self):
     return self
+  def f_eval(self):
+    data = [str(v.eval()) for v in self.data.values()]
+    return ''.join(data)
+
   def set_value(self, value, fieldname=None):
     if fieldname is not None:
       self.data[fieldname].set_value(value)
@@ -525,10 +529,10 @@ class StructureData(Base):
     # if 'FRALGOREPL' in os.environ:
       # return self.__repr__()
     data = [str(v.eval()) for v in self.data.values()]
-    return ', '.join(data)
+    return ' | '.join(data)
   def __repr__(self):
-    data = [k+" ← "+repr(v) for k,v in self.data.items()]
-    return f'{self.name}({", ".join(data)})'
+    data = [k+": " + str(v) for k,v in self.data.items()]
+    return f'{self.name}({" | ".join(data)})'
   @property
   def data_type(self):
     return self.name

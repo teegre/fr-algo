@@ -742,7 +742,14 @@ class WriteFile:
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    return fd.write(str(self.var.eval()))
+    if isinstance(self.var, ArrayGetItem):
+      var = self.var.eval()
+    else:
+      var = self.var
+    if is_structure(var.name):
+      fd.write(var.f_eval())
+    else:
+      fd.write(str(var.eval()))
   def __repr__(self):
     return f'EcrireFichier {self.fd_number}, {self.var}'
 

@@ -33,7 +33,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareStruct
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
-from fralgo.lib.ast import Assign, Variable, Print, Read, BinOp, Neg
+from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
@@ -331,6 +331,8 @@ def p_statement(p):
             | for_block
             | PRINT sequence NEWLINE
             | PRINT sequence BACKSLASH NEWLINE
+            | PRINTERR sequence NEWLINE
+            | PRINTERR sequence BACKSLASH NEWLINE
             | READ ID NEWLINE
             | READ array_access NEWLINE
             | SLEEP LPAREN expression RPAREN NEWLINE
@@ -339,6 +341,9 @@ def p_statement(p):
   if p[1] == 'Ecrire':
     newline = len(p) < 5
     p[0] = Node(Print(p[2], newline), p.lineno(1))
+  elif p[1] == 'EcrireErr':
+    newline = len(p) < 5
+    p[0] = Node(PrintErr(p[2], newline), p.lineno(1))
   elif p[1] == 'Lire':
     if isinstance(p[2], list): # Array!
       p[0] = Node(Read(p[2][0].name, *p[2][1]), p.lineno(1))

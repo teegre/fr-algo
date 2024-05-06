@@ -27,7 +27,7 @@
 
 import os
 import sys
-from sys import stdout
+from sys import stdout, stderr
 import operator
 from time import sleep
 from random import random
@@ -409,9 +409,10 @@ class Reference(Variable):
 
 class Print:
   '''Print statement. Display one or several elements'''
-  def __init__(self, data, newline=True):
+  def __init__(self, data, newline=True, err=False):
     self.data = data
     self.newline = newline
+    self.err = err # write on stderr
   def eval(self):
     '''Print data'''
     result = []
@@ -425,13 +426,20 @@ class Print:
           continue
       # here we want to use the str method of the evaluated class.
       result.append(str(element.eval()))
+    std = stdout if not self.err else stderr
     if self.newline:
-      stdout.write(' '.join(result) + '\n')
+      std.write(' '.join(result) + '\n')
     else:
-      stdout.write(' '.join(result))
+      std.write(' '.join(result))
     stdout.flush()
   def __repr__(self):
     return f'Ecrire {self.data}'
+
+class PrintErr(Print):
+  def __init__(self, data, newline=True, err=True):
+    super().__init__(data, newline, err)
+def __repr__(self):
+  return f'EcrireErr {self.data}'
 
 class Read:
   '''

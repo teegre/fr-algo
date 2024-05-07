@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/04/27
+" Last change: 2024/05/07
 
 if exists("b:current_syntax")
   finish

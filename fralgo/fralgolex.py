@@ -52,6 +52,7 @@ reserved = {
   'Librairie':     'LIB',
   'Initialise':    'INIT',
   'Ecrire':        'PRINT',
+  'EcrireErr':     'PRINTERR',
   'Lire':          'READ',
   'DP':            'DIVBY',
   'ET':            'AND',

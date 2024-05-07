@@ -257,11 +257,13 @@ class Array(Base):
     self.indexes = indexes # max index(es)
     self.sizes = tuple(idx + 1 for idx in indexes) # size(s)
     self.value = self._new_array(*self.sizes)
+  def set_get_structure(self, get_structure_func):
+    self.get_structure = get_structure_func
   def _new_array(self, *sizes):
     if len(sizes) == 0:
       return []
     if len(sizes) == 1:
-      datatype = get_type(self.datatype)
+      datatype = get_type(self.datatype, self.get_structure)
       if isinstance(datatype, (list, tuple)):
         if issubclass(datatype[0], StructureData):
           return [datatype[0](datatype[1]) for _ in range(sizes[0])]
@@ -460,12 +462,13 @@ class StructureData(Base):
     self.structure = structure
     self.name = structure.name
     self.data = self._new_structure_data()
+  def set_get_structure(self, get_structure_func):
+    self.get_structure = get_structure_func
   def eval(self):
     return self
   def f_eval(self):
     data = [str(v.eval()) for v in self.data.values()]
     return ''.join(data)
-
   def set_value(self, value, fieldname=None):
     if fieldname is not None:
       self.data[fieldname].set_value(value)
@@ -501,7 +504,7 @@ class StructureData(Base):
   def _new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
-      data_type = get_type(datatype)
+      data_type = get_type(datatype, self.get_structure)
       if isinstance(data_type, (list, tuple)):
         if issubclass(data_type[0], StructureData):
           data[name] = data_type[0](data_type[1])
@@ -537,25 +540,15 @@ class StructureData(Base):
   def data_type(self):
     return self.name
 
-def get_structure(name):
-  structure = __structures.get(name, None)
-  if structure is None:
-    raise VarUndeclared(f'Structure {name} non déclarée')
-  return structure
-
-def is_structure(name):
-  return __structures.get(name, None) is not None
-
-__datatypes = {
-  'Booléen': Boolean,
-  'Caractère': Char,
-  'Chaîne': String,
-  'Entier': Integer,
-  'Numérique': Float,
-  'Tableau': Array,
-}
-
-def get_type(datatype):
+def get_type(datatype, get_structure):
+  __datatypes = {
+    'Booléen': Boolean,
+    'Caractère': Char,
+    'Chaîne': String,
+    'Entier': Integer,
+    'Numérique': Float,
+    'Tableau': Array,
+  }
   if datatype in ('Booléen', 'Chaîne', 'Entier', 'Numérique', 'Tableau'):
     return __datatypes[datatype]
   if isinstance(datatype, (list, tuple)):

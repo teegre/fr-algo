@@ -36,16 +36,18 @@ from datetime import datetime
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
-from fralgo.lib.datatypes import Structure, is_structure
-from fralgo.lib.symbols import Symbols, declare_structure
+from fralgo.lib.datatypes import Structure, get_type
+from fralgo.lib.symbols import Symbols
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
 from fralgo.lib.exceptions import FralgoInterruption
 
-sym = Symbols()
+sym = Symbols(get_type)
 libs = LibMan()
+
+get_structure_func = sym.get_structure
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -143,7 +145,7 @@ class DeclareStruct:
         if isinstance(datatype, tuple) or is_structure(datatype):
           continue
         raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
-    declare_structure(Structure(self.name, self.fields))
+    sym.declare_structure(Structure(self.name, self.fields))
   def __repr__(self):
     return f'Structure {self.name} {self.fields}'
 

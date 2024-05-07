@@ -142,7 +142,7 @@ class DeclareStruct:
   def eval(self):
     for field, datatype in self.fields:
       if datatype not in self.__types:
-        if isinstance(datatype, tuple) or is_structure(datatype):
+        if isinstance(datatype, tuple) or sym.is_structure(datatype):
           continue
         raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
     sym.declare_structure(Structure(self.name, self.fields))
@@ -756,7 +756,7 @@ class WriteFile:
       var = self.var.eval()
     else:
       var = self.var
-    if is_structure(var.name):
+    if sym.is_structure(var.name):
       fd.write(var.f_eval())
     else:
       fd.write(str(var.eval()))

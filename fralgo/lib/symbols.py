@@ -27,7 +27,6 @@
 
 import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, StructureData
-from fralgo.lib.datatypes import get_type
 
 class Symbols:
   __func         = 'functions'
@@ -96,8 +95,10 @@ class Symbols:
     datatype = self.get_type(data_type, self.get_structure)
     if self.is_structure(data_type):
       structure = self.get_structure(data_type)
-      variables[name] = StructureData(structure)
-      variables[name].set_get_structure(self.get_structure)
+      data = StructureData(structure)
+      data.set_get_structure(self.get_structure)
+      data.data = data.new_structure_data()
+      variables[name] = data
     else:
       variables[name] = datatype(None)
   def declare_ref(self, name, var):
@@ -112,8 +113,10 @@ class Symbols:
       variables = self.table[self.__vars]
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
-    variables[name] = Array(data_type, *max_indexes)
-    variables[name].set_get_structure(self.get_structure)
+    array = Array(data_type, *max_indexes)
+    array.set_get_structure(self.get_structure)
+    array.value = array.new_array(*array.sizes)
+    variables[name] = array
   def declare_sized_char(self, name, size):
     if self.is_local():
       variables = self.get_local_table()
@@ -165,11 +168,11 @@ class Symbols:
   def declare_structure(self, structure):
     structs = self.get_structures()
     if structs.get(structure.name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la structure >{name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
     structs[structure.name] = structure
   def get_structure(self, name):
     if self.is_local_structure():
-      for structs in reverse(self.table[self.__localstructs]):
+      for structs in reversed(self.table[self.__localstructs]):
         if name in structs:
           return structs[name]
     struct = self.table[self.__structs].get(name, None)

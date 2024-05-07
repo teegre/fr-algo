@@ -5,10 +5,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import unittest
 from fralgo.fralgoparse import parser
-from fralgo.lib.datatypes import Array
+from fralgo.lib.datatypes import Array, get_type
 from fralgo.lib.symbols import Symbols
 
-sym = Symbols()
+sym = Symbols(get_type)
 
 def reset_parser():
   try:

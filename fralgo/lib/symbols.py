@@ -26,32 +26,48 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Array, Char
-from fralgo.lib.datatypes import StructureData
-from fralgo.lib.datatypes import __structures
-from fralgo.lib.datatypes import get_structure, is_structure, get_type
+from fralgo.lib.datatypes import Array, Char, StructureData
 
 class Symbols:
-  __func      = 'functions'
-  __vars      = 'variables'
-  __local     = 'local'
-  __localrefs = 'localrefs'
-  __localfunc = 'localfunctions'
+  __func         = 'functions'
+  __vars         = 'variables'
+  __structs      = 'structures'
+  __local        = 'local'
+  __localrefs    = 'localrefs'
+  __localfunc    = 'localfunctions'
+  __localstructs = 'localstructs'
 
   table = {
-    __func      : {},
-    __vars      : {},
-    __localrefs : [],
-    __local     : [],
-    __localfunc : [],
+    __func         : {},
+    __vars         : {},
+    __structs      : {},
+    __localrefs    : [],
+    __local        : [],
+    __localfunc    : [],
+    __localstructs : [],
   }
 
+# TODO: ORDER METHODS
+
+  def __init__(self, get_type_func):
+    self.get_type = get_type_func
   def is_variable(self, name):
     return name in self.table[self.__vars].keys()
+  def is_structure(self, name):
+    if self.is_local_structure():
+      table = self.table[self.__localstructs]
+      for structs in reversed(table):
+        if structs.get(name, None) is not None:
+          return True
+      return False
+    struct = self.table[self.__structs].get(name, None)
+    return struct is not None
   def is_local(self):
     return len(self.table[self.__local]) > 0
   def is_local_function(self):
     return len(self.table[self.__localfunc]) > 0
+  def is_local_structure(self):
+    return len(self.table[self.__localstructs])
   def get_local_table(self):
     table = self.table[self.__local]
     return table[-1]
@@ -61,18 +77,28 @@ class Symbols:
   def get_localfunc_table(self):
     table = self.table[self.__localfunc]
     return table[-1]
+  def get_localstructs_table(self):
+    table = self.table[self.__localstructs]
+    return table[-1]
   def get_variables(self):
     if self.is_local():
       return self.get_local_table()
     return self.table[self.__vars]
+  def get_structures(self):
+    if self.is_local_structure():
+      return self.get_localstructs_table()
+    return self.table[self.__structs]
   def declare_var(self, name, data_type):
     variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
-    datatype = get_type(data_type)
-    if is_structure(data_type):
-      structure = get_structure(data_type)
-      variables[name] = StructureData(structure)
+    datatype = self.get_type(data_type, self.get_structure)
+    if self.is_structure(data_type):
+      structure = self.get_structure(data_type)
+      data = StructureData(structure)
+      data.set_get_structure(self.get_structure)
+      data.data = data.new_structure_data()
+      variables[name] = data
     else:
       variables[name] = datatype(None)
   def declare_ref(self, name, var):
@@ -87,7 +113,10 @@ class Symbols:
       variables = self.table[self.__vars]
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
-    variables[name] = Array(data_type, *max_indexes)
+    array = Array(data_type, *max_indexes)
+    array.set_get_structure(self.get_structure)
+    array.value = array.new_array(*array.sizes)
+    variables[name] = array
   def declare_sized_char(self, name, size):
     if self.is_local():
       variables = self.get_local_table()
@@ -136,10 +165,25 @@ class Symbols:
     if function is None:
       raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
     return function
+  def declare_structure(self, structure):
+    structs = self.get_structures()
+    if structs.get(structure.name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
+    structs[structure.name] = structure
+  def get_structure(self, name):
+    if self.is_local_structure():
+      for structs in reversed(self.table[self.__localstructs]):
+        if name in structs:
+          return structs[name]
+    struct = self.table[self.__structs].get(name, None)
+    if struct is None:
+      raise ex.VarRedeclared(f'Structure >{name}< non déclarée')
+    return struct
   def set_local(self):
     self.table[self.__local].append({})
     self.table[self.__localrefs].append({})
     self.table[self.__localfunc].append({})
+    self.table[self.__localstructs].append({})
   def del_local(self):
     if self.table[self.__local]:
       self.table[self.__local].pop()
@@ -147,6 +191,8 @@ class Symbols:
       self.table[self.__localrefs].pop()
     if self.table[self.__localfunc]:
       self.table[self.__localfunc].pop()
+    if self.table[self.__localstructs]:
+      self.table[self.__localstructs].pop()
   def del_variable(self, name):
     try:
       self.table[self.__vars].pop(name)
@@ -156,14 +202,7 @@ class Symbols:
     self.table[self.__func].clear()
     self.table[self.__local].clear()
     self.table[self.__vars].clear()
+    self.table[self.__structs].clear()
     self.table[self.__localrefs].clear()
     self.table[self.__localfunc].clear()
-    reset_structures()
-
-def declare_structure(structure):
-  if __structures.get(structure.name, None) is not None:
-    raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
-  __structures[structure.name] = structure
-
-def reset_structures():
-  __structures.clear()
+    self.table[self.__localstructs].clear()

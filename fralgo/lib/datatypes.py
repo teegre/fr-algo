@@ -256,20 +256,27 @@ class Array(Base):
     self.datatype = datatype # array content type
     self.indexes = indexes # max index(es)
     self.sizes = tuple(idx + 1 for idx in indexes) # size(s)
-    self.value = self._new_array(*self.sizes)
-  def _new_array(self, *sizes):
+    self.value = None
+    self.get_structure = None
+  def set_get_structure(self, get_structure_func):
+    self.get_structure = get_structure_func
+  def new_array(self, *sizes):
     if len(sizes) == 0:
       return []
     if len(sizes) == 1:
-      datatype = get_type(self.datatype)
+      datatype = get_type(self.datatype, self.get_structure)
       if isinstance(datatype, (list, tuple)):
         if issubclass(datatype[0], StructureData):
-          return [datatype[0](datatype[1]) for _ in range(sizes[0])]
+          data = [datatype[0](datatype[1]) for _ in range(sizes[0])]
+          for struct in data:
+            struct.set_get_structure(self.get_structure)
+            struct.data = struct.new_structure_data()
+          return data
         # sized Char
         return [datatype[0](None, datatype[1])] * sizes[0]
       # Basic type / structure
       return [datatype(None)] * sizes[0]
-    return [self._new_array(*sizes[1:]) for _ in range(sizes[0])]
+    return [self.new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
       raise VarUndefined('Redimendionnement impossible')
@@ -350,11 +357,13 @@ class Array(Base):
     ''' Resize an Array '''
     idxs = self._eval_indexes(*indexes)
     sizes = tuple(idx + 1 for idx in idxs)
-    new_array = Array(self.datatype, *idxs)
+    array = Array(self.datatype, *idxs)
+    array.set_get_structure(self.get_structure)
+    array.value = array.new_array(*array.sizes)
     if self.is_empty():
       self.indexes = idxs
       self.sizes = sizes
-      self.value = new_array.value
+      self.value = array.value
       return
     for i, idx in enumerate(self.indexes):
       try:
@@ -368,10 +377,10 @@ class Array(Base):
         continue
       if isinstance(value, StructureData):
         value = deepcopy(value)
-      new_array.set_value(idx, map_type(value))
+      array.set_value(idx, map_type(value))
     self.indexes = idxs
     self.sizes = sizes
-    self.value = new_array.value
+    self.value = array.value
   def is_empty(self, array=None):
     if array is not None:
       for item in array:
@@ -425,6 +434,8 @@ class Array(Base):
         return map_type(0)
       return map_type(self.sizes[0])
     array = Array('Entier', len(self.sizes) - 1)
+    array.set_get_structure(self.get_structure)
+    array.new_array(*array.sizes)
     for idx, value in enumerate(self.sizes):
       array.set_value((idx,), Integer(value))
     return array
@@ -459,13 +470,15 @@ class StructureData(Base):
   def __init__(self, structure):
     self.structure = structure
     self.name = structure.name
-    self.data = self._new_structure_data()
+    self.data = None
+    self.get_structure = None
+  def set_get_structure(self, get_structure_func):
+    self.get_structure = get_structure_func
   def eval(self):
     return self
   def f_eval(self):
     data = [str(v.eval()) for v in self.data.values()]
     return ''.join(data)
-
   def set_value(self, value, fieldname=None):
     if fieldname is not None:
       self.data[fieldname].set_value(value)
@@ -498,13 +511,16 @@ class StructureData(Base):
       raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
     except TypeError:
       raise BadType(f'{self.name} : Type d\'accès invalide')
-  def _new_structure_data(self):
+  def new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
-      data_type = get_type(datatype)
+      data_type = get_type(datatype, self.get_structure)
       if isinstance(data_type, (list, tuple)):
         if issubclass(data_type[0], StructureData):
-          data[name] = data_type[0](data_type[1])
+          struct = data_type[0](data_type[1])
+          struct.set_get_structure(self.get_structure)
+          struct.data = struct.new_structure_data()
+          data[name] = struct
         else:
           data[name] = data_type[0](None, data_type[1])
       else:
@@ -537,25 +553,15 @@ class StructureData(Base):
   def data_type(self):
     return self.name
 
-def get_structure(name):
-  structure = __structures.get(name, None)
-  if structure is None:
-    raise VarUndeclared(f'Structure {name} non déclarée')
-  return structure
-
-def is_structure(name):
-  return __structures.get(name, None) is not None
-
-__datatypes = {
-  'Booléen': Boolean,
-  'Caractère': Char,
-  'Chaîne': String,
-  'Entier': Integer,
-  'Numérique': Float,
-  'Tableau': Array,
-}
-
-def get_type(datatype):
+def get_type(datatype, get_structure):
+  __datatypes = {
+    'Booléen': Boolean,
+    'Caractère': Char,
+    'Chaîne': String,
+    'Entier': Integer,
+    'Numérique': Float,
+    'Tableau': Array,
+  }
   if datatype in ('Booléen', 'Chaîne', 'Entier', 'Numérique', 'Tableau'):
     return __datatypes[datatype]
   if isinstance(datatype, (list, tuple)):

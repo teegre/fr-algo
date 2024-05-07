@@ -99,5 +99,5 @@ Procédure principale()
 FinProcédure
 
 Début
-  principale()
+  Ecrire "CE PROGRAMME NE FONCTIONNE PAS"
 Fin

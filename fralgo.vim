@@ -42,7 +42,7 @@ syn keyword Func Fonction Retourne FinFonction
 syn keyword Proc Procédure FinProcédure
 syn keyword StockFunc Aléa Droite Ecrire EcrirErr EcrireFichier Extraire FDF Fermer
 syn keyword StockFunc Gauche Lire LireFichier Longueur NON Ouvrir Redim Taille Trouve
-syn keyword StockFunc Dormir, TempsUnix
+syn keyword StockFunc Dormir TempsUnix
 syn keyword Loop TantQue FinTantQue Pour Suivant
 syn keyword Condition Si Alors SinonSi Sinon FinSi
 syn keyword Bool VRAI FAUX

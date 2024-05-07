@@ -505,7 +505,7 @@ def p_parameter(p):
         if len(param[1]) == 1:
           array = (param[0], 'Tableau', p[3], param[1][0])
         else:
-          array = (param[0], 'Tableau', p[3], (*param[1][0],))
+          array = (param[0], 'Tableau', p[3], (*param[1],))
         parameters.append((array))
       else:
         parameters.append((param, p[3]))

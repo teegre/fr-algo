@@ -329,6 +329,7 @@ def p_statement(p):
             | if_block
             | while_block
             | for_block
+            | return_statement
             | PRINT sequence NEWLINE
             | PRINT sequence BACKSLASH NEWLINE
             | PRINTERR sequence NEWLINE
@@ -478,7 +479,7 @@ def p_return_statement(p):
   '''
   return_statement : RETURN expression NEWLINE
   '''
-  p[0] = FunctionReturn(p[2])
+  p[0] = Node(FunctionReturn(p[2]), p.lineno(1))
 
 def p_parameters(p):
   '''
@@ -621,7 +622,6 @@ def p_expressions(p):
 def p_if_block(p):
   '''
   if_block : IF expression THEN NEWLINE statements else_blocks
-           | IF expression THEN NEWLINE func_statements else_blocks
   '''
   p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
@@ -636,21 +636,18 @@ def p_else_blocks(p):
 def p_else_if_block(p):
   '''
   else_if_block : ELSIF expression THEN NEWLINE statements else_blocks
-                | ELSIF expression THEN NEWLINE func_statements else_blocks
   '''
   p[0] = Node(If(p[2], p[5], p[6]), p.lineno(1))
 
 def p_else_block(p):
   '''
   else_block : ELSE NEWLINE statements ENDIF NEWLINE
-             | ELSE NEWLINE func_statements ENDIF NEWLINE
   '''
   p[0] = p[3]
 
 def p_while_block(p):
   '''
   while_block : WHILE expression NEWLINE statements ENDWHILE NEWLINE
-              | WHILE expression NEWLINE func_statements ENDWHILE NEWLINE
   '''
   p[0] = Node(While(p[2], p[4]), p.lineno(1))
 
@@ -658,8 +655,6 @@ def p_for_block(p):
   '''
   for_block : FOR var ARROW expression TO expression NEWLINE statements var NEXT NEWLINE
             | FOR var ARROW expression TO expression STEP expression NEWLINE statements var NEXT NEWLINE
-            | FOR var ARROW expression TO expression NEWLINE func_statements var NEXT NEWLINE
-            | FOR var ARROW expression TO expression STEP expression NEWLINE func_statements var NEXT NEWLINE
   '''
   if len(p) == 12:
     p[0] = Node(For(p[2], p[4], p[6], p[8], p[9]), p.lineno(1))

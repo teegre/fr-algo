@@ -345,9 +345,9 @@ class FunctionCall:
           else:
             sym.declare_array(n, t, *s)
         elif isinstance(param[1], tuple): # Sized char
-           n, dt = param
-           _, s = dt
-           sym.declare_sized_char(n, s)
+          n, dt = param
+          _, s = dt
+          sym.declare_sized_char(n, s)
         else:
           n, t = param
           sym.declare_var(n, t)
@@ -372,7 +372,9 @@ class FunctionReturn:
   def __init__(self, expression):
     self.expression = expression
   def eval(self):
-    return self.expression.eval()
+    if sym.is_local_function():
+      return self.expression.eval()
+    raise FralgoException('Erreur de syntaxe : Retourne en dehors d\'une fonction')
   def __repr__(self):
     return f'Retourne {self.expression}'
 

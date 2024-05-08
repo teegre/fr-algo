@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/05/07
+" Last change: 2024/05/08
 
 if exists("b:current_syntax")
   finish
@@ -40,9 +40,9 @@ syn keyword Library Librairie Initialise
 syn keyword File Ajout Ecriture Lecture
 syn keyword Func Fonction Retourne FinFonction
 syn keyword Proc Procédure FinProcédure
-syn keyword StockFunc Aléa Droite Ecrire EcrireErr EcrireFichier Extraire FDF Fermer
-syn keyword StockFunc Gauche Lire LireFichier Longueur NON Ouvrir Redim Taille Trouve
-syn keyword StockFunc Dormir TempsUnix
+syn keyword StockFunc Aléa Car CodeCar Dormir Droite Ecrire EcrireErr EcrireFichier Extraire
+syn keyword StockFunc FDF Fermer Gauche Lire LireFichier Longueur NON Ouvrir Redim Taille
+syn keyword StockFunc TempsUnix Trouve
 syn keyword Loop TantQue FinTantQue Pour Suivant
 syn keyword Condition Si Alors SinonSi Sinon FinSi
 syn keyword Bool VRAI FAUX
@@ -72,7 +72,7 @@ let b:current_syntax = "algo"
 hi def link Program Constant
 hi def link Library Constant
 hi def link Assignment Constant
-hi def link _ARGS Constant
+hi def link Arguments Constant
 hi def link StockFunc Keyword
 hi def link Func PreProc
 hi def link Proc PreProc

@@ -138,7 +138,7 @@ t_ignore = ' \t'
 
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
-  t.value = bytes(t.value[1:-1], 'latin9').decode('unicode-escape')
+  t.value = bytes(t.value[1:-1], 'utf-8').decode('unicode-escape')
   return t
 
 def t_FLOAT(t):

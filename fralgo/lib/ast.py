@@ -35,7 +35,7 @@ from datetime import datetime
 
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String
+from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String, Table
 from fralgo.lib.datatypes import Structure, get_type
 from fralgo.lib.symbols import Symbols
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
@@ -193,9 +193,57 @@ class SizeOf:
     var = self.var.eval()
     if isinstance(var, Array):
       return var.size
+    if isinstance(var, Table):
+      return len(var)
     raise BadType('Taille(T) : type Tableau attendu')
   def __repr__(self):
     return f'Taille({self.var})'
+
+# class DeclareTable:
+#   __types = ('Booléen', 'Caractère', 'Chaîne', 'Entier', 'Numérique')
+#   def __init__(self, key_type, value_type):
+#     self.key_type = key_type
+#     self.value_type = value_type
+#   def eval(self):
+
+class TableGetItem:
+  def __init__(self, var, key):
+    self.var = var
+    self.key = key
+  def eval(self):
+    var = self.var.eval()
+    return var.get_item(self.key)
+  def __repr__(self):
+    return f'{self.var}[{self.key}]'
+
+class TableSetItem:
+  def __init__(self, var, key, value):
+    self.var = var
+    self.key = key
+    self.value = value
+  def eval(self):
+    var = self.var.eval()
+    return var.set_value(self.key, self.value)
+  def __repr__(self):
+    return f'{self.var}[{self.key}] ← {self.value}'
+
+class TableGetKeys:
+  def __init__(self, var):
+    self.var = var
+  def eval(self):
+    var = self.var.eval()
+    return var.get_keys()
+  def __repr__(self):
+    return f'Clefs({self.var})'
+
+class TableGetValues:
+  def __init__(self, var):
+    self.var = var
+  def eval(self):
+    var = self.var.eval()
+    return var.get_values()
+  def __repr__(self):
+    return f'Valeurs({self.var})'
 
 class StructureGetItem:
   def __init__(self, var, field):

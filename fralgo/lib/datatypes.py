@@ -4,7 +4,7 @@
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
-# This file is part of FRALGO
+# This file is part of FR-ALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -48,6 +48,23 @@ class Base():
     return self.value is None
   @property
   def data_type(self):
+    return self._type
+
+class Nothing(Base):
+  _type = "?"
+  def eval(self):
+    return None
+  def __eq__(self, other):
+    if isinstance(other, Nothing):
+      return True
+    return False
+  def __ne__(self, other):
+    if isinstance(other, Nothing):
+      return False
+    return True
+  def __str__(self):
+    return self._type
+  def __repr__(self):
     return self._type
 
 class Number(Base):
@@ -517,10 +534,15 @@ class StructureData(Base):
       data_type = get_type(datatype, self.get_structure)
       if isinstance(data_type, (list, tuple)):
         if issubclass(data_type[0], StructureData):
-          struct = data_type[0](data_type[1])
+          struct = StructureData(data_type[1])
           struct.set_get_structure(self.get_structure)
           struct.data = struct.new_structure_data()
           data[name] = struct
+        elif issubclass(data_type[0], Array):
+          array = Array(data_type[1], data_type[2])
+          array.value = array.new_array(*array.sizes)
+          array.set_get_structure(self.get_structure)
+          data[name] = array
         else:
           data[name] = data_type[0](None, data_type[1])
       else:
@@ -553,20 +575,46 @@ class StructureData(Base):
   def data_type(self):
     return self.name
 
+class Table(Base):
+  _type = 'Table'
+  def __init__(self, value=None):
+    self.value = {} if value is None else {}
+  def eval(self):
+    if len(self.value) > 0:
+      return self.value
+    raise VarUndefined('Valeur indéfinie')
+  def set_value(self, key, value):
+    self.value[key[0].eval()] = value.eval()
+  def get_item(self, key):
+    value = self.value.get(key.eval())
+    if value is not None:
+      return value
+    return map_type(value)
+  def get_keys(self):
+    return self.value.keys()
+  def get_values(self):
+    return self.value.values()
+  def __repr__(self):
+    return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
+
 def get_type(datatype, get_structure):
   __datatypes = {
+    '?': Nothing,
     'Booléen': Boolean,
     'Caractère': Char,
     'Chaîne': String,
     'Entier': Integer,
     'Numérique': Float,
     'Tableau': Array,
+    'Table': Table,
   }
-  if datatype in ('Booléen', 'Chaîne', 'Entier', 'Numérique', 'Tableau'):
-    return __datatypes[datatype]
   if isinstance(datatype, (list, tuple)):
     if datatype[0] == 'Caractère':
       return (Char, datatype[1])
+    if datatype[0] == 'Tableau':
+      return (Array, datatype[1], datatype[2])
+  elif datatype in __datatypes.keys():
+    return __datatypes[datatype]
   else:
     structure = get_structure(datatype)
     return (StructureData, structure)
@@ -582,4 +630,6 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
+  if value is None:
+    return Nothing()
   return value

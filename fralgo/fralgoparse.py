@@ -241,6 +241,7 @@ def p_type(p):
        | TYPE_INTEGER
        | TYPE_STRING
        | sized_char
+       | TYPE_TABLE
        | ID
   '''
   p[0] = p[1]
@@ -684,6 +685,7 @@ def p_expression(p):
              | FLOAT
              | INTEGER
              | STRING
+             | NOTHING
              | var
   '''
   p[0] = map_type(p[1])

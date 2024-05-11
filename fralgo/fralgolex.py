@@ -145,7 +145,7 @@ t_ignore = ' \t'
 
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
-  t.value = t.value[1:-1].encode('latin-1', 'ignore').decode('unicode-escape')
+  t.value = t.value[1:-1].encode('latin-1', 'ignore').decode('unicode-escape', 'ignore')
   return t
 
 def t_NOTHING(t):

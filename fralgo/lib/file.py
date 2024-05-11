@@ -108,7 +108,10 @@ class File:
     self.__access_mode = access_mode
     self.__state = 1
     if access_mode == 1:
-      self.__buffer = self.__file.read().splitlines()
+      try:
+        self.__buffer = self.__file.read().splitlines()
+      except UnicodeDecodeError:
+        raise FatalError(f'Pas un fichier texte : {filename}')
   def close(self):
     if self.__state == 1:
       try:

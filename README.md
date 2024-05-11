@@ -271,6 +271,37 @@ u[3] = 4
 # VRAI
 ```
 
+## Tables <a name="table"></a>
+
+Une `Table` est un **tableau associatif**.
+
+Plutôt que d'utiliser des **index** comme dans un `Tableau`, le type `Table` utilise des **clefs** qui seront associées à des **valeurs**.
+
+### Déclaration
+
+```
+Table t
+  Clef en Chaîne
+  Valeur en Entier
+FinTable
+```
+
+### Affectation
+```
+t["A"] <- 65
+t["B"] <- 66
+t["A"] = 65
+# VRAI
+```
+### Test de l'existence d'une clef
+
+```
+t["A"] = ?
+# FAUX
+t["C"] = ?
+# VRAI
+```
+
 ## Structures <a name="structure"></a>
 
 ### Déclaration
@@ -609,6 +640,35 @@ Taille(t2)
 # [8, 8]
 ```
 
+### Tables <a name="fonctions_table"></a>
+
+```
+Table t
+  Clef en Chaîne
+  Valeur en Chaîne
+FinTable
+
+Variable idx en Entier
+
+Pour i <- 65 à 90
+  t[Car(idx)] <- idx
+i Suivant
+
+# 'Longueur' ou 'Taille' retourne le nombre d'éléments dans une table.
+Longueur(t)
+# 26
+Taille(t)
+# 26
+
+# 'Clefs' retourne la liste des clefs.
+Clefs(t)
+# ["A", "B", "C", ..., "X", "Y", "Z"]
+
+# 'Valeurs' retourne la liste de valeurs.
+Valeurs(t)
+# [65, 66, 67, ..., 88, 89, 90]
+```
+
 ### Autres <a name="autre"></a>
 
 ```
@@ -882,6 +942,8 @@ Puis de changer les permissions du programme comme suit :
 
 [Chaîne()](#conversion)
 
+[Clefs](#fonctions_table)
+
 [CodeCar](#chaîne)
 
 ### D
@@ -988,6 +1050,8 @@ Puis de changer les permissions du programme comme suit :
 [sur](#fichier)
 
 ### T
+[Table](#table)
+
 [Tableau](#tableau)
 
 [Tableaux](#tableau)
@@ -999,6 +1063,8 @@ Puis de changer les permissions du programme comme suit :
 [Trouve](#chaîne)
 
 ### V
+[Valeurs](#fonctions_table)
+
 [Variable](#variable)
 
 [Variables](#variable)

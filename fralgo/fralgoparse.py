@@ -4,7 +4,7 @@
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
-# This file is part of FRALGO
+# This file is part of FR-ALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -30,9 +30,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareStruct
+from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
+from fralgo.lib.ast import TableGetKeys, TableGetValues
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
@@ -94,6 +95,18 @@ def p_import_statement(p):
   '''
   p[0] = Node(Import(p[2], yacc()), p.lineno(1))
 
+def p_table_declaration(p):
+  '''
+  table_declaration : TYPE_TABLE ID NEWLINE table_fields ENDTABLE NEWLINE
+  '''
+  p[0] = Node(DeclareTable(p[2], p[4][0], p[4][1]), p.lineno(1))
+
+def p_table_fields(p):
+  '''
+  table_fields : KEY TYPE_DECL type NEWLINE VALUE TYPE_DECL type NEWLINE
+  '''
+  p[0] = [p[3], p[7]]
+
 def p_structure_declarations(p):
   '''
   struct_declarations : struct_declarations struct_declaration
@@ -145,6 +158,7 @@ def p_var_declaration(p):
                   | ARRAYS_DECL array_list TYPE_DECL type NEWLINE
                   | VAR_DECL ID TYPE_DECL type NEWLINE
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
+                  | table_declaration
                   | struct_declarations
                   | function_declaration
                   | procedure_declaration
@@ -241,7 +255,6 @@ def p_type(p):
        | TYPE_INTEGER
        | TYPE_STRING
        | sized_char
-       | TYPE_TABLE
        | ID
   '''
   p[0] = p[1]
@@ -751,6 +764,18 @@ def p_expression_structure_get_item(p):
   expression : structure_get_item
   '''
   p[0] = p[1]
+
+def p_table_keys(p):
+  '''
+  expression : KEYS LPAREN expression RPAREN
+  '''
+  p[0] = TableGetKeys(p[3])
+
+def p_table_values(p):
+  '''
+  expression : VALUES LPAREN expression RPAREN
+  '''
+  p[0] = TableGetValues(p[3])
 
 def p_expression_len(p):
   '''

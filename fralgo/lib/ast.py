@@ -4,7 +4,7 @@
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
-# This file is part of FRALGO
+# This file is part of FR-ALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -134,6 +134,16 @@ class DeclareSizedChar:
   def __repr__(self):
     return f'Variable {self.name}*{self.size}'
 
+class DeclareTable:
+  def __init__(self, name, key_type, value_type):
+    self.name = name
+    self.key_type = key_type
+    self.value_type = value_type
+  def eval(self):
+    sym.declare_table(self.name, self.key_type, self.value_type)
+  def __repr__(self):
+    return f'Table {self.name}'
+
 class DeclareStruct:
   __types = ('Booléen', 'Caractère', 'Chaîne', 'Entier', 'Numérique')
   def __init__(self, name, fields):
@@ -199,40 +209,14 @@ class SizeOf:
   def __repr__(self):
     return f'Taille({self.var})'
 
-# class DeclareTable:
-#   __types = ('Booléen', 'Caractère', 'Chaîne', 'Entier', 'Numérique')
-#   def __init__(self, key_type, value_type):
-#     self.key_type = key_type
-#     self.value_type = value_type
-#   def eval(self):
-
-class TableGetItem:
-  def __init__(self, var, key):
-    self.var = var
-    self.key = key
-  def eval(self):
-    var = self.var.eval()
-    return var.get_item(self.key)
-  def __repr__(self):
-    return f'{self.var}[{self.key}]'
-
-class TableSetItem:
-  def __init__(self, var, key, value):
-    self.var = var
-    self.key = key
-    self.value = value
-  def eval(self):
-    var = self.var.eval()
-    return var.set_value(self.key, self.value)
-  def __repr__(self):
-    return f'{self.var}[{self.key}] ← {self.value}'
-
 class TableGetKeys:
   def __init__(self, var):
     self.var = var
   def eval(self):
     var = self.var.eval()
-    return var.get_keys()
+    keys = Array(self.var.key_type, len(var.get_keys()) - 1)
+    keys.value = list(var.get_keys())
+    return keys
   def __repr__(self):
     return f'Clefs({self.var})'
 
@@ -241,7 +225,9 @@ class TableGetValues:
     self.var = var
   def eval(self):
     var = self.var.eval()
-    return var.get_values()
+    values =Array(self.var.value_type, len(var.get_values()) - 1)
+    values.value = list(var.get_values())
+    return values
   def __repr__(self):
     return f'Valeurs({self.var})'
 
@@ -454,6 +440,18 @@ class Variable:
   def data_type(self):
     var = sym.get_variable(self.name)
     return var.data_type
+  @property
+  def key_type(self):
+    if self.data_type == 'Table':
+      var = sym.get_variable(self.name)
+      return var.key_type
+    raise BadType(f'La variable {self.name} n\'est pas de type Table')
+  @property
+  def value_type(self):
+    if self.data_type == 'Table':
+      var = sym.get_variable(self.name)
+      return var.value_type
+    raise BadType(f'La variable {self.name} n\'est pas de type Table')
 
 class Reference(Variable):
   def __repr__(self):

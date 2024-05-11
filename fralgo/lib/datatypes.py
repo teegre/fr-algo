@@ -577,14 +577,19 @@ class StructureData(Base):
 
 class Table(Base):
   _type = 'Table'
-  def __init__(self, value=None):
+  def __init__(self, key_type, value_type, value=None):
+    self.key_type = key_type
+    self.value_type = value_type
     self.value = {} if value is None else {}
   def eval(self):
-    if len(self.value) > 0:
-      return self.value
-    raise VarUndefined('Valeur indéfinie')
+    return self
   def set_value(self, key, value):
-    self.value[key[0].eval()] = value.eval()
+    key = key[0]
+    if key.data_type != self.key_type:
+      raise BadType(f'Clef : Type {self.key_type} attendu')
+    if value.data_type != self.value_type:
+      raise BadType(f'Valeur : Type {self.value_type} attendu')
+    self.value[key.eval()] = value.eval()
   def get_item(self, key):
     value = self.value.get(key.eval())
     if value is not None:
@@ -594,6 +599,8 @@ class Table(Base):
     return self.value.keys()
   def get_values(self):
     return self.value.values()
+  def __len__(self):
+    return len(self.value)
   def __repr__(self):
     return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
 

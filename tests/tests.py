@@ -19,6 +19,32 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_table(self):
+    prog='''Table t
+      Clef en Entier
+      Valeur en Entier
+    FinTable
+    Variables clef, valeur en Entier
+    Variables test1, test2 en Booléen
+    Début
+      Ecrire "17. Test Table"
+      clef <- Entier(Aléa() * 255 + 1)
+      valeur <- Entier(Aléa() * 255 + 1)
+      t[clef] <- valeur
+      test1 <- t[clef] = valeur
+      test2 <- t[0] = ?
+      Ecrire test1, test2
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('test1')
+    t2 = sym.get_variable('test2')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    print()
+
   def test_procedure_split(self):
     prog = '''Procédure scinder(chaine, separateur, &elements[] en Chaîne)
      Variable sous_chaine en Chaîne

@@ -4,7 +4,7 @@
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
-# This file is part of FRALGO
+# This file is part of FR-ALGO
 # Copyright © 2024 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
@@ -41,6 +41,8 @@ reserved = {
   'Car':           'CHR',
   'Caractère':     'TYPE_CHAR',
   'Chaîne':        'TYPE_STRING',
+  'Clef':          'KEY',
+  'Clefs':         'KEYS',
   'CodeCar':       'ORD',
   'DP':            'DIVBY',
   'Dormir':        'SLEEP',
@@ -60,6 +62,7 @@ reserved = {
   'FinProcédure':  'ENDPROCEDURE',
   'FinSi':         'ENDIF',
   'FinStructure':  'ENDSTRUCT',
+  'FinTable':      'ENDTABLE',
   'FinTantQue':    'ENDWHILE',
   'Fonction':      'FUNCTION',
   'Gauche':        'LTRIM',
@@ -92,6 +95,8 @@ reserved = {
   'TantQue':       'WHILE',
   'TempsUnix':     'UNIXTIMESTAMP',
   'Trouve':        'FIND',
+  'Valeur':        'VALUE',
+  'Valeurs':       'VALUES',
   'Variable':      'VAR_DECL',
   'Variables':     'VARS_DECL',
   'en':            'TYPE_DECL',
@@ -140,7 +145,7 @@ t_ignore = ' \t'
 
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
-  t.value = t.value[1:-1].encode('latin-1').decode('unicode-escape')
+  t.value = t.value[1:-1].encode('latin-1', 'ignore').decode('unicode-escape')
   return t
 
 def t_NOTHING(t):

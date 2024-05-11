@@ -248,7 +248,10 @@ class StructureGetItem:
       var = self.var.eval()
     else:
       var = sym.get_variable(self.var)
-    return var.get_item(self.field)
+    try:
+      return var.get_item(self.field)
+    except AttributeError:
+      raise BadType(f'{self.var} : Erreur inattendue')
   def __repr__(self):
     return f'{self.var}.{self.field}'
 

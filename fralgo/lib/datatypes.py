@@ -51,7 +51,7 @@ class Base():
     return self._type
 
 class Nothing(Base):
-  _type = "?"
+  _type = '?'
   def eval(self):
     return None
   def __eq__(self, other):
@@ -174,6 +174,8 @@ class String(Base):
       return self.value <= other.value
     return False
   def __str__(self):
+    if self.value is None:
+      return str(Nothing())
     return self.value
   def __repr__(self):
     if self.value is None:

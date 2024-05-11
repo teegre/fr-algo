@@ -26,7 +26,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Array, Char, StructureData
+from fralgo.lib.datatypes import Array, Char, StructureData, Table
 
 class Symbols:
   __func         = 'functions'
@@ -117,6 +117,14 @@ class Symbols:
     array.set_get_structure(self.get_structure)
     array.value = array.new_array(*array.sizes)
     variables[name] = array
+  def declare_table(self, name, key_type, value_type):
+    if self.is_local():
+      variables = self.get_local_table()
+    else:
+      variables = self.table[self.__vars]
+    if variables.get(name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la variable {name}')
+    variables[name] = Table(key_type, value_type)
   def declare_sized_char(self, name, size):
     if self.is_local():
       variables = self.get_local_table()

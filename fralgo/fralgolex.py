@@ -54,6 +54,7 @@ reserved = {
   'EcrireFichier': 'WRITEFILE',
   'Ecriture':      'MODE_WRITE',
   'Entier':        'TYPE_INTEGER',
+  'Existe':        'EXISTS',
   'Extraire':      'MID',
   'FDF':           'EOF',
   'Fermer':        'CLOSE',
@@ -115,7 +116,6 @@ tokens = (
   'COMMA',
   'DOT',
   'BACKSLASH',
-  'NOTHING',
   'NEWLINE',
   'ID',
 ) + tuple(reserved.values())
@@ -146,11 +146,6 @@ t_ignore = ' \t'
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
   t.value = t.value[1:-1].encode('latin-1', 'ignore').decode('unicode-escape', 'ignore')
-  return t
-
-def t_NOTHING(t):
-  r'\?'
-  t.value = None
   return t
 
 def t_FLOAT(t):
@@ -192,7 +187,7 @@ def t_NEWLINE(t):
   return t
 
 def t_error(t):
-  msg = (f'*** caractère invalide {t.value[0]!r}')
+  msg = f'*** caractère invalide {t.value[0]!r}'
   if 'FRALGOREPL' not in os.environ:
     msg += f'\n-v- ligne {t.lineno}.'
     raise FatalError(msg)

@@ -50,23 +50,6 @@ class Base():
   def data_type(self):
     return self._type
 
-class Nothing(Base):
-  _type = '?'
-  def eval(self):
-    return None
-  def __eq__(self, other):
-    if isinstance(other, Nothing):
-      return True
-    return False
-  def __ne__(self, other):
-    if isinstance(other, Nothing):
-      return False
-    return True
-  def __str__(self):
-    return self._type
-  def __repr__(self):
-    return self._type
-
 class Number(Base):
   def set_value(self, value):
     raise NotImplementedError
@@ -175,7 +158,7 @@ class String(Base):
     return False
   def __str__(self):
     if self.value is None:
-      return str(Nothing())
+      return '?'
     return self.value
   def __repr__(self):
     if self.value is None:
@@ -582,7 +565,7 @@ class Table(Base):
   def __init__(self, key_type, value_type, value=None):
     self.key_type = key_type
     self.value_type = value_type
-    self.value = {} if value is None else {}
+    self.value = {} if value is None else value
   def eval(self):
     return self
   def set_value(self, key, value):
@@ -596,7 +579,7 @@ class Table(Base):
     value = self.value.get(key.eval())
     if value is not None:
       return value
-    return map_type(value)
+    raise VarUndefined('Valeur indéfinie')
   def get_keys(self):
     return self.value.keys()
   def get_values(self):
@@ -608,7 +591,6 @@ class Table(Base):
 
 def get_type(datatype, get_structure):
   __datatypes = {
-    '?': Nothing,
     'Booléen': Boolean,
     'Caractère': Char,
     'Chaîne': String,
@@ -639,6 +621,4 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
-  if value is None:
-    return Nothing()
   return value

@@ -217,7 +217,7 @@ class TableKeyExists:
     var = self.var.eval()
     if not isinstance(var, Table):
       raise BadType(f'Existe({self.var.name, ...}) : type Table attendu')
-    return map_type(var.value.get(self.key.eval()) is not None)
+    return var.value.get(self.key.eval()) is not None
   def __repr__(self):
     return f'Existe({self.var.name}, {self.key})'
 
@@ -983,6 +983,7 @@ def algo_to_python(expression):
       SizeOf,
       String,
       StructureGetItem,
+      TableKeyExists,
       ToFloat, ToInteger, ToString, Trim,
       UnixTimestamp,
       Variable,

@@ -32,7 +32,7 @@ class Test(unittest.TestCase):
       valeur <- Entier(Aléa() * 255 + 1)
       t[clef] <- valeur
       test1 <- t[clef] = valeur
-      test2 <- t[0] = ?
+      test2 <- NON(Existe(t, 0))
       Ecrire test1, test2
     Fin'''
 

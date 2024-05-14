@@ -33,7 +33,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
-from fralgo.lib.ast import TableGetKeys, TableGetValues
+from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
@@ -698,7 +698,6 @@ def p_expression(p):
              | FLOAT
              | INTEGER
              | STRING
-             | NOTHING
              | var
   '''
   p[0] = map_type(p[1])
@@ -764,6 +763,12 @@ def p_expression_structure_get_item(p):
   expression : structure_get_item
   '''
   p[0] = p[1]
+
+def p_table_key_exists(p):
+  '''
+  expression : EXISTS LPAREN expression COMMA expression RPAREN
+  '''
+  p[0] = TableKeyExists(p[3], p[5])
 
 def p_table_keys(p):
   '''

@@ -209,6 +209,18 @@ class SizeOf:
   def __repr__(self):
     return f'Taille({self.var})'
 
+class TableKeyExists:
+  def __init__(self, var, key):
+    self.var = var
+    self.key = key
+  def eval(self):
+    var = self.var.eval()
+    if not isinstance(var, Table):
+      raise BadType(f'Existe({self.var.name, ...}) : type Table attendu')
+    return map_type(var.value.get(self.key.eval()) is not None)
+  def __repr__(self):
+    return f'Existe({self.var.name}, {self.key})'
+
 class TableGetKeys:
   def __init__(self, var):
     self.var = var

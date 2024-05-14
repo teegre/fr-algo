@@ -81,7 +81,7 @@ $ fralgorepl
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.2mg
+|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.6mg
 
 (c) 2024 Stéphane MEYER (Teegre)
 
@@ -98,7 +98,7 @@ $ fralgorepl
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.2mg
+|A|L|G|O|R|I|T|H|M|E|S|         fr-v100 0.11.2.beta.6mg
 
 (c) 2024 Stéphane MEYER (Teegre)
 
@@ -291,14 +291,6 @@ FinTable
 t["A"] <- 65
 t["B"] <- 66
 t["A"] = 65
-# VRAI
-```
-### Test de l'existence d'une clef
-
-```
-t["A"] = ?
-# FAUX
-t["C"] = ?
 # VRAI
 ```
 
@@ -660,6 +652,12 @@ Longueur(t)
 Taille(t)
 # 26
 
+# 'Existe' retourne VRAI si une clef existe dans une table donnée.
+Existe(t, "A")
+# VRAI
+Existe(t, "0")
+# FAUX
+
 # 'Clefs' retourne la liste des clefs.
 Clefs(t)
 # ["A", "B", "C", ..., "X", "Y", "Z"]
@@ -971,6 +969,8 @@ Puis de changer les permissions du programme comme suit :
 [Entier](#type)
 
 [Entier()](#conversion)
+
+[Existe](#fonctions_table)
 
 [Extraire](#chaîne)
 

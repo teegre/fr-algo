@@ -637,7 +637,7 @@ Taille(t2)
 ```
 Table t
   Clef en Chaîne
-  Valeur en Chaîne
+  Valeur en Entier
 FinTable
 
 Variable idx en Entier

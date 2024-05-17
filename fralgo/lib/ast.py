@@ -206,8 +206,16 @@ class SizeOf:
     if isinstance(var, Table):
       return len(var)
     raise BadType('Taille(T) : type Tableau attendu')
+  def data_type(self):
+    var = self.var.eval()
+    if isinstance(var, Array):
+      return 'Entier' if len(var.sizes) == 1 else 'Tableau'
+    if isinstance(var, Table):
+      return 'Entier'
+    return var.data_type
   def __repr__(self):
     return f'Taille({self.var})'
+
 
 class TableKeyExists:
   def __init__(self, var, key):

@@ -881,6 +881,6 @@ def p_error(p):
     msg = 'Fin de fichier prématurée.'
   if 'FRALGOREPL' not in os.environ:
     raise FatalError(msg)
-  raise FralgoException(f'*** {msg}')
+  raise FralgoException(msg)
 
 parser = yacc()

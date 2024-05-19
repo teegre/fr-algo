@@ -39,6 +39,7 @@ from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, S
 from fralgo.lib.datatypes import Structure, get_type
 from fralgo.lib.symbols import Symbols
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
+from fralgo.lib.exceptions import print_err
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
 from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
@@ -64,25 +65,25 @@ class Node:
         if result is not None:
           return result
       except RecursionError:
-        print('*** STOP : excès de récursivité !')
+        print_err('STOP : excès de récursivité !')
         if 'FRALGOREPL' not in os.environ:
-          print(f'-v- Ligne {self.lineno}')
+          print_err(f'Ligne {self.lineno}')
           print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')
       except FatalError as e:
-        print(f'*** {e.message}')
+        print_err(f'{e.message}')
         if 'FRALGOREPL' not in os.environ:
-          print(f'-v- Ligne {self.lineno}')
+          print_err(f'Ligne {self.lineno}')
           print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')
       except FralgoException as e:
         if e.message:
-          print('***', e.message)
+          print_err(e.message)
         if 'FRALGOREPL' not in os.environ:
-          print(f'-v- Ligne {self.lineno}')
-          print('*** Erreur fatale')
+          print_err(f'Ligne {self.lineno}')
+          print_err('Erreur fatale')
           print('\033[?25h\033[0m', end='')
           sys.exit(666)
         raise FralgoInterruption('')

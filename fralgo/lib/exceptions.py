@@ -25,11 +25,17 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from sys import stderr
+
 class FralgoException(Exception):
   def __init__(self, message):
     self.message = message
   def __str__(self):
     return str(self.message)
+
+def print_err(message):
+  stderr.write(f'*** {message}\n')
+  stderr.flush()
 
 class VarUndeclared(FralgoException):
   '''Variable non déclarée.'''

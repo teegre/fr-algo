@@ -92,8 +92,12 @@ def p_program(p):
 def p_import_statement(p):
   '''
   import_statement : IMPORT STRING NEWLINE
+                   | IMPORT STRING ALIAS ID NEWLINE
   '''
-  p[0] = Node(Import(p[2], yacc()), p.lineno(1))
+  if len(p) == 6:
+    p[0] = Node(Import(p[2], yacc(), p[4]), p.lineno(1))
+  else:
+    p[0] = Node(Import(p[2], yacc()), p.lineno(1))
 
 def p_table_declaration(p):
   '''

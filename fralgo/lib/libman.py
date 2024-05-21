@@ -62,6 +62,7 @@ class LibMan:
     else:
       self.namespaces.declare_namespace(libfile)
     statements.eval()
+    self.namespaces.set_current_namespace('main')
   def checklib(self, algocontent, libfile):
     start = False
     for line in algocontent:

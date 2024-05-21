@@ -48,8 +48,7 @@ from fralgo.lib.exceptions import FralgoInterruption
 
 namespaces = Namespaces(get_type)
 libs = LibMan()
-
-# get_structure_func = sym.get_structure
+libs.set_namespaces(namespaces)
 
 class Node:
   def __init__(self, statement=None, lineno=0):
@@ -106,7 +105,7 @@ class Declare:
     self.name = name
     self.var_type = var_type
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if isinstance(self.var_type, tuple): # sized char
       sym.declare_sized_char(self.name, self.var_type[1])
     else:
@@ -120,7 +119,7 @@ class DeclareArray:
     self.var_type = var_type
     self.max_indexes = max_indexes
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     sym.declare_array(self.name, self.var_type, *self.max_indexes)
   def __repr__(self):
     indexes = [str(n) for n in self.max_indexes]
@@ -134,7 +133,7 @@ class DeclareSizedChar:
     self.name = name
     self.size = size
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     sym.declare_sized_char(self.name, self.size)
   def __repr__(self):
     return f'Variable {self.name}*{self.size}'
@@ -145,7 +144,7 @@ class DeclareTable:
     self.key_type = key_type
     self.value_type = value_type
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     sym.declare_table(self.name, self.key_type, self.value_type)
   def __repr__(self):
     return f'Table {self.name}'
@@ -156,7 +155,7 @@ class DeclareStruct:
     self.name = name
     self.fields = fields
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     for field, datatype in self.fields:
       if datatype not in self.__types:
         if isinstance(datatype, tuple) or sym.is_structure(datatype):
@@ -171,7 +170,7 @@ class ArrayGetItem:
     self.var = var
     self.indexes = indexes
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     try:
       var = self.var.eval()
     except AttributeError:
@@ -264,7 +263,7 @@ class StructureGetItem:
     self.var = var
     self.field = field
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = sym.get_variable(self.var[0])
@@ -290,7 +289,7 @@ class StructureSetItem:
     self.field = field
     self.value = value
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = sym.get_variable(self.var[0])
@@ -320,7 +319,7 @@ class Function:
     if return_type is None:
       self.ftype = 'Procédure'
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     sym.declare_function(self)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
@@ -388,7 +387,7 @@ class FunctionCall:
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     func = sym.get_function(self.name)
     params = func.params
     sym.set_local()
@@ -441,7 +440,7 @@ class FunctionReturn:
   def __init__(self, expression):
     self.expression = expression
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if sym.is_local_function():
       return self.expression.eval()
     raise FralgoException('Erreur de syntaxe : Retourne en dehors d\'une fonction')
@@ -453,7 +452,7 @@ class Assign:
     self.var = var
     self.value = value
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     value = self.value
     sym.assign_value(self.var, value.eval())
   def __repr__(self):
@@ -463,33 +462,33 @@ class Variable:
   def __init__(self, name):
     self.name = name
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     var = sym.get_variable(self.name)
     if isinstance(var, (Boolean, Number, String)):
       return var.eval()
     return var
   def __repr__(self):
     try:
-      sym = namespaces.get_local_namespace()
+      sym = namespaces.get_namespace(name=None)
       value = sym.get_variable(self.name)
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     var = sym.get_variable(self.name)
     return var.data_type
   @property
   def key_type(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if self.data_type == 'Table':
       var = sym.get_variable(self.name)
       return var.key_type
     raise BadType(f'La variable {self.name} n\'est pas de type Table')
   @property
   def value_type(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if self.data_type == 'Table':
       var = sym.get_variable(self.name)
       return var.value_type
@@ -542,7 +541,7 @@ class Read:
     self.args = args
   def eval(self):
     '''... on evaluation'''
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     try:
       user_input = input()
     except (KeyboardInterrupt, EOFError):
@@ -695,7 +694,7 @@ class For:
     self.dothis = dt
     self.var_next = nv.name
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     if self.var != self.var_next:
       raise FralgoException(f'Pour >{self.var}< ... >{self.var_next}< Suivant')
     i = self.start.eval()
@@ -824,7 +823,7 @@ class ReadFile:
     self.fd_number = fd
     self.var = var
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
@@ -842,7 +841,7 @@ class WriteFile:
     self.fd_number = fd
     self.var = var
   def eval(self):
-    sym = namespaces.get_local_namespace()
+    sym = namespaces.get_namespace(name=None)
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
@@ -986,14 +985,16 @@ class UnixTimestamp:
     return 'Numérique'
 
 class Import:
-  def __init__(self, filename, parser):
+  def __init__(self, filename, parser, alias=None):
     self.filename = filename
     self.parser = deepcopy(parser)
+    self.alias = alias
   def eval(self):
     libs.set_parser(self.parser)
-    libs.set_namespaces(namespaces)
-    libs.import_lib(self.filename)
+    libs.import_lib(self.filename, self.alias)
   def __repr__(self):
+    if self.alias:
+      return f'Importer "{self.filename}" Alias {self.alias}'
     return f'Importer "{self.filename}"'
 
 def algo_to_python(expression):

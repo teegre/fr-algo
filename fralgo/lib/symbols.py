@@ -219,24 +219,31 @@ class Namespaces:
     self.get_type = get_type
     # init main namespace
     self.ns[0]['main'] = Symbols(get_type_func=get_type)
+    self.current_namespace = 'main'
   def is_local(self):
     return len(self.ns) > 1
   def set_local(self):
-    ns.append({})
+    self.ns.append({})
   def get_local_namespace(self):
     if self.is_local():
       return self.ns[-1]
     return self.ns[0]
-  def declare_namespace(self, name, parser=None):
+  def set_current_namespace(self, name):
+    self.current_namespace = name
+  def declare_namespace(self, name):
+    self.set_local()
     ns = self.get_local_namespace()
     if name in ns:
-      raise VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
+      raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
     ns[name] = Symbols(self.get_type)
+    self.current_namespace = name
   def get_namespace(self, name):
+    if not name:
+      name = self.current_namespace
     for ns in reversed(self.ns):
       if name in ns:
         return ns[name]
-    raise VarUndeclared(f'Espace-nom \'{name}\' non déclaré')
+    raise ex.VarUndeclared(f'Espace-nom \'{name}\' non déclaré')
   def reset(self):
     for namespace in self.ns:
       for _, symbols in namespace:

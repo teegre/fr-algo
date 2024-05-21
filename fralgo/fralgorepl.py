@@ -36,7 +36,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
-from fralgo.lib.ast import sym, libs
+from fralgo.lib.ast import namespaces, libs
 from fralgo.lib.exceptions import FralgoException, print_err
 
 os.environ['FRALGOREPL'] = '1'
@@ -81,7 +81,7 @@ class Interpreter:
           print('*** TRACE est', map_type(self.traceback))
           continue
         case 'REINIT':
-          sym.reset()
+          namespaces.reset()
           print('*** Reinitialisation effectuée')
           continue
         case 'Début':

@@ -35,6 +35,7 @@ from fralgo.ply.lex import lex
 
 reserved = {
   'Ajout':         'MODE_APPEND',
+  'Alias':         'ALIAS',
   'Alors':         'THEN',
   'Aléa':          'RANDOM',
   'Booléen':       'TYPE_BOOLEAN',

@@ -51,8 +51,6 @@ class Symbols:
 
   def __init__(self, get_type_func):
     self.get_type = get_type_func
-  def is_variable(self, name):
-    return name in self.table[self.__vars].keys()
   def is_structure(self, name):
     if self.is_local_structure():
       table = self.table[self.__localstructs]

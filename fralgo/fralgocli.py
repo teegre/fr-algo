@@ -34,7 +34,7 @@ from fralgo import __version__
 from fralgo.lib.datatypes import map_type
 from fralgo.fralgoparse import parser
 from fralgo.lib.ast import libs, sym
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FatalError, print_err
 
 def main():
   try:
@@ -43,7 +43,7 @@ def main():
       prog = f.read()
       prog = prog[:-1]
   except FileNotFoundError:
-    print('*** Fichier non trouvé')
+    print_err(f'{algofile} : fichier non trouvé')
     sys.exit(1)
   except IndexError:
     print(r' _______ ______        _______ _____   _______ _______',  flush=True)
@@ -80,7 +80,7 @@ def main():
     statements = parser.parse(prog)
     statements.eval()
   except FatalError as e:
-    print('*** Oh oh :', e.message)
+    print_err(f'Oh oh : {e.message}')
     print('\033[?25h\033[0m', end='')
     sys.exit(666)
 

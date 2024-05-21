@@ -37,7 +37,7 @@ from fralgo import __version__
 from fralgo.fralgoparse import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.ast import sym, libs
-from fralgo.lib.exceptions import FralgoException
+from fralgo.lib.exceptions import FralgoException, print_err
 
 os.environ['FRALGOREPL'] = '1'
 user_path = os.path.expanduser('~')
@@ -123,13 +123,13 @@ class Interpreter:
       result = parser.parse(instruction + '\n')
     except FralgoException as e:
       if e.message:
-        print(e.message)
+        print_err(e.message)
       return
     except Exception as e:
       if self.traceback:
         traceback.print_exc()
       parser.restart()
-      print(e)
+      print_err(e)
       return
     if result is None:
       return
@@ -137,13 +137,13 @@ class Interpreter:
       result = result.eval()
     except FralgoException as e:
       if e.message:
-        print(e.message)
+        print_err(e.message)
       return
     except Exception as e:
       if self.traceback:
         traceback.print_exc()
       parser.restart()
-      print(e)
+      print_err(e)
     if isinstance(result, bool):
       print('---', map_type(result))
     elif result is not None:
@@ -152,7 +152,7 @@ class Interpreter:
       except Exception as e:
         if self.traceback:
           traceback.print_exc()
-        print(e)
+        print_err(e)
     return
   def set_prompt(self):
     if self.loop:

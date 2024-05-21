@@ -1,0 +1,9 @@
+Librairie
+
+Fonction fact(n en Entier) en Entier
+  Si n = 0 Alors
+    Retourne 1
+  FinSi
+  Retourne fact(n - 1) * n
+FinFonction
+

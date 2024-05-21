@@ -212,3 +212,34 @@ class Symbols:
     self.table[self.__localrefs].clear()
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
+
+class Namespaces:
+  def __init__(self, get_type):
+    self.ns = [{}]
+    self.get_type = get_type
+    # init main namespace
+    self.ns[0]['main'] = Symbols(get_type_func=get_type)
+  def is_local(self):
+    return len(self.ns) > 1
+  def set_local(self):
+    ns.append({})
+  def get_local_namespace(self):
+    if self.is_local():
+      return self.ns[-1]
+    return self.ns[0]
+  def declare_namespace(self, name, parser=None):
+    ns = self.get_local_namespace()
+    if name in ns:
+      raise VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
+    ns[name] = Symbols(self.get_type)
+  def get_namespace(self, name):
+    for ns in reversed(self.ns):
+      if name in ns:
+        return ns[name]
+    raise VarUndeclared(f'Espace-nom \'{name}\' non déclaré')
+  def reset(self):
+    for namespace in self.ns:
+      for _, symbols in namespace:
+        symbols.reset()
+    self.ns.clear()
+    self.ns.append({'main': Symbols(self.get_type)})

@@ -42,7 +42,9 @@ class LibMan:
       self.__path = os.getcwd()
   def set_parser(self, parser):
     self.parser = parser
-  def import_lib(self, libfile):
+  def set_namespaces(self, ns):
+    self.namespaces = ns
+  def import_lib(self, libfile, alias=None):
     libpath = os.path.join(self.path, libfile + '.algo')
     try:
       with open(libpath, 'r', encoding='utf-8') as f:
@@ -55,6 +57,10 @@ class LibMan:
     except FatalError as e:
       raise e
     statements = self.parser.parse(''.join(lib))
+    if alias:
+      self.namespaces.declare_namespace(alias)
+    else:
+      self.namespaces.declare_namespace(libfile)
     statements.eval()
   def checklib(self, algocontent, libfile):
     start = False

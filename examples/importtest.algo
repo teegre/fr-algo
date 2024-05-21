@@ -1,0 +1,10 @@
+Importer "importlib"
+
+Début
+  Si Taille(_ARGS) = 2 Alors
+    Ecrire "La factorielle de", _ARGS[1], "est égale à", fact(Entier(_ARGS[1]))
+  Sinon
+    Ecrire "Usage :", _ARGS[0], "<nombre>"
+    Ecrire "Retourne la factorielle de <nombre>."
+  FinSi
+Fin

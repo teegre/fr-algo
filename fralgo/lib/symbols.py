@@ -37,19 +37,18 @@ class Symbols:
   __localfunc    = 'localfunctions'
   __localstructs = 'localstructs'
 
-  table = {
-    __func         : {},
-    __vars         : {},
-    __structs      : {},
-    __localrefs    : [],
-    __local        : [],
-    __localfunc    : [],
-    __localstructs : [],
-  }
-
 # TODO: ORDER METHODS
 
   def __init__(self, get_type_func):
+    self.table = {
+      self.__func         : {},
+      self.__vars         : {},
+      self.__structs      : {},
+      self.__localrefs    : [],
+      self.__local        : [],
+      self.__localfunc    : [],
+      self.__localstructs : [],
+    }
     self.get_type = get_type_func
   def is_structure(self, name):
     if self.is_local_structure():
@@ -212,41 +211,41 @@ class Symbols:
     self.table[self.__localrefs].clear()
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
+  def dump(self):
+    print('*** global variables')
+    for k in self.table[self.__vars].keys():
+      print(k)
+    print('***')
+    print('*** functions')
+    for k in self.table[self.__func].keys():
+      print(k)
+    print('***')
 
 class Namespaces:
   def __init__(self, get_type):
-    self.ns = [{}]
+    self.ns = {}
     self.get_type = get_type
     # init main namespace
-    self.ns[0]['main'] = Symbols(get_type_func=get_type)
+    self.ns['main'] = Symbols(get_type_func=get_type)
     self.current_namespace = 'main'
-  def is_local(self):
-    return len(self.ns) > 1
-  def set_local(self):
-    self.ns.append({})
-  def get_local_namespace(self):
-    if self.is_local():
-      return self.ns[-1]
-    return self.ns[0]
   def set_current_namespace(self, name):
     self.current_namespace = name
   def declare_namespace(self, name):
-    self.set_local()
-    ns = self.get_local_namespace()
-    if name in ns:
+    if name in self.ns:
       raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
-    ns[name] = Symbols(self.get_type)
+    self.ns[name] = Symbols(self.get_type)
     self.current_namespace = name
   def get_namespace(self, name):
     if not name:
-      name = self.current_namespace
-    for ns in reversed(self.ns):
-      if name in ns:
-        return ns[name]
-    raise ex.VarUndeclared(f'Espace-nom \'{name}\' non déclaré')
+      nm = self.current_namespace
+    else:
+      nm = name
+    if nm in self.ns:
+      return self.ns[nm]
+    raise ex.VarUndeclared(f'Espace-nom \'{nm}\' non déclaré')
   def reset(self):
     for namespace in self.ns:
       for _, symbols in namespace:
         symbols.reset()
     self.ns.clear()
-    self.ns.append({'main': Symbols(self.get_type)})
+    self.ns['main'] = Symbols(self.get_type)

@@ -360,7 +360,6 @@ class FunctionCall:
             t3, t4 = q
           case 2:
             t5, t6 = q
-
       ok = True
       if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
@@ -987,9 +986,10 @@ class UnixTimestamp:
     return 'Numérique'
 
 class Import:
-  def __init__(self, filename, parser, alias=None):
+  def __init__(self, filename, parser, lexer, alias=None):
     self.filename = filename
-    self.parser = deepcopy(parser)
+    self.parser = parser
+    self.lexer = lexer
     self.alias = alias
   def eval(self):
     libs.set_parser(self.parser)

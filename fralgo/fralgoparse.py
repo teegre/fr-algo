@@ -42,10 +42,10 @@ from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
-import fralgo.fralgolex as lex
+import fralgo.fralgolex as fralgolex
 from fralgo.ply.yacc import yacc
 
-tokens = lex.tokens
+tokens = fralgolex.tokens
 
 precedence = (
     ('left', 'EQ', 'NE'),
@@ -878,7 +878,7 @@ def p_error(p):
       value = p.value.replace('\n', '↵')
     except AttributeError:
       value = p.value
-    msg = f'Erreur de syntaxe >{value}<'
+    msg = f'Erreur de syntaxe > {value} <'
     if 'FRALGOREPL' not in os.environ:
       msg += f'\n-v- ligne {p.lineno}'
   else:

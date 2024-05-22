@@ -26,8 +26,9 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+from copy import deepcopy
 
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FralgoException, FatalError, print_err
 
 class LibMan:
   def __init__(self):
@@ -55,14 +56,22 @@ class LibMan:
     try:
       self.checklib(lib, libfile)
     except FatalError as e:
+      print_err(f'*** Librairie : {libfile}')
       raise e
-    statements = self.parser.parse(''.join(lib))
     if alias:
       self.namespaces.declare_namespace(alias)
     else:
       self.namespaces.declare_namespace(libfile)
-    statements.eval()
-    self.namespaces.set_current_namespace('main')
+    # print('import: parsing', libfile, self.namespaces.ns)
+    # self.lexer.begin('import')
+    try:
+      statements = self.parser.parse(''.join(lib), tracking=True)
+      statements.eval()
+    except FralgoException as e:
+      print_err(f'Librairie : {libfile}')
+      raise e
+    finally:
+      self.namespaces.set_current_namespace('main')
   def checklib(self, algocontent, libfile):
     start = False
     for line in algocontent:

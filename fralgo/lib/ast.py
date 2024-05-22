@@ -427,6 +427,8 @@ class FunctionCall:
       if result is not None:
         self._check_returned_type(func.return_type, result)
         return result
+      else:
+        raise FralgoException(f'{self.name} : instruction >Retourne< absente')
     except FralgoException as e:
       raise e
     finally:

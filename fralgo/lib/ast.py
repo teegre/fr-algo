@@ -224,7 +224,6 @@ class SizeOf:
   def __repr__(self):
     return f'Taille({self.var})'
 
-
 class TableKeyExists:
   def __init__(self, var, key):
     self.var = var
@@ -314,12 +313,12 @@ class StructureSetItem:
 
 class Function:
   '''A function definition'''
-  def __init__(self, name, params, body, return_type=None, namespace=None):
+  def __init__(self, name, params, body, return_type=None):
     self.name = name # str
     self.params = params # [(name, datatype)]
     self.body = body # Node
     self.return_type = return_type # str
-    self.namespace = namespace
+    self.namespace = namespaces.current_namespace
     if return_type is None:
       self.ftype = 'Procédure'
   def eval(self):
@@ -336,8 +335,8 @@ class FunctionCall:
   def __init__(self, name, params, namespace=None):
     self.name = name
     self.params = params
-    self.namespace = namespace
-    print(f'{namespace}:{name}')
+    self.namespace = namespace if namespace else namespaces.current_namespace
+    print(f'Function call {namespace}:{name}')
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
@@ -392,9 +391,8 @@ class FunctionCall:
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
+    breakpoint()
     sym = namespaces.get_namespace(self.namespace)
-    print(self.namespace)
-    sym.dump()
     func = sym.get_function(self.name)
     params = func.params
     sym.set_local()

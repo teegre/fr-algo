@@ -166,11 +166,12 @@ class DeclareStruct:
     return f'Structure {self.name} {self.fields}'
 
 class ArrayGetItem:
-  def __init__(self, var, *indexes):
+  def __init__(self, var, *indexes, namespace=None):
     self.var = var
     self.indexes = indexes
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     try:
       var = self.var.eval()
     except AttributeError:
@@ -259,11 +260,12 @@ class TableGetValues:
     return f'Valeurs({self.var})'
 
 class StructureGetItem:
-  def __init__(self, var, field):
+  def __init__(self, var, field, namespace=None):
     self.var = var
     self.field = field
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = sym.get_variable(self.var[0])
@@ -284,12 +286,13 @@ class StructureGetItem:
     return f'{self.var}.{self.field}'
 
 class StructureSetItem:
-  def __init__(self, var, field, value):
+  def __init__(self, var, field, value, namespace=None):
     self.var = var
     self.field = field
     self.value = value
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = sym.get_variable(self.var[0])
@@ -311,15 +314,16 @@ class StructureSetItem:
 
 class Function:
   '''A function definition'''
-  def __init__(self, name, params, body, return_type=None):
+  def __init__(self, name, params, body, return_type=None, namespace=None):
     self.name = name # str
     self.params = params # [(name, datatype)]
     self.body = body # Node
     self.return_type = return_type # str
+    self.namespace = namespace
     if return_type is None:
       self.ftype = 'Procédure'
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     sym.declare_function(self)
   def __repr__(self):
     params = [f'{param} en {datatype}' for param, datatype in self.params]
@@ -329,9 +333,11 @@ class Function:
 
 class FunctionCall:
   '''Function call'''
-  def __init__(self, name, params):
+  def __init__(self, name, params, namespace=None):
     self.name = name
     self.params = params
+    self.namespace = namespace
+    print(f'{namespace}:{name}')
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
@@ -386,7 +392,9 @@ class FunctionCall:
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
+    print(self.namespace)
+    sym.dump()
     func = sym.get_function(self.name)
     params = func.params
     sym.set_local()
@@ -438,10 +446,11 @@ class FunctionCall:
     return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
-  def __init__(self, expression):
+  def __init__(self, expression, namespace=None):
     self.expression = expression
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if sym.is_local_function():
       return self.expression.eval()
     raise FralgoException('Erreur de syntaxe : Retourne en dehors d\'une fonction')
@@ -460,36 +469,37 @@ class Assign:
     return f'{self.var} ← {self.value}'
 
 class Variable:
-  def __init__(self, name):
+  def __init__(self, name, namespace=None):
     self.name = name
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     var = sym.get_variable(self.name)
     if isinstance(var, (Boolean, Number, String)):
       return var.eval()
     return var
   def __repr__(self):
     try:
-      sym = namespaces.get_namespace(name=None)
+      sym = namespaces.get_namespace(self.namespace)
       value = sym.get_variable(self.name)
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     var = sym.get_variable(self.name)
     return var.data_type
   @property
   def key_type(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if self.data_type == 'Table':
       var = sym.get_variable(self.name)
       return var.key_type
     raise BadType(f'La variable {self.name} n\'est pas de type Table')
   @property
   def value_type(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if self.data_type == 'Table':
       var = sym.get_variable(self.name)
       return var.value_type
@@ -687,15 +697,16 @@ class While:
     return f'TantQue {self.condition} → {self.dothis}'
 
 class For:
-  def __init__(self, v, b, e, dt, nv, s=Integer(1)):
+  def __init__(self, v, b, e, dt, nv, s=Integer(1), namespace=None):
     self.var = v.name
     self.start = b
     self.end = e
     self.step = s
     self.dothis = dt
     self.var_next = nv.name
+    self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    sym = namespaces.get_namespace(self.namespace)
     if self.var != self.var_next:
       raise FralgoException(f'Pour >{self.var}< ... >{self.var_next}< Suivant')
     i = self.start.eval()
@@ -986,10 +997,9 @@ class UnixTimestamp:
     return 'Numérique'
 
 class Import:
-  def __init__(self, filename, parser, lexer, alias=None):
+  def __init__(self, filename, parser, alias=None):
     self.filename = filename
     self.parser = parser
-    self.lexer = lexer
     self.alias = alias
   def eval(self):
     libs.set_parser(self.parser)

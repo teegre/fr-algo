@@ -56,19 +56,17 @@ class LibMan:
     try:
       self.checklib(lib, libfile)
     except FatalError as e:
-      print_err(f'*** Librairie : {libfile}')
+      print_err(f'Librairie : {libfile}.algo')
       raise e
     if alias:
       self.namespaces.declare_namespace(alias)
     else:
       self.namespaces.declare_namespace(libfile)
-    # print('import: parsing', libfile, self.namespaces.ns)
-    # self.lexer.begin('import')
     try:
-      statements = self.parser.parse(''.join(lib), tracking=True)
+      statements = self.parser.parse(''.join(lib))
       statements.eval()
     except FralgoException as e:
-      print_err(f'Librairie : {libfile}')
+      print_err(f'Librairie : {libfile}.algo')
       raise e
     finally:
       self.namespaces.set_current_namespace('main')

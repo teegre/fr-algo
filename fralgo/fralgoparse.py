@@ -45,6 +45,8 @@ from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as fralgolex
 from fralgo.ply.yacc import yacc
 
+namespace = ['main']
+
 tokens = fralgolex.tokens
 
 precedence = (
@@ -54,6 +56,7 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV', 'MODULO'),
     ('left', 'POWER'),
+    ('left', 'COLON'),
     ('right', 'UMINUS'),
     ('right', 'UET'),
 )
@@ -536,12 +539,17 @@ def p_function_call(p):
   '''
   expression : ID LPAREN expressions RPAREN
              | ID LPAREN RPAREN
+             | ID COLON ID LPAREN expressions RPAREN
+             | ID COLON ID LPAREN RPAREN
   '''
   if len(p) == 5:
     params = p[3]
   else:
     params = None
-  p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
+  ns = namespace[-1] if namespace[-1] != 'main' else None
+  p[0] = Node(FunctionCall(p[1], params, ns), p.lineno(1))
+  if ns is not None:
+    namespace.pop()
 
 def p_procedure_declaration(p):
   '''
@@ -871,6 +879,13 @@ def p_expression_uminus(p):
   expression : MINUS expression %prec UMINUS
   '''
   p[0] = Neg(p[2])
+
+def p_expression_namespace(p):
+  '''
+  expression : ID COLON expression
+  '''
+  namespace.append(p[1])
+  p[0] = p[3]
 
 def p_error(p):
   if p:

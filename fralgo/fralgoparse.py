@@ -249,10 +249,14 @@ def p_d_var(p):
 
 def p_var(p):
   '''
-  var : ID
+  var : ID COLON ID
+      | ID
   '''
   # A variable.
-  p[0] = Variable(p[1])
+  if len(p) == 4:
+    p[0] = Variable(p[3], p[1])
+  else:
+    p[0] = Variable(p[1])
 
 def p_type(p):
   '''

@@ -56,7 +56,6 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MUL', 'DIV', 'MODULO'),
     ('left', 'POWER'),
-    # ('right', 'COLON'),
     ('right', 'UMINUS'),
     ('right', 'UET'),
 )
@@ -461,6 +460,16 @@ def p_structure_get_item(p):
   else:
     p[0] = StructureGetItem(p[1][0], p[1][1])
 
+def p_namespace(p):
+  '''
+  namespace : ID COLON ID
+            | ID
+  '''
+  if len(p) == 4:
+    p[0] = [p[1], p[3]]
+  else:
+    p[0] = p[1]
+
 def p_function_declaration(p):
   '''
   function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
@@ -536,28 +545,19 @@ def p_parameter(p):
   else:
     p[0] = [(p[1], p[3])]
 
-def p_expression_namespace(p):
-  '''
-  expression : ID COLON expression
-  '''
-  print('NAMESPACE')
-  namespaces.append(p[1])
-  p[0] = p[3]
-
 def p_function_call(p):
   '''
-  expression : ID LPAREN expressions RPAREN
-             | ID LPAREN RPAREN
-             | ID COLON ID LPAREN expressions RPAREN
-             | ID COLON ID LPAREN RPAREN
+  expression : namespace LPAREN expressions RPAREN
+             | namespace LPAREN RPAREN
   '''
-  print('FUNCTION CALL')
   if len(p) == 5:
     params = p[3]
   else:
     params = None
-  ns = namespaces.pop() if namespaces else None
-  p[0] = Node(FunctionCall(p[1], params, ns), p.lineno(1))
+  if isinstance(p[1], list):
+    p[0] = Node(FunctionCall(p[1][1], params, p[1][0]), p.lineno(1))
+  else:
+    p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
 
 def p_procedure_declaration(p):
   '''

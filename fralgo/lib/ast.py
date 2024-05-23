@@ -32,7 +32,6 @@ import operator
 from time import sleep
 from random import random
 from datetime import datetime
-from copy import deepcopy
 
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
@@ -336,7 +335,6 @@ class FunctionCall:
     self.name = name
     self.params = params
     self.namespace = namespace if namespace else namespaces.current_namespace
-    print(f'Function call {namespace}:{name}')
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
@@ -391,7 +389,6 @@ class FunctionCall:
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
-    breakpoint()
     sym = namespaces.get_namespace(self.namespace)
     func = sym.get_function(self.name)
     params = func.params
@@ -427,17 +424,20 @@ class FunctionCall:
         sym.assign_value(n, values[i])
     # function body
     body = func.body
+    current_namespace = namespaces.current_namespace
+    namespaces.set_current_namespace(self.namespace)
     try:
       result = body.eval()
       if result is not None:
         self._check_returned_type(func.return_type, result)
         return result
-      else:
+      elif func.ftype == 'Fonction':
         raise FralgoException(f'{self.name} : instruction >Retourne< absente')
     except FralgoException as e:
       raise e
     finally:
       sym.del_local()
+      namespaces.set_current_namespace(current_namespace)
     return None
   def __repr__(self):
     params = [str(param) for param in self.params]

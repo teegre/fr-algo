@@ -244,8 +244,7 @@ class Namespaces:
       return self.ns[nm]
     raise ex.VarUndeclared(f'Espace-nom \'{nm}\' non déclaré')
   def reset(self):
-    for namespace in self.ns:
-      for _, symbols in namespace:
-        symbols.reset()
+    for _, symbols in self.ns.items():
+      symbols.reset()
     self.ns.clear()
     self.ns['main'] = Symbols(self.get_type)

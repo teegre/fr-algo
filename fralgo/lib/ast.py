@@ -170,11 +170,10 @@ class ArrayGetItem:
     self.indexes = indexes
     self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
     try:
       var = self.var.eval()
     except AttributeError:
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var, self.namespace)
     return var.get_item(*self.indexes)
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
@@ -263,10 +262,9 @@ class StructureGetItem:
     self.field = field
     self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = sym.get_variable(self.var[0])
+        structure = namespaces.get_variable(self.var[0], self.namespace)
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -275,7 +273,7 @@ class StructureGetItem:
     if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
       var = self.var.eval()
     else:
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var, self.namespace)
     try:
       return var.get_item(self.field)
     except AttributeError:
@@ -290,10 +288,9 @@ class StructureSetItem:
     self.value = value
     self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
-        structure = sym.get_variable(self.var[0])
+        structure = namespaces.get_variable(self.var[0], self.namespace)
         for f, field in enumerate(self.var):
           if f == 0:
             continue
@@ -302,7 +299,7 @@ class StructureSetItem:
     elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var, self.namespace)
     if isinstance (self.value, list):
       var.set_value(self.value, None)
     else:
@@ -335,6 +332,7 @@ class FunctionCall:
     self.name = name
     self.params = params
     self.namespace = namespace if namespace else namespaces.current_namespace
+    self.cnamespace = namespaces.current_namespace
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
@@ -389,10 +387,9 @@ class FunctionCall:
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
-    func = sym.get_function(self.name)
+    func = namespaces.get_function(self.name, self.namespace)
     params = func.params
-    sym.set_local()
+    namespaces.set_local(self.namespace)
     if params is not None:
       # check parameter count
       self._check_param_count(params)
@@ -400,17 +397,24 @@ class FunctionCall:
       self._check_datatypes(params)
       # False if param is a Reference, True otherwise.
       types = [not isinstance(param[0], Reference) for param in params]
-      # Eval params only when needed
+      # Evaluate everything but References
       values = [param.eval() if types[i] else param for i, param in enumerate(self.params)]
       # set variables
+      sym = namespaces.get_namespace(self.namespace)
       for i, param in enumerate(params):
+        # breakpoint()
+        if isinstance(self.params[i], Variable):
+          if self.params[i].namespace is None:
+            self.params[i].namespace = self.cnamespace
         if isinstance(param[0], Reference):
           sym.declare_ref(param[0].name, self.params[i])
           continue
         if len(param) == 4: # Array
           n, _, t, s = param
           if s == -1:
-            array = sym.get_variable(self.params[i].name)
+            array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
+            if array is None:
+              array = self.params[i].eval()
             sym.declare_array(n, t, *array.indexes)
           else:
             sym.declare_array(n, t, *s)
@@ -424,20 +428,19 @@ class FunctionCall:
         sym.assign_value(n, values[i])
     # function body
     body = func.body
-    current_namespace = namespaces.current_namespace
     namespaces.set_current_namespace(self.namespace)
     try:
       result = body.eval()
       if result is not None:
         self._check_returned_type(func.return_type, result)
         return result
-      elif func.ftype == 'Fonction':
+      if func.ftype == 'Fonction':
         raise FralgoException(f'{self.name} : instruction >Retourne< absente')
     except FralgoException as e:
       raise e
     finally:
-      sym.del_local()
-      namespaces.set_current_namespace(current_namespace)
+      namespaces.del_local(self.namespace)
+      namespaces.set_current_namespace(self.cnamespace)
     return None
   def __repr__(self):
     params = [str(param) for param in self.params]
@@ -471,35 +474,30 @@ class Variable:
     self.name = name
     self.namespace = namespace
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
-    var = sym.get_variable(self.name)
-    if isinstance(var, (Boolean, Number, String)):
+    var = namespaces.get_variable(self.name, self.namespace)
+    if isinstance(var, (Boolean, Number, String, Variable)):
       return var.eval()
     return var
   def __repr__(self):
     try:
-      sym = namespaces.get_namespace(self.namespace)
-      value = sym.get_variable(self.name)
+      value = namespaces.get_variable(self.name, self.namespace)
       return f'{self.name} → {value}'
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
   @property
   def data_type(self):
-    sym = namespaces.get_namespace(self.namespace)
-    var = sym.get_variable(self.name)
+    var = namespaces.get_variable(self.name, self.namespace)
     return var.data_type
   @property
   def key_type(self):
-    sym = namespaces.get_namespace(self.namespace)
     if self.data_type == 'Table':
-      var = sym.get_variable(self.name)
+      var = namespaces.get_variable(self.name, self.namespace)
       return var.key_type
     raise BadType(f'La variable {self.name} n\'est pas de type Table')
   @property
   def value_type(self):
-    sym = namespaces.get_namespace(self.namespace)
     if self.data_type == 'Table':
-      var = sym.get_variable(self.name)
+      var = namespaces.get_variable(self.name, self.namespace)
       return var.value_type
     raise BadType(f'La variable {self.name} n\'est pas de type Table')
 
@@ -833,14 +831,13 @@ class ReadFile:
     self.fd_number = fd
     self.var = var
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
     if isinstance(self.var, ArrayGetItem):
       var = self.var.eval()
     else:
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var, namespace=None)
     value = fd.read()
     var.set_value(value)
   def __repr__(self):

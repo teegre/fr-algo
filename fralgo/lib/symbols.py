@@ -142,8 +142,7 @@ class Symbols:
     if self.is_local():
       for references in reversed(self.__localrefs):
         if name in references:
-          var = references[name]
-          return var
+          return references[name]
       for variables in reversed(self.table[self.__local]):
         if name in variables:
           return variables[name]

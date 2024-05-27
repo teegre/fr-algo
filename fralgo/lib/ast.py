@@ -339,6 +339,8 @@ class Function:
     self.namespace = namespaces.current_namespace
     if return_type is None:
       self.ftype = 'Procédure'
+    else:
+      self.ftype = 'Fonction'
   def eval(self):
     sym = namespaces.get_namespace(self.namespace)
     sym.declare_function(self)
@@ -454,6 +456,8 @@ class FunctionCall:
     try:
       result = body.eval()
       if result is not None:
+        if func.ftype == 'Procédure':
+          raise FralgoException(f'{self.name} : instruction >Retourne< inattendue')
         self._check_returned_type(func.return_type, result)
         return result
       if func.ftype == 'Fonction':
@@ -496,8 +500,9 @@ class Variable:
     self.name = name
     self.namespace = namespace
   def eval(self):
-    var = namespaces.get_variable(self.name, self.namespace)
-    if isinstance(var, (Boolean, Number, String)):
+    sym = namespaces.get_namespace(self.namespace)
+    var = sym.get_variable(self.name)
+    if isinstance(var, (Boolean, Number, String, Variable)):
       return var.eval()
     return var
   def __repr__(self):

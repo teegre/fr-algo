@@ -1,9 +1,40 @@
 Librairie
 
+Tableau t[] en Entier
+Variable i en Entier
+
 Fonction fact(n en Entier) en Entier
   Si n = 0 Alors
     Retourne 1
   FinSi
   Retourne fact(n - 1) * n
 FinFonction
+
+Fonction somme(t[] en Entier) en Entier
+  Variables i, s en Entier
+  s <- 0
+  Pour i <- 0 à Taille(t) - 1
+    s <- s + t[i]
+  i Suivant
+  Retourne s
+FinFonction
+
+Procédure remplir(&t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à Taille(t) - 1
+    t[i] <- Entier(Aléa() * 9 + 1)
+  i Suivant
+FinProcédure
+
+Procédure afficher(&t[] en Entier)
+  Variable i en Entier
+  Pour i <- 0 à Taille(t) - 1
+    Ecrire t[i], "" \
+  i Suivant
+  Ecrire ""
+FinProcédure
+
+Initialise
+  Redim t[8]
+  remplir(t)
 

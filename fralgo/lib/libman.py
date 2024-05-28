@@ -26,7 +26,6 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
-from copy import deepcopy
 
 from fralgo.lib.exceptions import FralgoException, FatalError, print_err
 
@@ -35,6 +34,7 @@ class LibMan:
     self.parser = None
     self.mainfile = None
     self.__path = None
+    self.namespaces = None
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
     if mainfile is not None:
@@ -61,7 +61,8 @@ class LibMan:
     if alias:
       self.namespaces.declare_namespace(alias)
     else:
-      self.namespaces.declare_namespace(libfile)
+      print(libfile)
+      self.namespaces.declare_namespace(libfile.replace('/', '_'))
     try:
       statements = self.parser.parse(''.join(lib))
       statements.eval()

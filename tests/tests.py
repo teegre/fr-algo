@@ -62,13 +62,13 @@ class Test(unittest.TestCase):
      Redim elements[index]
      elements[index] <- chaine
     FinProcédure
-    Tableau tableau[] en Chaîne
+    Tableau elements[] en Chaîne
     Variables test1, test2 en Booléen
     Début
       Ecrire "16. Test procédure et passage de variable par référence"
-      scinder("TEST=REUSSI", "=", tableau)
-      test1 <- tableau[0] = "TEST"
-      test2 <- tableau[1] = "REUSSI"
+      scinder("TEST=REUSSI", "=", elements)
+      test1 <- elements[0] = "TEST"
+      test2 <- elements[1] = "REUSSI"
       Ecrire test1, test2
     Fin'''
 

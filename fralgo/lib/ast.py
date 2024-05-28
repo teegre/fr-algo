@@ -60,55 +60,40 @@ class Node:
       self.children.append(child)
   def eval(self):
     result = None
-    if self.statement:
-      result = self.statement.eval()
-      if result is not None:
-        return result
-    if self.children:
-      for statement in self.children:
-        result = statement.eval()
+    try:
+      if self.statement:
+        result = self.statement.eval()
         if result is not None:
           return result
-    return result
-
-# class Node:
-#   def __init__(self, statement=None, lineno=0):
-#     self.children = [statement] if statement else []
-#     self.lineno = lineno
-#   def append(self, statement):
-#     if statement is not None:
-#       self.children.append(statement)
-#   def eval(self):
-#     result = None
-#     for statement in self.children:
-#       try:
-#         result = statement.eval()
-#         if result is not None:
-#           return result
-#       except RecursionError:
-#         print_err('STOP : excès de récursivité !')
-#         if 'FRALGOREPL' not in os.environ:
-#           print_err(f'Ligne {self.lineno}')
-#           print('\033[?25h\033[0m', end='')
-#           sys.exit(666)
-#         raise FralgoInterruption('')
-#       except FatalError as e:
-#         print_err(f'{e.message}')
-#         if 'FRALGOREPL' not in os.environ:
-#           print_err(f'Ligne {self.lineno}')
-#           print('\033[?25h\033[0m', end='')
-#           sys.exit(666)
-#         raise FralgoInterruption('')
-#       except FralgoException as e:
-#         if e.message:
-#           print_err(e.message)
-#         if 'FRALGOREPL' not in os.environ:
-#           print_err(f'Ligne {self.lineno}')
-#           print_err('Erreur fatale')
-#           print('\033[?25h\033[0m', end='')
-#           sys.exit(666)
-#         raise FralgoInterruption('')
-#     return result
+      if self.children:
+        for statement in self.children:
+          result = statement.eval()
+          if result is not None:
+            return result
+      return result
+    except RecursionError:
+      print_err('STOP : excès de récursivité !')
+      if 'FRALGOREPL' not in os.environ:
+        print_err(f'Ligne {self.lineno}')
+        print('\033[?25h\033[0m', end='')
+        sys.exit(666)
+      raise FralgoInterruption('')
+    except FatalError as e:
+      print_err(f'{e.message}')
+      if 'FRALGOREPL' not in os.environ:
+        print_err(f'Ligne {self.lineno}')
+        print('\033[?25h\033[0m', end='')
+        sys.exit(666)
+      raise FralgoInterruption('')
+    except FralgoException as e:
+      if e.message:
+        print_err(e.message)
+      if 'FRALGOREPL' not in os.environ:
+        print_err(f'Ligne {self.lineno}')
+        print_err('Erreur fatale')
+        print('\033[?25h\033[0m', end='')
+        sys.exit(666)
+      raise FralgoInterruption('')
   def __getitem__(self, start=0, end=0):
     return self.children[start:end] if end != 0 else self.children[start]
   def __iter__(self):

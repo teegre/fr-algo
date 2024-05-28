@@ -138,11 +138,21 @@ class Symbols:
       var.set_array(value)
     else:
       var.set_value(value)
-  def get_variable(self, name):
+  def get_variable(self, name, visited=None):
     if self.is_local():
+      if visited is None:
+        visited = set()
+      elif name in visited:
+        return None
       for references in reversed(self.__localrefs):
         if name in references:
-          return references[name]
+          visited.add(name)
+          var = references[name]
+          if var.namespace != self.namespace and self.namespace is not None:
+            return var.eval()
+          resolved = self.get_variable(var.name, visited)
+          if resolved is not None:
+            return resolved
       for variables in reversed(self.table[self.__local]):
         if name in variables:
           return variables[name]

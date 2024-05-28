@@ -323,8 +323,14 @@ def p_array_indexes(p):
 def p_array_index(p):
   '''
   array_index : expression
+              | empty
   '''
   p[0] = [p[1]]
+
+
+def p_empty(p):
+  'empty :'
+  pass
 
 def p_array_resize(p):
   '''
@@ -413,7 +419,10 @@ def p_var_assignment(p):
                  | ID ARROW sequence NEWLINE
                  | array_access ARROW sequence NEWLINE
   '''
-  if not isinstance(p[3], list): # Basic type
+  if isinstance(p[1], list): # sequence to array
+    assignment = ArraySetItem(p[1][0], p[3])
+    p[0] = Node(assignment, p.lineno(1))
+  elif not isinstance(p[3], list): # Basic type
     assignment = Assign(p[1], p[3])
     p[0] = Node(assignment, p.lineno(1))
   else: # Structure
@@ -425,6 +434,7 @@ def p_var_assignment(p):
 def p_array_assignment(p):
   '''
   array_assignment : array_access ARROW expression NEWLINE
+                   | ID ARROW sequence NEWLINE
   '''
   p[0] = Node(ArraySetItem(p[1][0], p[3], *p[1][1]), p.lineno(1))
 

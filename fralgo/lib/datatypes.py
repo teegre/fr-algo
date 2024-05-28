@@ -281,7 +281,7 @@ class Array(Base):
     return [self.new_array(*sizes[1:]) for _ in range(sizes[0])]
   def _validate_index(self, index):
     if len(index) != len(self.sizes):
-      raise VarUndefined('Redimendionnement impossible')
+      raise VarUndefined('Index invalide')
     for i, size in enumerate(index):
       if size < 0 or size >= self.indexes[i] + 1:
         raise IndexOutOfRange(f'Index hors limite : {size}')
@@ -295,7 +295,10 @@ class Array(Base):
     for index in indexes:
       idx = index
       while not isinstance(idx, int):
-        idx = idx.eval()
+        try:
+          idx = idx.eval()
+        except AttributeError:
+          raise BadType('Index manquant')
       idxs.append(idx)
     return tuple(idxs)
   def get_item(self, *indexes):
@@ -329,8 +332,23 @@ class Array(Base):
     if isinstance(datatype, tuple): # sized char
       typed_value = Char(value.eval(), datatype[1])
       datatype = self.datatype
-    else:
-      typed_value = map_type(value.eval())
+    if isinstance(value, list) and indexes is None: # sequence to array
+      if len(self.sizes) > 1:
+        raise BadType('Interdit : Affectation directe de valeurs à un tableau multidimensionnel')
+      if len(self.indexes) == 1 and self.indexes[0] == -1:
+        raise BadType('Tableau non dimensionné')
+      if self.sizes[0] != len(value):
+        raise BadType('Nombre de valeurs invalide')
+      array = self.new_array(len(value))
+      for i, n in enumerate(value):
+        if n.data_type != datatype:
+          raise BadType(f'Type {datatype} attendu')
+        array[i] = n.eval()
+      self.value = array
+      return
+    if value is None:
+      raise BadType('Erreur de syntaxe : [] manquants')
+    typed_value = map_type(value.eval())
     if typed_value.data_type != datatype:
       raise BadType(f'Type {datatype} attendu ({typed_value.data_type})')
     idxs = self._eval_indexes(*indexes)

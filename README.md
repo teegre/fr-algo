@@ -754,6 +754,8 @@ Procédure remplir(&t[] en Entier, taille en Entier)
 FinProcédure
 ```
 
+Note : une procédure ne retourne <u>jamais</u> de valeur.
+
 ### Appel
 
 ```
@@ -771,8 +773,7 @@ Dans l'exemple précédent, le tableau `tab[]` est passé par référence (`&t[]
 en paramètre de la procédure. C'est-à-dire que la variable ___globale___ `tab` est directement modifiée dans la procédure.
 
 En ce qui concerne le paramètre `taille`, au contraire, seule la valeur de `n`, soit `8`
-dans notre exemple, est passée. Une variable `taille` est d'abord créée ___localement___
-lors de l'appel à la procédure `remplir`. Puis la valeur `8` est affectée à `taille`.
+dans notre exemple, est passée. Lors de l'appele à la procédure `remplir`, une variable `taille` est créée ___localement___ et la valeur `8` est affectée à `taille`.
 Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée, laissant
 intacte la variable originale `n`.
 
@@ -823,9 +824,10 @@ on utilise le mot réservé `Initialise` :
 .
 ..
 lib/
-|__ ma_librairie.algo
+|__ librairie.algo
 |
-|_ mon_projet.algo
+|_ projet.algo
+|_ utilitaires.algo
 ```
 
 ```
@@ -845,15 +847,35 @@ FinProcédure
 Initialise
   ma_variable <- "Bonjour"
 
+# Utilitaires
+Librairie
+
+Fonction date() en Chaîne
+  ...
+FinFonction
+
+Fonction heure() en Chaîne
+  ...
+FinFonction
+
 # Mon projet
-Importer "lib/ma_librairie"
+# La fonction 'Importer' permet d'inclure une librairie
+Importer "lib/librairie"
 
 Début
-  ma_fonction(...)
-  ma_procedure(...)
-  Ecrire ma_variable
+  # On accède aux membres d'une librairie de la manière suivante :
+  # (Les barres obliques du chemin sont remplacées par des tirets de soulignement)
+  lib_librairie:ma_fonction(...)
+  lib_librairie:ma_procedure(...)
+  Ecrire lib_librairie:ma_variable
 Fin
 
+# Il est également possible de définir un 'alias' pour une librairie :
+Importer "utilitaires" Alias utils
+
+Début
+  Ecrire utils:date(), utils:heure()
+Fin
 ```
 ## Arguments de la ligne de commande <a name="argument"></a>
 

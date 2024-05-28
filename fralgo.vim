@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/05/14
+" Last change: 2024/05/28
 
 if exists("b:current_syntax")
   finish
@@ -31,7 +31,7 @@ syn match BinOp "OUX"
 
 syn match Assignment "←\|<-"
 
-syn keyword Import Importer
+syn keyword Import Importer Alias
 syn keyword VarDeclaration Variable Variables Tableau Tableaux
 syn keyword Structure Structure FinStructure Table FinTable
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique

@@ -42,10 +42,12 @@ from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
-import fralgo.fralgolex as lex
+import fralgo.fralgolex as fralgolex
 from fralgo.ply.yacc import yacc
 
-tokens = lex.tokens
+namespaces = []
+
+tokens = fralgolex.tokens
 
 precedence = (
     ('left', 'EQ', 'NE'),
@@ -92,8 +94,12 @@ def p_program(p):
 def p_import_statement(p):
   '''
   import_statement : IMPORT STRING NEWLINE
+                   | IMPORT STRING ALIAS ID NEWLINE
   '''
-  p[0] = Node(Import(p[2], yacc()), p.lineno(1))
+  if len(p) == 6:
+    p[0] = Node(Import(p[2], yacc(), p[4]), p.lineno(1))
+  else:
+    p[0] = Node(Import(p[2], yacc()), p.lineno(1))
 
 def p_table_declaration(p):
   '''
@@ -243,10 +249,14 @@ def p_d_var(p):
 
 def p_var(p):
   '''
-  var : ID
+  var : ID COLON ID
+      | ID
   '''
   # A variable.
-  p[0] = Variable(p[1])
+  if len(p) == 4:
+    p[0] = Variable(p[3], p[1])
+  else:
+    p[0] = Variable(p[1])
 
 def p_type(p):
   '''
@@ -454,11 +464,22 @@ def p_structure_get_item(p):
   else:
     p[0] = StructureGetItem(p[1][0], p[1][1])
 
+def p_namespace(p):
+  '''
+  namespace : ID COLON ID
+            | ID
+  '''
+  if len(p) == 4:
+    p[0] = [p[1], p[3]]
+  else:
+    p[0] = p[1]
+
 def p_function_declaration(p):
   '''
   function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
                        | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
   '''
+
   if len(p) == 12:
     p[0] = Node(Function(p[2], p[4], p[9], p[7]), p.lineno(1))
   else:
@@ -530,14 +551,17 @@ def p_parameter(p):
 
 def p_function_call(p):
   '''
-  expression : ID LPAREN expressions RPAREN
-             | ID LPAREN RPAREN
+  expression : namespace LPAREN expressions RPAREN
+             | namespace LPAREN RPAREN
   '''
   if len(p) == 5:
     params = p[3]
   else:
     params = None
-  p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
+  if isinstance(p[1], list):
+    p[0] = Node(FunctionCall(p[1][1], params, p[1][0]), p.lineno(1))
+  else:
+    p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
 
 def p_procedure_declaration(p):
   '''
@@ -874,7 +898,7 @@ def p_error(p):
       value = p.value.replace('\n', '↵')
     except AttributeError:
       value = p.value
-    msg = f'Erreur de syntaxe >{value}<'
+    msg = f'Erreur de syntaxe > {value} <'
     if 'FRALGOREPL' not in os.environ:
       msg += f'\n-v- ligne {p.lineno}'
   else:

@@ -1,0 +1,15 @@
+Importer "importlib" Alias lib
+
+Tableau u[8] en Entier
+
+Début
+  Ecrire "lib:t contient : " \
+  lib:afficher(lib:t)
+  Ecrire "La somme de lib:t est égale à ",  lib:somme(lib:t)
+  Ecrire "Remplissage du tableau u[]"
+  lib:remplir(u)
+  Ecrire "u contient : " \
+  lib:afficher(u)
+  Ecrire "La somme de u est égale à ",  lib:somme(u)
+  Ecrire "Et voilà !"
+Fin

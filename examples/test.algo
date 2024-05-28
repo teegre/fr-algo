@@ -1,5 +1,5 @@
 Variable longueur en Entier
-Variable mot en Chaîne
+Variable m en Chaîne
 Tableau t[7,7] en Entier
 Tableau t2[7] en Entier
 
@@ -31,13 +31,24 @@ Fonction alealettre() en Caractère
   Retourne Car(Entier(Aléa()*25+65))
 FinFonction
 
-Procédure gen_mot(&mot en Chaîne, long en Entier)
+# Procédure gen_mot(&mot en Chaîne, long en Entier)
+#   Variable i en Entier
+#   Ecrire "HELLO?"
+#   mot <- ""
+#   Pour i <- 1 à long
+#     mot <- mot & alealettre()
+#   i Suivant
+# FinProcédure
+
+Fonction gen_mot(long en Entier) en Chaîne
   Variable i en Entier
-  mot <- ""
+  Variable m en Chaîne
+  m <- ""
   Pour i <- 1 à long
-    mot <- mot & alealettre()
+    m <- m & alealettre()
   i Suivant
-FinProcédure
+  Retourne m
+FinFonction
 
 Procédure remplir_tableau(&t[7,7] en Entier)
   Variables i, j en Entier
@@ -83,6 +94,6 @@ Début
   Ecrire ""
   remplir_tableau_simple(t2)
   affiche_tableau_simple(t2)
-  gen_mot(mot, 10)
-  Ecrire mot
+  m <- gen_mot(10)
+  Ecrire m
 Fin

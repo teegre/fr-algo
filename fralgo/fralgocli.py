@@ -33,8 +33,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.lib.datatypes import map_type
 from fralgo.fralgoparse import parser
-from fralgo.lib.ast import libs, sym
+from fralgo.lib.ast import libs, namespaces
 from fralgo.lib.exceptions import FatalError, print_err
+
+sym = namespaces.get_namespace('main')
 
 def main():
   try:

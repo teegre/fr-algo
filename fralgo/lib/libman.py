@@ -27,13 +27,14 @@
 
 import os
 
-from fralgo.lib.exceptions import FatalError
+from fralgo.lib.exceptions import FralgoException, FatalError, print_err
 
 class LibMan:
   def __init__(self):
     self.parser = None
     self.mainfile = None
     self.__path = None
+    self.namespaces = None
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
     if mainfile is not None:
@@ -42,7 +43,9 @@ class LibMan:
       self.__path = os.getcwd()
   def set_parser(self, parser):
     self.parser = parser
-  def import_lib(self, libfile):
+  def set_namespaces(self, ns):
+    self.namespaces = ns
+  def import_lib(self, libfile, alias=None):
     libpath = os.path.join(self.path, libfile + '.algo')
     try:
       with open(libpath, 'r', encoding='utf-8') as f:
@@ -53,9 +56,21 @@ class LibMan:
     try:
       self.checklib(lib, libfile)
     except FatalError as e:
+      print_err(f'Librairie : {libfile}.algo')
       raise e
-    statements = self.parser.parse(''.join(lib))
-    statements.eval()
+    if alias:
+      self.namespaces.declare_namespace(alias)
+    else:
+      print(libfile)
+      self.namespaces.declare_namespace(libfile.replace('/', '_'))
+    try:
+      statements = self.parser.parse(''.join(lib))
+      statements.eval()
+    except FralgoException as e:
+      print_err(f'Librairie : {libfile}.algo')
+      raise e
+    finally:
+      self.namespaces.set_current_namespace('main')
   def checklib(self, algocontent, libfile):
     start = False
     for line in algocontent:

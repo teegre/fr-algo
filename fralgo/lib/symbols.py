@@ -33,26 +33,25 @@ class Symbols:
   __vars         = 'variables'
   __structs      = 'structures'
   __local        = 'local'
-  __localrefs    = 'localrefs'
   __localfunc    = 'localfunctions'
   __localstructs = 'localstructs'
 
-  table = {
-    __func         : {},
-    __vars         : {},
-    __structs      : {},
-    __localrefs    : [],
-    __local        : [],
-    __localfunc    : [],
-    __localstructs : [],
-  }
+  __localrefs    = []
 
 # TODO: ORDER METHODS
 
-  def __init__(self, get_type_func):
+  def __init__(self, get_type_func, namespace=None):
+    self.table = {
+      self.__func         : {},
+      self.__vars         : {},
+      self.__structs      : {},
+      # self.__localrefs    : [],
+      self.__local        : [],
+      self.__localfunc    : [],
+      self.__localstructs : [],
+    }
     self.get_type = get_type_func
-  def is_variable(self, name):
-    return name in self.table[self.__vars].keys()
+    self.namespace = namespace
   def is_structure(self, name):
     if self.is_local_structure():
       table = self.table[self.__localstructs]
@@ -63,16 +62,16 @@ class Symbols:
     struct = self.table[self.__structs].get(name, None)
     return struct is not None
   def is_local(self):
-    return len(self.table[self.__local]) > 0
+    return bool(self.table[self.__local])
   def is_local_function(self):
-    return len(self.table[self.__localfunc]) > 0
+    return bool(self.table[self.__localfunc])
   def is_local_structure(self):
-    return len(self.table[self.__localstructs])
+    return bool(self.table[self.__localstructs])
   def get_local_table(self):
     table = self.table[self.__local]
     return table[-1]
   def get_localrefs_table(self):
-    table = self.table[self.__localrefs]
+    table = self.__localrefs
     return table[-1]
   def get_localfunc_table(self):
     table = self.table[self.__localfunc]
@@ -140,15 +139,17 @@ class Symbols:
     else:
       var.set_value(value)
   def get_variable(self, name, visited=None):
-    if visited is None:
-      visited = set()
-    if name in visited:
-      return None
     if self.is_local():
-      for references in reversed(self.table[self.__localrefs]):
+      if visited is None:
+        visited = set()
+      elif name in visited:
+        return None
+      for references in reversed(self.__localrefs):
         if name in references:
-          var = references[name]
           visited.add(name)
+          var = references[name]
+          if var.namespace != self.namespace and self.namespace is not None:
+            return var.eval()
           resolved = self.get_variable(var.name, visited)
           if resolved is not None:
             return resolved
@@ -189,14 +190,14 @@ class Symbols:
     return struct
   def set_local(self):
     self.table[self.__local].append({})
-    self.table[self.__localrefs].append({})
+    self.__localrefs.append({})
     self.table[self.__localfunc].append({})
     self.table[self.__localstructs].append({})
   def del_local(self):
     if self.table[self.__local]:
       self.table[self.__local].pop()
-    if self.table[self.__localrefs]:
-      self.table[self.__localrefs].pop()
+    if self.__localrefs:
+      self.__localrefs.pop()
     if self.table[self.__localfunc]:
       self.table[self.__localfunc].pop()
     if self.table[self.__localstructs]:
@@ -211,6 +212,69 @@ class Symbols:
     self.table[self.__local].clear()
     self.table[self.__vars].clear()
     self.table[self.__structs].clear()
-    self.table[self.__localrefs].clear()
+    self.__localrefs.clear()
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
+  def dump(self):
+    print('*** global variables')
+    for k in self.table[self.__vars].keys():
+      print(k)
+    print('---')
+    print('*** functions')
+    for k in self.table[self.__func].keys():
+      print(k)
+    print('---')
+    print('*** refs')
+    for refs in self.__localrefs:
+      for k in refs:
+        print(k)
+    print('---')
+  def __repr__(self):
+    return f'Espace-nom {self.namespace}'
+
+class Namespaces:
+  def __init__(self, get_type):
+    self.ns = {}
+    self.get_type = get_type
+    # init main namespace
+    self.ns['main'] = Symbols(get_type_func=get_type)
+    self.current_namespace = 'main'
+  def set_current_namespace(self, name):
+    self.current_namespace = name
+  def declare_namespace(self, name):
+    if name in self.ns:
+      raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
+    self.ns[name] = Symbols(self.get_type, name)
+    self.current_namespace = name
+  def get_namespace(self, name):
+    if not name:
+      nm = self.current_namespace
+    else:
+      nm = name
+    if nm in self.ns:
+      return self.ns[nm]
+    raise ex.VarUndeclared(f'Espace-nom \'{nm}\' non déclaré')
+  def declare_ref(self, name, var, namespace):
+    sym = self.get_namespace(namespace)
+    sym.declare_ref(name, var)
+  def get_variable(self, name, namespace):
+    sym = self.get_namespace(namespace)
+    return sym.get_variable(name)
+  def get_function(self, name, namespace):
+    sym = self.get_namespace(namespace)
+    return sym.get_function(name)
+  def get_structure(self, name, namespace):
+    sym = self.get_namespace(namespace)
+    return sym.get_structure(name)
+  def set_local(self, namespace):
+    sym = self.get_namespace(namespace)
+    return sym.set_local()
+  def del_local(self, namespace):
+    sym = self.get_namespace(namespace)
+    return sym.del_local()
+  def reset(self):
+    for _, symbols in self.ns.items():
+      symbols.reset()
+    self.ns.clear()
+    self.ns['main'] = Symbols(self.get_type, 'main')
+    self.current_namespace = 'main'

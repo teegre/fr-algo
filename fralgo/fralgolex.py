@@ -35,6 +35,7 @@ from fralgo.ply.lex import lex
 
 reserved = {
   'Ajout':         'MODE_APPEND',
+  'Alias':         'ALIAS',
   'Alors':         'THEN',
   'Aléa':          'RANDOM',
   'Booléen':       'TYPE_BOOLEAN',
@@ -115,6 +116,7 @@ tokens = (
   'LBRACKET', 'RBRACKET',
   'COMMA',
   'DOT',
+  'COLON',
   'BACKSLASH',
   'NEWLINE',
   'ID',
@@ -139,6 +141,7 @@ t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_COMMA = r'\,'
 t_DOT = r'\.'
+t_COLON = r':'
 t_BACKSLASH = r'\\'
 
 t_ignore = ' \t'

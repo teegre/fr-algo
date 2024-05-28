@@ -50,36 +50,36 @@ Fonction gen_mot(long en Entier) en Chaîne
   Retourne m
 FinFonction
 
-Procédure remplir_tableau(&tableau[7,7] en Entier)
+Procédure remplir_tableau(&t[7,7] en Entier)
   Variables i, j en Entier
   Pour i <- 0 à 7
     Pour j <- 0 à 7
-      tableau[i,j] <- Entier(Aléa() * 9 + 1)
+      t[i,j] <- Entier(Aléa() * 9 + 1)
     j Suivant
   i Suivant
 FinProcédure
 
-Procédure affiche_tableau(tableau[7,7] en Entier)
+Procédure affiche_tableau(t[7,7] en Entier)
   Variables i, j en Entier
   Pour i <- 0 à 7
     Pour j <- 0 à 7
-      Ecrire tableau[i,j], "" \
+      Ecrire t[i,j], "" \
     j Suivant
     Ecrire ""
   i Suivant
 FinProcédure
 
-Procédure remplir_tableau_simple(&tableau[] en Entier)
+Procédure remplir_tableau_simple(&t[] en Entier)
   Variable i en Entier
-  Pour i <- 0 à Taille(tableau) - 1
-    tableau[i] <- Entier(Aléa() * 9 + 1)
+  Pour i <- 0 à Taille(t) - 1
+    t[i] <- Entier(Aléa() * 9 + 1)
   i Suivant
 FinProcédure
 
-Procédure affiche_tableau_simple(tableau[] en Entier)
+Procédure affiche_tableau_simple(t[] en Entier)
   Variable i en Entier
-  Pour i <- 0 à Taille(tableau) - 1
-    Ecrire tableau[i], "" \
+  Pour i <- 0 à Taille(t) - 1
+    Ecrire t[i], "" \
   i Suivant
   Ecrire ""
 FinProcédure

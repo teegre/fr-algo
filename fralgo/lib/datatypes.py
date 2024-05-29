@@ -332,7 +332,7 @@ class Array(Base):
     if isinstance(datatype, tuple): # sized char
       typed_value = Char(value.eval(), datatype[1])
       datatype = self.datatype
-    if isinstance(value, list) and indexes is None: # sequence to array
+    if isinstance(value, list) and len(indexes) == 0: # sequence to array
       if len(self.sizes) > 1:
         raise BadType('Interdit : Affectation directe de valeurs à un tableau multidimensionnel')
       if len(self.indexes) == 1 and self.indexes[0] == -1:

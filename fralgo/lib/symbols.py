@@ -36,6 +36,7 @@ class Symbols:
   __localfunc    = 'localfunctions'
   __localstructs = 'localstructs'
 
+  __superglobal  = {}
   __localrefs    = []
 
 # TODO: ORDER METHODS
@@ -87,8 +88,11 @@ class Symbols:
     if self.is_local_structure():
       return self.get_localstructs_table()
     return self.table[self.__structs]
-  def declare_var(self, name, data_type):
-    variables = self.get_variables()
+  def declare_var(self, name, data_type, superglobal=False):
+    if superglobal:
+      variables = self.__superglobal
+    else:
+      variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
     datatype = self.get_type(data_type, self.get_structure)
@@ -105,8 +109,10 @@ class Symbols:
     if refs.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la référence >{name}<')
     refs[name] = var
-  def declare_array(self, name, data_type, *max_indexes):
-    if self.is_local():
+  def declare_array(self, name, data_type, *max_indexes, superglobal=False):
+    if superglobal:
+      variables = self.__superglobal
+    elif self.is_local():
       variables = self.get_local_table()
     else:
       variables = self.table[self.__vars]
@@ -158,6 +164,9 @@ class Symbols:
           return variables[name]
     var = self.table[self.__vars].get(name, None)
     if var is None:
+      var = self.__superglobal.get(name, None)
+      if var is not None:
+        return var
       raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
     return var
   def declare_function(self, function):

@@ -71,7 +71,7 @@ def main():
     print()
     sys.exit(1)
 
-  sym.declare_array('_ARGS', 'Chaîne', len(sys.argv[2:]))
+  sym.declare_array('_ARGS', 'Chaîne', len(sys.argv[2:]), superglobal=True)
   args_array = sym.get_variable('_ARGS')
   args_array.set_value((0,), map_type(sys.argv[1]))
   if len(sys.argv) > 2:

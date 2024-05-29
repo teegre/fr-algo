@@ -61,7 +61,7 @@ class LibMan:
     if alias:
       self.namespaces.declare_namespace(alias)
     else:
-      self.namespaces.declare_namespace(libfile.replace('/', '_'))
+      self.namespaces.declare_namespace(os.path.basename(libfile))
     try:
       statements = self.parser.parse(''.join(lib))
       statements.eval()

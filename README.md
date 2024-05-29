@@ -946,6 +946,8 @@ Puis de changer les permissions du programme comme suit :
 
 [Ajout](#fichier)
 
+[Alias](#librairie)
+
 [Alors](#test)
 
 [Aléa](#autre)

@@ -864,10 +864,9 @@ Importer "lib/librairie"
 
 Début
   # On accède aux membres d'une librairie de la manière suivante :
-  # (Les barres obliques du chemin sont remplacées par des tirets de soulignement)
-  lib_librairie:ma_fonction(...)
-  lib_librairie:ma_procedure(...)
-  Ecrire lib_librairie:ma_variable
+  librairie:ma_fonction(...)
+  librairie:ma_procedure(...)
+  Ecrire librairie:ma_variable
 Fin
 
 # Il est également possible de définir un 'alias' pour une librairie :

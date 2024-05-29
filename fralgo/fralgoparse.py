@@ -323,8 +323,14 @@ def p_array_indexes(p):
 def p_array_index(p):
   '''
   array_index : expression
+              | empty
   '''
   p[0] = [p[1]]
+
+
+def p_empty(p):
+  'empty :'
+  pass
 
 def p_array_resize(p):
   '''
@@ -416,10 +422,14 @@ def p_var_assignment(p):
   if not isinstance(p[3], list): # Basic type
     assignment = Assign(p[1], p[3])
     p[0] = Node(assignment, p.lineno(1))
-  else: # Structure
-    if isinstance(p[1], list): # Array
-      p[0] = Node(StructureSetItem(ArrayGetItem(p[1][0], *p[1][1]), None, p[3]), p.lineno(1))
-    else: # Other type
+  else:
+    if isinstance(p[1], list):
+      if p[1][1] == (None,): # sequence to array
+        assignment = ArraySetItem(p[1][0], p[3])
+        p[0] = Node(assignment, p.lineno(1))
+      else: # Array in Structure
+        p[0] = Node(StructureSetItem(ArrayGetItem(p[1][0], *p[1][1]), None, p[3]), p.lineno(1))
+    else: # Other type in Structure
       p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
 
 def p_array_assignment(p):

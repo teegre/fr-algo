@@ -20,6 +20,26 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_tableau_direct(self):
+    prog='''Tableau t[8] en Entier
+    Variables test1, test2 en Booléen
+    Début
+      Ecrire "18. Test affectation directe de valeurs à un tableau"
+      t[] <- 1, 2, 3, 4, 5, 6, 7, 8, 9
+      test1 <- t[0] = 1
+      test2 <- t[8] = 9
+      Ecrire test1, test2
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('test1')
+    t2 = sym.get_variable('test2')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    print()
+
   def test_table(self):
     prog='''Table t
       Clef en Entier

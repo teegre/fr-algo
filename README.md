@@ -27,7 +27,7 @@ $ python -m build
 Et installer **FR-ALGO** à l'aide de la commande suivante :
 
 ```
-$ pipx install dist/fralgo-0.11.2.beta.2.tar.gz
+$ pipx install dist/fralgo-0.11.2b7.tar.gz
 ```
 
 **/!\ Le numéro de version peut être différent.**

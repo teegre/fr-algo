@@ -632,15 +632,18 @@ class BinOp:
         if b == 0:
           raise ZeroDivide('Division par zéro')
         op = operator.truediv
-    if self.op == 'DP':
+    elif self.op == '*':
+      if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
+        raise BadType('E|N * E|N : Type Entier ou Numérique attendu')
+    elif self.op == 'DP':
       return map_type(a % b == 0)
-    if self.op == '&':
+    elif self.op == '&':
       if isinstance(a, str) and isinstance(b, str):
         return a + b
       raise BadType('C & C : Type Chaîne attendu')
-    if self.b is None:
+    elif self.b is None:
       return op(a)
-    if isinstance(a, str) and isinstance(b, str) and self.op not in comp:
+    elif isinstance(a, str) and isinstance(b, str) and self.op not in comp:
       raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
     try:
       return op(a, b)

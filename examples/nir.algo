@@ -1,0 +1,11 @@
+Fonction nir(n en Entier) en Entier
+  Retourne 97 - n % 97
+FinFonction
+
+Variable n en Entier
+
+Début
+  Ecrire "Entrez votre NIR : " \
+  Lire n
+  Ecrire nir(n)
+Fin

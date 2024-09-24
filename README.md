@@ -4,13 +4,12 @@
 
 ## Installation
 
-Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 ou plus,
-**python-build** et **pipx** sont installés sur votre système :
+Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 (ou plus)
+et **pipx** sont installés sur votre système :
 
 ```shell
 $ python --version
 Python 3.11.8
-$ python -c "import build"
 $ which pipx
 /usr/bin/pipx
 ```
@@ -875,6 +874,11 @@ Importer "utilitaires" Alias utils
 Début
   Ecrire utils:date(), utils:heure()
 Fin
+
+# Note : Lors de l'importation d'une librairie, fr-algo vérifie si elle
+# existe dans le répertoire où se trouve le programme principal.
+# Si ce n'est pas le cas, le répertoire '$HOME/.local/lib/fralgo' est
+# utilisé.
 ```
 ## Arguments de la ligne de commande <a name="argument"></a>
 

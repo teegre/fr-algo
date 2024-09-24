@@ -29,11 +29,13 @@ import os
 
 from fralgo.lib.exceptions import FralgoException, FatalError, print_err
 
+
 class LibMan:
   def __init__(self):
     self.parser = None
     self.mainfile = None
     self.__path = None
+    self.__local_lib_path = os.path.join(os.getenv("HOME"), '.local/lib/fralgo')
     self.namespaces = None
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
@@ -47,6 +49,8 @@ class LibMan:
     self.namespaces = ns
   def import_lib(self, libfile, alias=None):
     libpath = os.path.join(self.path, libfile + '.algo')
+    if not os.path.isfile(libpath):
+      libpath = os.path.join(self.__local_lib_path, libfile + '.algo')
     try:
       with open(libpath, 'r', encoding='utf-8') as f:
         lib = f.readlines()

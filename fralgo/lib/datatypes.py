@@ -341,8 +341,13 @@ class Array(Base):
         raise BadType('Nombre de valeurs invalide')
       array = self.new_array(len(value))
       for i, n in enumerate(value):
-        if n.data_type != datatype:
-          raise BadType(f'Type {datatype} attendu')
+        try:
+          if n.data_type != datatype:
+            raise BadType(f'Type {datatype} attendu')
+        except AttributeError:
+          nn = map_type(n.eval())
+          if nn.data_type != datatype:
+            raise BadType(f'Type {datatype} attendu')
         array[i] = n.eval()
       self.value = array
       return

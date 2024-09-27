@@ -71,12 +71,19 @@ def main():
     print()
     sys.exit(1)
 
+  # Commandline arguments
   sym.declare_array('_ARGS', 'Chaîne', len(sys.argv[2:]), superglobal=True)
   args_array = sym.get_variable('_ARGS')
   args_array.set_value((0,), map_type(sys.argv[1]))
   if len(sys.argv) > 2:
     for idx, arg in enumerate(sys.argv[2:]):
       args_array.set_value((idx + 1,), map_type(arg))
+
+  # Current working directory
+  sym.declare_var('_REP', 'Chaîne', superglobal=True)
+  rep_var = sym.get_variable('_REP')
+  rep_var.set_value(os.path.dirname(os.path.abspath(algofile)))
+
   try:
     libs.set_main(algofile)
     statements = parser.parse(prog)

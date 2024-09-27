@@ -909,6 +909,10 @@ Bonjour tout le monde !
 Par défaut `_ARGS[0]` contient le nom du programme **ALGO** courant. Dans notre exemple,
 `_ARGS[0]` est égal à `mon_programme.algo`.
 
+## Chemin vers le programme courant <a name="répertoire"></a>
+
+La variable `_REP` contient le chemin vers le programme courant.
+
 ## Programmes exécutables
 
 Pour rendre un programe **ALGO** exécutable, il suffit d'abord d'y insérer la ligne
@@ -943,6 +947,8 @@ Puis de changer les permissions du programme comme suit :
 [^](#opérateur)
 
 [_ARGS](#argument)
+
+[_REP](#répertoire)
 
 ### A
 [à](#pour)

@@ -270,6 +270,17 @@ u[3] = 4
 # VRAI
 ```
 
+### Affectation d'une liste de valeurs à un tableau
+
+```
+Tableau T[3] en Entier
+T[] <- 1, 2, 3, 4
+T[0] = 1
+# VRAI
+T[3] = 4
+# VRAI
+```
+
 ## Tables <a name="table"></a>
 
 Une `Table` est un **tableau associatif**.
@@ -616,6 +627,31 @@ Numérique(1)
 # 1.0
 ```
 
+### Obtenir le type de données <a name="type"></a>
+
+La fonction `Type` retourne une `Chaîne` décrivant le type d'une variable ou d'une expression.
+
+```
+Type(1)
+# Entier
+
+Type(1.23)
+# Numérique
+
+Type("Bonjour")
+# Chaîne
+
+Tableau T[] en Entier
+Type(T)
+# Tableau[] en Entier
+
+Redim T[5]
+Type(T)
+# Tableau[5] en Entier
+
+...
+```
+
 ### Tableaux <a name="fonction_tableau"></a>
 
 ```
@@ -879,7 +915,11 @@ Fin
 # existe dans le répertoire où se trouve le programme principal.
 # Si ce n'est pas le cas, le répertoire '$HOME/.local/lib/fralgo' est
 # utilisé.
+# L'importation d'une librairie se fait de manière globale. C'est à dire
+# que celle-ci sera disponible dans le programme principal ainsi que dans
+# toutes les autres librairies importées.
 ```
+
 ## Arguments de la ligne de commande <a name="argument"></a>
 
 Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour
@@ -1094,6 +1134,8 @@ Puis de changer les permissions du programme comme suit :
 [TempsUnix](#autre)
 
 [Trouve](#chaîne)
+
+[Type](#type)
 
 ### V
 [Valeurs](#fonctions_table)

@@ -84,12 +84,10 @@ class Interpreter:
           namespaces.reset()
           print('*** Reinitialisation effectuée')
           continue
-        case 'Début':
-          print('*** Instructions Début et Fin non admises en mode interpréteur')
-          continue
-        case 'Fin':
-          print('*** Instructions Début et Fin non admises en mode interpréteur')
-          continue
+      if instruction in ('Début', 'Fin', 'Librairie', 'Initialise'):
+        print('*** Instruction non admise en mode interpréteur.')
+        continue
+
       result = self.proceed(instruction)
       if result is None:
         continue

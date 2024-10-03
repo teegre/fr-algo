@@ -43,7 +43,7 @@ syn keyword Proc Procédure FinProcédure
 syn keyword StockFunc Aléa Car Clefs CodeCar Dormir Droite Ecrire EcrireErr EcrireFichier Existe
 syn keyword StockFunc Extraire FDF Fermer Gauche Lire LireFichier Longueur NON Ouvrir Redim Taille
 syn keyword StockFunc Valeurs TempsUnix Trouve Type
-syn keyword Loop TantQue FinTantQue Pour Suivant
+syn keyword Loop TantQue FinTantQue Pour Pas Suivant
 syn keyword Condition Si Alors SinonSi Sinon FinSi
 syn keyword Bool VRAI FAUX
 syn keyword Conjonction à en sur

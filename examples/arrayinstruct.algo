@@ -1,0 +1,21 @@
+Structure S
+  ID en Entier
+  DATA[] en Entier
+FinStructure
+
+Variable s en S
+Variables test, final en Booléen
+
+Début
+  s.ID <- Entier(Aléa() * 6 + 1)
+  Redim s.DATA[5]
+  test <- Taille(s.DATA) = 6
+  final <- test
+  s.DATA[] <- 1,0,0,1,1,0
+  Ecrire s
+  Si final Alors
+    Ecrire "Le test a réussi !"
+  Sinon
+    Ecrire "Le test a échoué..."
+  FinSi
+Fin

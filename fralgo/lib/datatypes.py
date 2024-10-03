@@ -30,9 +30,7 @@ from copy import deepcopy
 
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
-from fralgo.lib.exceptions import InvalidStructureValueCount
-
-__structures = {}
+from fralgo.lib.exceptions import InvalidStructureValueCount, UnknownStructureField
 
 class Base():
   _type = 'Base'
@@ -266,7 +264,7 @@ class Array(Base):
     if len(sizes) == 0:
       return []
     if len(sizes) == 1:
-      datatype = get_type(self.datatype, self.get_structure)
+      datatype = _get_type(self.datatype, self.get_structure)
       if isinstance(datatype, (list, tuple)):
         if issubclass(datatype[0], StructureData):
           data = [datatype[0](datatype[1]) for _ in range(sizes[0])]
@@ -332,7 +330,8 @@ class Array(Base):
     if isinstance(datatype, tuple): # sized char
       typed_value = Char(value.eval(), datatype[1])
       datatype = self.datatype
-    if isinstance(value, list) and len(indexes) == 0: # sequence to array
+    if isinstance(value, list) and (
+        indexes == [] or indexes == (None,) or indexes == ()): # sequence to array
       if len(self.sizes) > 1:
         raise BadType('Interdit : Affectation directe de valeurs à un tableau multidimensionnel')
       if len(self.indexes) == 1 and self.indexes[0] == -1:
@@ -506,7 +505,20 @@ class StructureData(Base):
     return ''.join(data)
   def set_value(self, value, fieldname=None):
     if fieldname is not None:
-      self.data[fieldname].set_value(value)
+      if isinstance(fieldname, tuple): # Array!
+        name, indexes = fieldname
+        if indexes is None:
+          if isinstance(value, list):
+            self.data[name].set_value([], value)
+          else:
+            self.data[name].set_value(indexes, map_type(value))
+        else:
+          self.data[name].set_value(indexes, map_type(value))
+      else:
+        try:
+          self.data[fieldname].set_value(value)
+        except KeyError:
+          raise UnknownStructureField(f'{fieldname} ne fait pas partie de {self.name}')
     else:
       if isinstance(value, StructureData):
         if value.name == self.name:
@@ -517,29 +529,41 @@ class StructureData(Base):
         try:
           if len(value) != len(self.data):
             raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
-        except TypeError:
+        except TypeError as e:
+          print(e)
           # Dealing with a mono-field structure here
-          if len(self.data) > 1:
+          if len(self.data) > 1 and isinstance(self.data, (list, tuple)):
             raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
         for i, name in enumerate(self.data):
           try:
-            self.data[name].set_value(value[i].eval())
-          except TypeError:
+            if isinstance(self.data[name], StructureData):
+              self.data[name].set_value(value, None)
+            elif isinstance(self.data[name], Array):
+              self.data[name].set_value(value, None)
+            else:
+              self.data[name].set_value(
+                value[i].eval() if isinstance(value, (list, tuple)) else map_type(value))
+          except TypeError as e:
+            print(e)
             # Mono-field structure
             self.data[name].set_value(map_type(value).eval())
   def get_item(self, name):
     try:
+      if isinstance(name, tuple): # Array!
+        if name[0] in self.data.keys():
+          return self.data[name[0]].get_item(name[1])
+        raise VarUndefined(f'{name[0]} ne fait pas partie de {self.name}')
       if name in self.data.keys():
         if self.data[name] is None:
           raise VarUndefined(f'{self.name}.{name} : Valeur indéfinie')
         return self.data[name]
-      raise VarUndefined(f'{name} ne fait pas partie de {self.name}')
+      raise UnknownStructureField(f'{name} ne fait pas partie de {self.name}')
     except TypeError:
       raise BadType(f'{self.name} : Type d\'accès invalide')
   def new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
-      data_type = get_type(datatype, self.get_structure)
+      data_type = _get_type(datatype, self.get_structure)
       if isinstance(data_type, (list, tuple)):
         if issubclass(data_type[0], StructureData):
           struct = StructureData(data_type[1])
@@ -574,11 +598,12 @@ class StructureData(Base):
   def __str__(self):
     # if 'FRALGOREPL' in os.environ:
       # return self.__repr__()
+    # else:
     data = [str(v.eval()) for v in self.data.values()]
-    return ' | '.join(data)
+    return ', '.join(data)
   def __repr__(self):
     data = [k+": " + str(v) for k,v in self.data.items()]
-    return f'{self.name}({" | ".join(data)})'
+    return f'{self.name}: ({", ".join(data)})'
   @property
   def data_type(self):
     return self.name
@@ -612,7 +637,7 @@ class Table(Base):
   def __repr__(self):
     return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
 
-def get_type(datatype, get_structure):
+def _get_type(datatype, get_structure):
   __datatypes = {
     'Booléen': Boolean,
     'Caractère': Char,

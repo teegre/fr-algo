@@ -20,6 +20,34 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_tableau_dans_structure(self):
+    prog='''Structure S
+    a en Entier
+    b[] en Entier
+    FinStructure
+    Variable s en S
+    Variables test, final en Booléen
+    Variable i en Entier
+    Début
+      Ecrire "19. Test tableau non dimensionné dans une structure"
+      s.a <- Entier(Aléa() * 6 + 1)
+      Redim s.b[5]
+      s.b[] <- 1,2,3,4,5,6
+      test <- Taille(s.b) = 6 ET s.b[0] = 1 ET s.b[5] = 6
+      Pour i <- 0 à Taille(s.b) - 1
+        s.b[i] <- s.b[i] + 1
+      i Suivant
+      test <- test ET s.b[0] = 2 ET s.b[5] = 7
+      Ecrire test
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+    print()
+
   def test_tableau_direct(self):
     prog='''Tableau t[8] en Entier
     Variables test1, test2 en Booléen

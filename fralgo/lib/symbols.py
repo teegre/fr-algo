@@ -46,7 +46,6 @@ class Symbols:
       self.__func         : {},
       self.__vars         : {},
       self.__structs      : {},
-      # self.__localrefs    : [],
       self.__local        : [],
       self.__localfunc    : [],
       self.__localstructs : [],

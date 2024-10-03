@@ -97,6 +97,7 @@ reserved = {
   'TantQue':       'WHILE',
   'TempsUnix':     'UNIXTIMESTAMP',
   'Trouve':        'FIND',
+  'Type':          'DATA_TYPE',
   'Valeur':        'VALUE',
   'Valeurs':       'VALUES',
   'Variable':      'VAR_DECL',

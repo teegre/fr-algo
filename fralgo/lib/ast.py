@@ -36,7 +36,7 @@ from datetime import datetime
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String, Table
-from fralgo.lib.datatypes import Structure, get_type
+from fralgo.lib.datatypes import Structure, _get_type
 from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
@@ -45,7 +45,7 @@ from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount
 from fralgo.lib.exceptions import FralgoInterruption
 
-namespaces = Namespaces(get_type)
+namespaces = Namespaces(_get_type)
 libs = LibMan()
 libs.set_namespaces(namespaces)
 
@@ -182,6 +182,10 @@ class ArrayGetItem:
     except AttributeError:
       var = namespaces.get_variable(self.var, self.namespace)
     return var.get_item(*self.indexes)
+  @property
+  def data_type(self):
+    value = map_type(self.eval())
+    return value.data_type
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
     return f'{self.var.name}[{", ".join(indexes)}]'
@@ -272,9 +276,7 @@ class StructureGetItem:
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = namespaces.get_variable(self.var[0], self.namespace)
-        for f, field in enumerate(self.var):
-          if f == 0:
-            continue
+        for field in self.var[1:]:
           structure = structure.get_item(field)
         return structure.get_item(self.field)
     if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
@@ -285,6 +287,10 @@ class StructureGetItem:
       return var.get_item(self.field)
     except AttributeError:
       raise BadType(f'{self.var} : Erreur inattendue')
+  @property
+  def data_type(self):
+    value = map_type(self.eval())
+    return value.data_type
   def __repr__(self):
     return f'{self.var}.{self.field}'
 
@@ -298,19 +304,25 @@ class StructureSetItem:
     if isinstance(self.var, tuple):
       if len(self.var) > 1:
         structure = namespaces.get_variable(self.var[0], self.namespace)
-        for f, field in enumerate(self.var):
-          if f == 0:
-            continue
+        for field in self.var[1:]:
           structure = structure.get_item(field)
         var = structure
     elif isinstance(self.var, (StructureGetItem, ArrayGetItem)):
       var = self.var.eval()
     else:
       var = namespaces.get_variable(self.var, self.namespace)
-    if isinstance (self.value, list):
+
+    if isinstance(self.field, tuple): # Array!
+      var.set_value(
+          self.value if isinstance(self.value, list) else self.value.eval(),
+          (self.field[0], (self.field[1],)))
+    elif isinstance (self.value, list):
       var.set_value(self.value, None)
     else:
-      var.set_value(self.value.eval(), self.field)
+      if self.field is None:
+        var.set_value(self.value.eval())
+      else:
+        var.set_value(self.value.eval(), self.field)
   def __repr__(self):
     return f'{self.var}.{self.field} ← {self.value}'
 
@@ -345,7 +357,7 @@ class FunctionCall:
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
-      raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalid : 0, attendu {x} ')
+      raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalide : 0, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
@@ -411,7 +423,6 @@ class FunctionCall:
       # set variables
       sym = namespaces.get_namespace(self.namespace)
       for i, param in enumerate(params):
-        # breakpoint()
         if isinstance(self.params[i], Variable):
           if self.params[i].namespace is None:
             self.params[i].namespace = self.cnamespace
@@ -649,6 +660,10 @@ class BinOp:
       return op(a, b)
     except TypeError:
       raise BadType('Opération sur des types incompatibles')
+  @property
+  def data_type(self):
+    value = map_type(self.eval())
+    return value.data_type
   def __repr__(self):
     if self.b is None:
       return f'{self.op} {self.a}'
@@ -931,6 +946,18 @@ class Ord:
   def data_type(self):
     return 'Entier'
 
+class Type:
+  def __init__(self, var):
+    self.var = var
+  def eval(self):
+    if isinstance(self.var, str):
+      sym = namespaces.get_namespace(name=None)
+      var = sym.get_variable(self.var)
+      return repr_datatype(map_type(var.data_type))
+    return repr_datatype(self.var.data_type)
+  def __repr__(self):
+    return f'Type({self.expr})'
+
 class ToInteger:
   def __init__(self, value):
     self.value = value
@@ -1048,7 +1075,13 @@ def algo_to_python(expression):
     exp = exp.eval()
   return exp
 
+def get_type(expr):
+  return Type(expr).eval()
+
 def repr_datatype(datatype):
+  if isinstance(datatype, (ArrayGetItem, StructureGetItem)):
+    datatype = datatype.data_type
+  datatype = algo_to_python(datatype)
   match datatype[0]:
     case 'Caractère':
       return f'{datatype[0]}*{datatype[1]}'

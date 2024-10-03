@@ -36,11 +36,12 @@ from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
-from fralgo.lib.ast import ToFloat, ToInteger, ToString, Random, Sleep, SizeOf
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
-from fralgo.lib.datatypes import map_type
+from fralgo.lib.ast import get_type
+from fralgo.lib.datatypes import Array, map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as fralgolex
 from fralgo.ply.yacc import yacc
@@ -143,9 +144,16 @@ def p_structure_fields(p):
 def p_struct_field(p):
   '''
   struct_field : ID TYPE_DECL type NEWLINE
+               | array TYPE_DECL type NEWLINE
                | ID TYPE_DECL ID NEWLINE
   '''
-  p[0] = [p[1], p[3]]
+  if isinstance(p[1], list):
+    if len(p[1][0][1]) > 1:
+      p[0] = [p[1][0][0], ('Tableau', p[3], *p[1][0][1])]
+    else:
+      p[0] = [p[1][0][0], ('Tableau', p[3], p[1][0][1][0])]
+  else:
+    p[0] = [p[1], p[3]]
 
 def p_var_declarations(p):
   '''
@@ -294,12 +302,15 @@ def p_structure_access(p):
   '''
   structure_access : ID DOT ID
                    | array_access DOT ID
+                   | ID DOT array_access
                    | ID
   '''
   if len(p) == 2:
     p[0] = p[1]
   elif isinstance(p[1], list):
     p[0] = (ArrayGetItem(p[1][0], *p[1][1]), p[3])
+  elif isinstance(p[3], list):
+    p[0] = (p[1], (p[3][0].name, *p[3][1]))
   else:
     p[0] = (p[1], p[3])
 
@@ -335,9 +346,15 @@ def p_empty(p):
 def p_array_resize(p):
   '''
   array_resize : RESIZE var LBRACKET array_indexes RBRACKET
+               | RESIZE structure_accesses
   '''
-  indexes = tuple(index for index in p[4])
-  p[0] = Node(ArrayResize(p[2], *indexes), p.lineno(1))
+  if len(p) == 3: # Array in structure
+    resize = ArrayResize(StructureGetItem(p[2][0], p[2][1][0]), p[2][1][1])
+  else:
+    indexes = tuple(index for index in p[4])
+    resize = ArrayResize(p[2], *indexes)
+
+  p[0] = Node(resize, p.lineno(1))
 
 def p_statements(p):
   '''
@@ -353,8 +370,6 @@ def p_statements(p):
 def p_statement(p):
   '''
   statement : var_assignment
-            | array_assignment
-            | structure_assignment
             | array_resize NEWLINE
             | if_block
             | while_block
@@ -415,49 +430,55 @@ def p_statement_writefile(p):
 
 def p_var_assignment(p):
   '''
-  var_assignment : ID ARROW expression NEWLINE
-                 | ID ARROW sequence NEWLINE
-                 | array_access ARROW sequence NEWLINE
+  var_assignment : ID ARROW sequence NEWLINE
+                 | ID ARROW expression NEWLINE
   '''
-  if not isinstance(p[3], list): # Basic type
-    assignment = Assign(p[1], p[3])
-    p[0] = Node(assignment, p.lineno(1))
-  else:
-    if isinstance(p[1], list):
-      if p[1][1] == (None,): # sequence to array
-        assignment = ArraySetItem(p[1][0], p[3])
-        p[0] = Node(assignment, p.lineno(1))
-      else: # Array in Structure
-        p[0] = Node(StructureSetItem(ArrayGetItem(p[1][0], *p[1][1]), None, p[3]), p.lineno(1))
-    else: # Other type in Structure
+  if isinstance(p[3], list): # sequence
+    if len(p[3]) == 1:
+      p[0] = Node(StructureSetItem(p[1], None, p[3][0]), p.lineno(1))
+    else:
       p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+  else:
+    p[0] = Node(Assign(p[1], p[3]), p.lineno(1))
 
 def p_array_assignment(p):
   '''
-  array_assignment : array_access ARROW expression NEWLINE
+  var_assignment : array_access ARROW sequence NEWLINE
+                 | array_access ARROW expression NEWLINE
   '''
-  p[0] = Node(ArraySetItem(p[1][0], p[3], *p[1][1]), p.lineno(1))
+  if isinstance(p[3], list):
+    if isinstance(p[1], list):
+      if p[1][1] == (None,): # sequence to array
+        p[0] = Node(ArraySetItem(p[1][0], p[3]), p.lineno(1))
+      else: # structure in array
+        p[0] = Node(StructureSetItem(ArrayGetItem(p[1][0], *p[1][1]), None, p[3]))
+  else:
+    p[0] = Node(ArraySetItem(p[1][0], p[3], *p[1][1]), p.lineno(1))
 
 def p_structure_assignment(p):
   '''
-  structure_assignment : structure_accesses ARROW sequence NEWLINE
+  var_assignment : structure_accesses ARROW sequence NEWLINE
+                 | structure_accesses ARROW expression NEWLINE
   '''
   # StructureSetItem(var, field, value)
-  if len(p[1]) > 2:
-    if len(p[3]) == 1:
-      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3][0]), p.lineno(1))
-    else:
-      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
-  elif len(p[1]) > 1:
-    if len(p[3]) == 1:
-      p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
-    else:
-      p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
-  else:
-    if len(p[3]) == 1:
-      p[0] = Node(StructureSetItem(p[1][0], None, p[3][0]), p.lineno(1))
-    else:
-      p[0] = Node(StructureSetItem(p[1][0], None, p[3]), p.lineno(1))
+  if isinstance(p[3], list): # sequence
+    if len(p[1]) > 2:
+      if len(p[3]) == 1: # 1 element sequence
+        p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3]), p.lineno(1))
+      else: # array
+        p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+    elif len(p[1]) > 1:
+      if len(p[3]) == 1:
+        p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3][0]), p.lineno(1))
+      elif isinstance(p[1], tuple): # Array!
+        p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3]), p.lineno(1))
+      else:
+        p[0] = Node(StructureSetItem(p[1], None, p[3]), p.lineno(1))
+  elif isinstance(p[1], tuple):
+    if len(p[1]) > 2:
+      p[0] = Node(StructureSetItem(p[1][:-1], p[1][-1], p[3]), p.lineno(1))
+    elif len(p[1]) > 1:
+      p[0] = Node(StructureSetItem(p[1][0], p[1][1], p[3]), p.lineno(1))
 
 def p_array_get_item(p):
   '''
@@ -736,6 +757,12 @@ def p_expression(p):
   '''
   p[0] = map_type(p[1])
 
+def p_expression_type(p):
+  '''
+  expression : DATA_TYPE LPAREN expression RPAREN
+  '''
+  p[0] = Node(Type(p[3]), p.lineno(1))
+
 def p_expression_binop(p):
   '''
   expression : expression PLUS expression
@@ -825,8 +852,12 @@ def p_expression_len(p):
 def p_expression_size(p):
   '''
   expression : SIZE LPAREN var RPAREN
+             | SIZE LPAREN structure_accesses RPAREN
   '''
-  p[0] = SizeOf(p[3])
+  if isinstance(p[3], tuple):
+    p[0] = SizeOf(StructureGetItem(p[3][0], p[3][1]))
+  else:
+    p[0] = SizeOf(p[3])
 
 def p_expression_mid(p):
   '''

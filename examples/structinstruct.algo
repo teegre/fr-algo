@@ -46,6 +46,7 @@ Début
   y.c <- 3, 4
   test <- y.c.a = 3 ET y.c.b = 4
   final <- final ET test
+  Ecrire ">> y.c.a = 3 et y.c.b = 4", test
 
   Ecrire "Structure dans structure dans structure :"
   z.e.c <- x

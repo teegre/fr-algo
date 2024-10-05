@@ -171,8 +171,8 @@ def main():
   sleep(0.0625)
   print(r'|___|   |___|__|      |___|___|_______|_______|_______|', flush=True)
   sleep(0.0625)
-  version = f'fr-v100 {__version__} mg'
-  print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(54-len(version)) + version)
+  version = f'fr-v100 {__version__}mg'
+  print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
   print()
   sleep(0.0625)
   print()

@@ -817,6 +817,93 @@ n = 8
 # VRAI
 ```
 
+## Le type `Quelconque` <a name="quelconque"></a>
+
+C'est un type générique qui peut être n'importe lequel des types suivants : `Booléen`, `Entier`, `Numérique` ou `Chaîne`.
+Il n'est utilisable que dans les paramètres et/ou dans le corps d'une fonction ou d'une procédure.
+
+### Utilité
+
+Un exemple : vous devez écrire une fonction qui retourne le nombre d'occurences d'un élément dans un tableau.
+Un tableau ne pouvant contenir des éléments que d'un seul type, il est nécessaire d'écrire une fonction par type :
+```
+Fonction CompteEntier(T[] en Entier, valeur en Entier) en Entier
+  Variables i, c en Entier
+  c <- 0
+  Pour i <- 0 à Taille(T) - 1
+    Si T[i] = valeur Alors
+      c <- c + 1
+    FinSi
+  i Suivant
+  Retourne c
+FinFonction
+
+Fonction CompteNumérique(T[] en Numérique, valeur en Numérique)
+  # Corps de la fonction identique au précédent...
+  # ...
+FinFonction
+
+Fonction CompteChaîne(T[] en Chaîne, valeur en Chaîne)
+  # Corps de la fonction identique à CompteEntier()...
+  # ...
+FinFonction
+
+# ...
+```
+
+Pour éviter cette ennuyeuse redondance, il est possible d'utiliser le type `Quelconque` :
+
+```
+Fonction Compte(T[] en Quelconque, valeur en Quelconque) en Entier
+  Variables i, c en Entier
+  c <- 0
+  Pour i <- 0 à Taille(T) - 1
+    Si T[i] = valeur Alors
+      c <- c + 1
+    FinSi
+  i Suivant
+  Retourne c
+FinFonction
+```
+De cette manière, une seule fonction est nécessaire pour tous les types
+cités précédemment.
+
+Au besoin, il existe une fonction `Type` qui permet d'obtenir le type d'une variable
+ou d'une expression.
+
+```
+Fonction Compte(T[] en Quelconque, valeur en Quelconque) en Entier
+  Variables i, c en Entier
+  c <- 0
+  # On affiche le type de 'T' et de 'valeur'
+  Ecrire "T :", Type(T), "; valeur :", Type(valeur)
+  Pour i <- 0 à Taille(T) - 1
+    Si T[i] = valeur Alors
+      c <- c + 1
+    FinSi
+  i Suivant
+  Retourne c
+FinFonction
+
+Tableau T1[4] en Chaîne
+Tableau T2[4] en Entier
+
+Début
+  T1[] <- "A", "B", "C", "D", "A"
+  T2[] <- 1, 2, 1, 3, 1
+  Ecrire "T1 contient", Compte(T1, "A"), "fois la lettre A."
+  Ecrire "T2 contient", Compte(T2, 1), "fois le chiffre 1."
+Fin
+```
+A l'exécution du programme ci-dessus, on obtient :
+
+```
+T : Tableau[4] en Chaîne ; valeur : Chaîne
+T1 contient 2 fois la lettre A.
+T : Tableau[4] en Entier ; valeur : Entier
+T2 contient 3 fois le chiffre 1.
+```
+
 ## Structure d'un programme ALGO <a name="programme"></a>
 
 ### Minimum
@@ -1103,6 +1190,9 @@ Puis de changer les permissions du programme comme suit :
 [Pour](#pour)
 
 [Procédure](#procédure)
+
+### Q
+[Quelconque](#quelconque)
 
 ### R
 [Redim](#redim)

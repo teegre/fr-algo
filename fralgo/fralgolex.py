@@ -83,6 +83,7 @@ reserved = {
   'Pas':           'STEP',
   'Pour':          'FOR',
   'Procédure':     'PROCEDURE',
+  'Quelconque':    'TYPE_ANY',
   'Redim':         'RESIZE',
   'Retourne':      'RETURN',
   'Si':            'IF',

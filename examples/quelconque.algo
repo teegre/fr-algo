@@ -1,0 +1,44 @@
+Fonction Compte(T[] en Quelconque, valeur en Quelconque) en Entier
+  Variables c, i en Entier
+
+  Si Trouve(Type(T), Type(valeur)) = 0 Alors
+    EcrireErr "Erreur :", Type(T), "<>", Type(valeur)
+    Retourne -1
+  FinSi
+
+  c <- 0
+
+  Pour i <- 0 à Taille(T) - 1
+    Si T[i] = valeur Alors
+      c <- c + 1
+    FinSi
+  i Suivant
+  Retourne c
+FinFonction
+
+Tableau T1[4] en Entier
+Tableau T2[4] en Numérique
+Tableau T3[4] en Chaîne
+
+Variables c1, c2, c3, c4 en Entier
+Variable test en Booléen
+
+Début
+  T1[] <- 1, 2, 3, 4, 1
+  T2[] <- 1.2, 3.4, 4.3, 2.1, 1.2
+  T3[] <- "A", "B", "C", "D", "A"
+  c1 <- Compte(T1, 1)
+  c2 <- Compte(T2, 1.2)
+  c3 <- Compte(T3, "A")
+  c4 <- Compte(T1, 1.2)
+  test <- (c1 = 2) ET (c2 = 2) ET (c3 = 2) ET (c4 = -1)
+  Si test Alors
+    Ecrire "Le test a réussi"
+  Sinon
+    Ecrire "le test a échoué"
+    Ecrire "c1 =  2", c1 = 2, c1
+    Ecrire "c2 =  2", c2 = 2, c2
+    Ecrire "c3 =  2", c3 = 2, c3
+    Ecrire "c4 = -1", c4 = -1, c4
+  FinSi
+Fin

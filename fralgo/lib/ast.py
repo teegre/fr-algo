@@ -368,6 +368,8 @@ class FunctionCall:
       if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
         p2 = map_type(p.eval())
         p2 = p2.data_type
+      elif p.data_type == 'Quelconque':
+        p2 = map_type(p).data_type
       else:
         p2 = p.data_type
       p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
@@ -385,8 +387,12 @@ class FunctionCall:
       ok = True
       if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
+      if t1 == 'Quelconque':
+        continue
       if t1 == t2 == 'Tableau':
         if t3 == 'Chaîne' and t4[0] == 'Caractère':
+          ok &= True
+        elif t3 == 'Quelconque':
           ok &= True
         elif t3 != t4:
           ok &= False
@@ -431,6 +437,8 @@ class FunctionCall:
           continue
         if len(param) == 4: # Array
           n, _, t, s = param
+          if t == 'Quelconque':
+            t = self.params[i].data_type[1]
           if s == -1:
             array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
             if array is None:
@@ -444,6 +452,8 @@ class FunctionCall:
           sym.declare_sized_char(n, s)
         else:
           n, t = param
+          if t == 'Quelconque':
+            t = self.params[i].data_type
           sym.declare_var(n, t)
         sym.assign_value(n, values[i])
     # function body
@@ -882,14 +892,11 @@ class WriteFile:
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    if isinstance(self.var, ArrayGetItem):
+    elif isinstance(self.var, (BinOp, Boolean, Float, Integer, String, ArrayGetItem, StructureGetItem, Structure)):
       var = self.var.eval()
     else:
       var = self.var
-    if sym.is_structure(var.name):
-      fd.write(var.f_eval())
-    else:
-      fd.write(str(var.eval()))
+    fd.write(str(var))
   def __repr__(self):
     return f'EcrireFichier {self.fd_number}, {self.var}'
 

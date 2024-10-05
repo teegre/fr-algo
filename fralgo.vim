@@ -34,7 +34,7 @@ syn match Assignment "←\|<-"
 syn keyword Import Importer Alias
 syn keyword VarDeclaration Variable Variables Tableau Tableaux
 syn keyword Structure Structure FinStructure Table FinTable
-syn keyword VarType Booléen Caractère Chaîne Entier Numérique
+syn keyword VarType Booléen Caractère Chaîne Entier Numérique Quelconque
 syn keyword Program Début Fin
 syn keyword Library Librairie Initialise
 syn keyword File Ajout Ecriture Lecture

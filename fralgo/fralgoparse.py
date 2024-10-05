@@ -30,16 +30,16 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareTable, DeclareStruct
-from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
-from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
-from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
-from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
+from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
+from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareTable, DeclareStruct
+from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
+from fralgo.lib.ast import StructureGetItem, StructureSetItem
+from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
 from fralgo.lib.ast import get_type
 from fralgo.lib.datatypes import Array, map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
@@ -166,6 +166,33 @@ def p_var_declarations(p):
     p[1].append(p[2])
     p[0] = p[1]
 
+def p_fp_var_declarations (p):
+  '''
+  fp_var_declarations : fp_var_declarations fp_var_declaration
+                      | fp_var_declaration
+  '''
+  if len(p) == 2:
+    p[0] = Node(p[1], p.lineno(1))
+  else:
+    p[1].append(p[2])
+    p[0] = p[1]
+
+def p_fp_var_declaration(p):
+  '''
+  fp_var_declaration : var_declaration
+                     | VAR_DECL ID TYPE_DECL TYPE_ANY NEWLINE
+                     | VARS_DECL var_list TYPE_DECL TYPE_ANY NEWLINE
+  '''
+  if len(p) == 2:
+    p[0] = p[1]
+  elif isinstance(p[2], list):
+    declarations = Node(lineno=p.lineno(1))
+    for name in p[2]:
+      declarations.append(Declare(name, p[4]))
+    p[0] = declarations
+  else:
+    p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
+
 def p_var_declaration(p):
   '''
   var_declaration : ARRAY_DECL array TYPE_DECL type NEWLINE
@@ -274,6 +301,13 @@ def p_type(p):
        | TYPE_STRING
        | sized_char
        | ID
+  '''
+  p[0] = p[1]
+
+def p_func_proc_type(p):
+  '''
+  ftype : type
+        | TYPE_ANY
   '''
   p[0] = p[1]
 
@@ -518,7 +552,7 @@ def p_function_declaration(p):
 
 def p_func_body(p):
   '''
-  func_body : var_declarations func_statements
+  func_body : fp_var_declarations func_statements
             | func_statements
   '''
   if len(p) == 3:
@@ -559,10 +593,10 @@ def p_parameters(p):
 
 def p_parameter(p):
   '''
-  parameter : var_list TYPE_DECL type
-            | ID TYPE_DECL type
-            | array TYPE_DECL type
-            | array_list TYPE_DECL type
+  parameter : var_list TYPE_DECL ftype
+            | ID TYPE_DECL ftype
+            | array TYPE_DECL ftype
+            | array_list TYPE_DECL ftype
   '''
   if isinstance(p[1], list):
     # multiple variables with the same type
@@ -616,7 +650,7 @@ def p_proc_params(p):
 
 def p_proc_param(p):
   '''
-  proc_param : proc_var_list TYPE_DECL type
+  proc_param : proc_var_list TYPE_DECL ftype
   '''
   parameters = []
   if isinstance(p[1], list):
@@ -671,7 +705,7 @@ def p_proc_var(p):
 
 def p_proc_body(p):
   '''
-  proc_body : var_declarations statements
+  proc_body : fp_var_declarations statements
             | statements
   '''
   if len(p) == 3:
@@ -851,7 +885,7 @@ def p_expression_len(p):
 
 def p_expression_size(p):
   '''
-  expression : SIZE LPAREN var RPAREN
+  expression : SIZE LPAREN expression RPAREN
              | SIZE LPAREN structure_accesses RPAREN
   '''
   if isinstance(p[3], tuple):

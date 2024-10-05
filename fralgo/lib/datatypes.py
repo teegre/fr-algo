@@ -37,6 +37,8 @@ class Base():
   value = None
   def eval(self):
     raise NotImplementedError
+  def set_value(self, value):
+    self.value = value
   def __repr__(self):
     if self.value is None:
       return f'{self.data_type} → ?'
@@ -530,7 +532,6 @@ class StructureData(Base):
           if len(value) != len(self.data):
             raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
         except TypeError as e:
-          print(e)
           # Dealing with a mono-field structure here
           if len(self.data) > 1 and isinstance(self.data, (list, tuple)):
             raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
@@ -544,7 +545,6 @@ class StructureData(Base):
               self.data[name].set_value(
                 value[i].eval() if isinstance(value, (list, tuple)) else map_type(value))
           except TypeError as e:
-            print(e)
             # Mono-field structure
             self.data[name].set_value(map_type(value).eval())
   def get_item(self, name):
@@ -637,6 +637,23 @@ class Table(Base):
   def __repr__(self):
     return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
 
+class Any(Base):
+  def __init__(self, value=None):
+    if value is not None:
+      self.set_value(value)
+    else:
+      self.value = value
+  def set_value(self, value):
+    if isinstance(value, (bool, Boolean)):
+      self.__class__ = Boolean
+    elif isinstance(value, (int, Integer)):
+      self.__class__ = Integer
+    elif isinstance(value, (float, Float)):
+      self.__class__ = Float
+    elif isinstance(value, (str, String)):
+      self.__class__ = String
+    self.value = map_type(value)
+
 def _get_type(datatype, get_structure):
   __datatypes = {
     'Booléen': Boolean,
@@ -646,6 +663,7 @@ def _get_type(datatype, get_structure):
     'Numérique': Float,
     'Tableau': Array,
     'Table': Table,
+    'Quelconque': Any,
   }
   if isinstance(datatype, (list, tuple)):
     if datatype[0] == 'Caractère':
@@ -669,4 +687,6 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
+  # if isinstance(value, list):
+  #   return Array(datatype)
   return value

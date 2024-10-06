@@ -480,8 +480,12 @@ class FunctionCall:
       namespaces.set_current_namespace(self.cnamespace)
     return None
   def __repr__(self):
+    func = namespaces.get_function(self.name, self.namespace)
     params = [str(param) for param in self.params]
-    return f'{self.name}({", ".join(params)})'
+    if func.return_type is not None:
+      return f'{self.name}({", ".join(params)}) → {func.return_type}'
+    else:
+      return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
   def __init__(self, expression, namespace=None):

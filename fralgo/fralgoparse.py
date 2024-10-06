@@ -541,8 +541,8 @@ def p_namespace(p):
 
 def p_function_declaration(p):
   '''
-  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
-                       | FUNCTION ID LPAREN RPAREN TYPE_DECL type NEWLINE func_body ENDFUNCTION NEWLINE
+  function_declaration : FUNCTION ID LPAREN parameters RPAREN TYPE_DECL ftype NEWLINE func_body ENDFUNCTION NEWLINE
+                       | FUNCTION ID LPAREN RPAREN TYPE_DECL ftype NEWLINE func_body ENDFUNCTION NEWLINE
   '''
 
   if len(p) == 12:

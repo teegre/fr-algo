@@ -411,6 +411,8 @@ class FunctionCall:
       mvdt = mv[0] + '*' + str(mv[1])
     else:
       mvdt = mv.data_type
+    if rt == 'Quelconque':
+      return
     if rt != mvdt:
       raise BadType(f'Type {rt} attendu [{mv.data_type}]')
   def eval(self):
@@ -961,6 +963,8 @@ class Type:
       sym = namespaces.get_namespace(name=None)
       var = sym.get_variable(self.var)
       return repr_datatype(map_type(var.data_type))
+    if isinstance(self.var, Node):
+      return repr_datatype(map_type(self.var.eval()).data_type)
     return repr_datatype(self.var.data_type)
   def __repr__(self):
     return f'Type({self.expr})'

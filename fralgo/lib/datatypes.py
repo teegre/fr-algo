@@ -110,8 +110,10 @@ class Float(Number):
   def set_value(self, value):
     if isinstance(value, float):
       self.value = value
-    elif isinstance(value, Float):
-      self.value = value.eval()
+    elif isinstance(value, int):
+      self.value = float(value)
+    elif isinstance(value, Number):
+      self.value = float(value.eval())
     else:
       raise BadType(f'Type {self.data_type} attendu [{value}]')
 
@@ -339,21 +341,25 @@ class Array(Base):
       if len(self.indexes) == 1 and self.indexes[0] == -1:
         raise BadType('Tableau non dimensionné')
       if self.sizes[0] != len(value):
-        raise BadType('Nombre de valeurs invalide')
+        raise BadType(f'Nombre de valeurs invalide : {len(value)} ({len(self.value)})')
       array = self.new_array(len(value))
       for i, n in enumerate(value):
         try:
+          if isinstance(n, Number) and datatype == 'Numérique':
+              n = Float(float(n.eval()))
           if n.data_type != datatype:
-            raise BadType(f'Type {datatype} attendu')
+            raise BadType(f'Type {datatype} attendu ({n.data_type})')
         except AttributeError:
           nn = map_type(n.eval())
           if nn.data_type != datatype:
-            raise BadType(f'Type {datatype} attendu')
+            raise BadType(f'Type {datatype} attendu ({nn.data_type})')
         array[i] = n.eval()
       self.value = array
       return
     if value is None:
       raise BadType('Erreur de syntaxe : [] manquants')
+    if isinstance(value, Number) and datatype == 'Numérique':
+      value = Float(float(value.eval()))
     typed_value = map_type(value.eval())
     if typed_value.data_type != datatype:
       raise BadType(f'Type {datatype} attendu ({typed_value.data_type})')

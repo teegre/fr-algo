@@ -224,6 +224,16 @@ c3 = "Chaîne1 et Chaîne2"
 # VRAI
 ```
 
+**Note** : Si une valeur de type `Entier` est affectée à une variable de type `Numérique`,
+elle est convertie en `Numérique`.
+
+```
+Variable n en Numérique
+n <- 1
+n
+# 1.0
+```
+
 ## Tableaux <a name="tableau"></a>
 
 ### Déclaration
@@ -820,7 +830,8 @@ n = 8
 ## Le type `Quelconque` <a name="quelconque"></a>
 
 C'est un type générique qui peut être n'importe lequel des types suivants : `Booléen`, `Entier`, `Numérique` ou `Chaîne`.
-Il n'est utilisable que dans les paramètres et/ou dans le corps d'une fonction ou d'une procédure.
+Il est utilisable dans les paramètres et/ou dans le corps d'une fonction ou d'une procédure.
+Il peut être également utilisé comme type retourné par une fonction.
 
 ### Utilité
 

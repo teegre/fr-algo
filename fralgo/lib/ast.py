@@ -894,7 +894,7 @@ class WriteFile:
     fd = get_file_descriptor(self.fd_number.eval())
     if fd is None:
       raise FatalError(f'Pas de fichier affecté au canal {self.fd_number}')
-    elif isinstance(self.var, (BinOp, Boolean, Float, Integer, String, ArrayGetItem, StructureGetItem, Structure)):
+    elif isinstance(self.var, (Variable, BinOp, Boolean, Float, Integer, String, ArrayGetItem, StructureGetItem, Structure)):
       var = self.var.eval()
     else:
       var = self.var

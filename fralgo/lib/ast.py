@@ -268,21 +268,21 @@ class TableGetValues:
     return f'Valeurs({self.var})'
 
 class StructureGetItem:
-  def __init__(self, var, field, namespace=None):
-    self.var = var
+  def __init__(self, name, field, namespace=None):
+    self.name = name
     self.field = field
     self.namespace = namespace
   def eval(self):
-    if isinstance(self.var, tuple):
-      if len(self.var) > 1:
-        structure = namespaces.get_variable(self.var[0], self.namespace)
-        for field in self.var[1:]:
+    if isinstance(self.name, tuple):
+      if len(self.name) > 1:
+        structure = namespaces.get_variable(self.name[0], self.namespace)
+        for field in self.name[1:]:
           structure = structure.get_item(field)
         return structure.get_item(self.field)
-    if isinstance(self.var, (ArrayGetItem, StructureGetItem)):
-      var = self.var.eval()
+    if isinstance(self.name, (ArrayGetItem, StructureGetItem)):
+      var = self.name.eval()
     else:
-      var = namespaces.get_variable(self.var, self.namespace)
+      var = namespaces.get_variable(self.name, self.namespace)
     try:
       return var.get_item(self.field)
     except AttributeError:
@@ -431,7 +431,7 @@ class FunctionCall:
       # set variables
       sym = namespaces.get_namespace(self.namespace)
       for i, param in enumerate(params):
-        if isinstance(self.params[i], Variable):
+        if isinstance(self.params[i], (Variable, StructureGetItem)):
           if self.params[i].namespace is None:
             self.params[i].namespace = self.cnamespace
         if isinstance(param[0], Reference):
@@ -442,7 +442,10 @@ class FunctionCall:
           if t == 'Quelconque':
             t = self.params[i].data_type[1]
           if s == -1:
-            array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
+            if isinstance(self.params[i], StructureGetItem):
+              array = self.params[i].eval()
+            else:
+              array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
             if array is None:
               array = self.params[i].eval()
             sym.declare_array(n, t, *array.indexes)

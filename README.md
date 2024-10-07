@@ -4,7 +4,7 @@
 
 ## Installation
 
-Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 (ou plus)
+Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 (ou ultérieure)
 et **pipx** sont installés sur votre système :
 
 ```shell
@@ -232,6 +232,21 @@ Variable n en Numérique
 n <- 1
 n
 # 1.0
+```
+
+## Constantes
+
+### Déclaration
+
+`Constante C 12`
+
+## Affectation
+
+La valeur d'un constante ne peut évidemment pas être modifiée.
+
+```
+C ← 13
+*** Constante C : en lecture seule
 ```
 
 ## Tableaux <a name="tableau"></a>
@@ -925,7 +940,7 @@ T2 contient 3 fois le chiffre 1.
 
 ### Maximum
 
-*  Déclaration de variables, de tableaux, de structures...
+*  Déclaration de variables, de constantes de tableaux, de structures...
 *  Déclaration de fonctions, de procédures...
 *  `Début`
 *  Instructions

@@ -41,9 +41,8 @@ from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import VarUndefined, FatalError, ZeroDivide
-from fralgo.lib.exceptions import FuncInvalidParameterCount
-from fralgo.lib.exceptions import FralgoInterruption
+from fralgo.lib.exceptions import VarUndefined, ZeroDivide
+from fralgo.lib.exceptions import FuncInvalidParameterCount, FralgoInterruption, FatalError
 
 namespaces = Namespaces(_get_type)
 libs = LibMan()
@@ -118,6 +117,16 @@ class Declare:
       sym.declare_var(self.name, self.var_type)
   def __repr__(self):
     return f'Variable {self.name} en {self.var_type}'
+
+class DeclareConst:
+  def __init__(self, name, value):
+    self.name = name
+    self.value = map_type(value)
+  def eval(self):
+    sym = namespaces.get_namespace(name=None)
+    sym.declare_const(self.name, self.value)
+  def __repr__(self):
+    return f'Constante {self.name} {self.value}'
 
 class DeclareArray:
   def __init__(self, name, var_type, *max_indexes):
@@ -517,6 +526,8 @@ class Variable:
   def eval(self):
     sym = namespaces.get_namespace(self.namespace)
     var = sym.get_variable(self.name)
+    if isinstance(var, tuple): # constant!
+      var = var[1]
     if isinstance(var, (Boolean, Number, String, Variable)):
       return var.eval()
     return var

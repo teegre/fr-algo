@@ -103,6 +103,11 @@ class Symbols:
       variables[name] = data
     else:
       variables[name] = datatype(None)
+  def declare_const(self, name, value):
+    variables = self.get_variables()
+    if variables.get(name, None) is not None:
+      raise ex.VarRedeclared(f'Redéclaration de la constante >{name}<')
+    variables[name] = ('CONST', value)
   def declare_ref(self, name, var):
     refs = self.get_localrefs_table()
     if refs.get(name, None) is not None:
@@ -141,6 +146,8 @@ class Symbols:
     var = self.get_variable(name)
     if isinstance(value, Array):
       var.set_array(value)
+    elif isinstance(var, tuple): # constant!
+      raise ex.ReadOnlyValue(f'Constante {name} : en lecture seule')
     else:
       var.set_value(value)
   def get_variable(self, name, visited=None):

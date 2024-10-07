@@ -45,6 +45,7 @@ reserved = {
   'Clef':          'KEY',
   'Clefs':         'KEYS',
   'CodeCar':       'ORD',
+  'Constante':     'CONST',
   'DP':            'DIVBY',
   'Dormir':        'SLEEP',
   'Droite':        'RTRIM',

@@ -34,7 +34,7 @@ from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
-from fralgo.lib.ast import Node, Declare, DeclareArray, DeclareTable, DeclareStruct
+from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
@@ -199,6 +199,7 @@ def p_var_declaration(p):
                   | ARRAYS_DECL array_list TYPE_DECL type NEWLINE
                   | VAR_DECL ID TYPE_DECL type NEWLINE
                   | VARS_DECL var_list TYPE_DECL type NEWLINE
+                  | const_declaration
                   | table_declaration
                   | struct_declarations
                   | function_declaration
@@ -224,6 +225,17 @@ def p_var_declaration(p):
       p[0] = declarations
     else:
       p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
+
+def p_const_declaration(p):
+  '''
+  const_declaration : CONST ID BOOL_TRUE NEWLINE
+                    | CONST ID BOOL_FALSE NEWLINE
+                    | CONST ID FLOAT NEWLINE
+                    | CONST ID INTEGER NEWLINE
+                    | CONST ID STRING NEWLINE
+
+  '''
+  p[0] = Node(DeclareConst(p[2], p[3]), p.lineno(1))
 
 def p_char(p):
   '''

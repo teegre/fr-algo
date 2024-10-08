@@ -249,6 +249,13 @@ C ← 13
 *** Constante C : en lecture seule
 ```
 
+Il est possible d'affecter à une constante les types suivants :
+
+`Chaîne`, `Entier`, `Numérique`, `Booléen`, `Tableau`
+
+L'affectation d'un tableau à une constante se fait de la manière suivante :
+`Constante MonTableau [1, 2, 3]`
+
 ## Tableaux <a name="tableau"></a>
 
 ### Déclaration
@@ -299,7 +306,9 @@ u[3] = 4
 
 ```
 Tableau T[3] en Entier
-T[] <- 1, 2, 3, 4
+T <- 1, 2, 3, 4
+# ou
+T <- [1, 2, 3, 4]
 T[0] = 1
 # VRAI
 T[3] = 4
@@ -354,6 +363,16 @@ p1 <- "John", "Wick"
 p2 <- p1
 p2 = p1
 # VRAI
+```
+
+### Accès aux champs d'une structure
+
+Pour récupérer la valeur d'un champ, la syntaxe est la suivante :
+```
+p1.prenom
+# John
+p1.nom
+# Wick
 ```
 
 ## Opérateurs <a name="opérateur"></a>

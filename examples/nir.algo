@@ -7,5 +7,5 @@ Variable n en Entier
 Début
   Ecrire "Entrez votre NIR : " \
   Lire n
-  Ecrire nir(n)
+  Ecrire "Clef :", nir(n)
 Fin

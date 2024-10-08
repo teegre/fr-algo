@@ -20,19 +20,60 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_affectation_directe_de_valeurs_a_une_structure(self):
+    prog='''Structure S
+    a en Entier
+    b[1] en Entier
+    c en Chaîne
+    FinStructure
+    Constante C "fin"
+    Variable s en S
+    Variable test en Booléen
+    Début
+      Ecrire "21. Test d'affection directe de valeurs à une structure"
+      s <- 1, [2,6], C
+      test <- s.a = 1 ET s.b[0] = 2 ET s.b[1] = 6 ET s.c = "fin"
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+
+  def test_affectation_directe_de_valeurs_a_une_structure_contenant_un_tableau(self):
+    prog='''Structure S
+    a en Entier
+    b[1] en Entier
+    c en Chaîne
+    FinStructure
+    Variable s en S
+    Variable test en Booléen
+    Début
+      Ecrire "20. Test d'affection directe de valeurs à une structure contenant un tableau"
+      s <- 1, [2,6], "fin"
+      test <- s.a = 1 ET s.b[0] = 2 ET s.b[1] = 6 ET s.c = "fin"
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+
   def test_tableau_dans_structure(self):
     prog='''Structure S
     a en Entier
     b[] en Entier
     FinStructure
     Variable s en S
-    Variables test, final en Booléen
+    Variable test en Booléen
     Variable i en Entier
     Début
       Ecrire "19. Test tableau non dimensionné dans une structure"
       s.a <- Entier(Aléa() * 6 + 1)
       Redim s.b[5]
-      s.b[] <- 1,2,3,4,5,6
+      s.b <- [1,2,3,4,5,6]
       test <- Taille(s.b) = 6 ET s.b[0] = 1 ET s.b[5] = 6
       Pour i <- 0 à Taille(s.b) - 1
         s.b[i] <- s.b[i] + 1
@@ -51,7 +92,7 @@ class Test(unittest.TestCase):
     Variables test1, test2 en Booléen
     Début
       Ecrire "18. Test affectation directe de valeurs à un tableau"
-      t[] <- 1, 2, 3, 4, 5, 6, 7, 8, 9
+      t <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
       test1 <- t[0] = 1
       test2 <- t[8] = 9
     Fin'''

@@ -93,7 +93,7 @@ class Symbols:
     else:
       variables = self.get_variables()
     if variables.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     datatype = self.get_type(data_type, self.get_structure)
     if self.is_structure(data_type):
       structure = self.get_structure(data_type)
@@ -106,12 +106,12 @@ class Symbols:
   def declare_const(self, name, value):
     variables = self.get_variables()
     if variables.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la constante >{name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la constante `{name}`')
     variables[name] = ('CONST', value)
   def declare_ref(self, name, var):
     refs = self.get_localrefs_table()
     if refs.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la référence >{name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la référence `{name}`')
     refs[name] = var
   def declare_array(self, name, data_type, *max_indexes, superglobal=False):
     if superglobal:
@@ -121,7 +121,7 @@ class Symbols:
     else:
       variables = self.table[self.__vars]
     if variables.get(name, None) is not None:
-      raise ex.VarRedeclared((f'Redéclaration de la variable >{name}<'))
+      raise ex.VarRedeclared((f'Redéclaration de la variable `{name}`'))
     array = Array(data_type, *max_indexes)
     array.set_get_structure(self.get_structure)
     array.value = array.new_array(*array.sizes)
@@ -132,7 +132,7 @@ class Symbols:
     else:
       variables = self.table[self.__vars]
     if variables.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la variable {name}')
+      raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Table(key_type, value_type)
   def declare_sized_char(self, name, size):
     if self.is_local():
@@ -140,14 +140,14 @@ class Symbols:
     else:
       variables = self.table[self.__vars]
     if variables.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la variable >{name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Char(None, size)
   def assign_value(self, name, value):
     var = self.get_variable(name)
-    if isinstance(value, Array):
+    if isinstance(var, tuple): # constant!
+      raise ex.ReadOnlyValue(f'Constante `{name}` : en lecture seule')
+    elif issubclass(type(value), Array):
       var.set_array(value)
-    elif isinstance(var, tuple): # constant!
-      raise ex.ReadOnlyValue(f'Constante {name} : en lecture seule')
     else:
       var.set_value(value)
   def get_variable(self, name, visited=None):
@@ -160,8 +160,11 @@ class Symbols:
         if name in references:
           visited.add(name)
           var = references[name]
-          if var.namespace != self.namespace and self.namespace is not None:
-            return var.eval()
+          try:
+            if var.namespace != self.namespace and self.namespace is not None:
+              return var.eval()
+          except AttributeError:
+            raise ex.BadReference(f'Référence `{name}` invalide !')
           resolved = self.get_variable(var.name, visited)
           if resolved is not None:
             return resolved
@@ -187,12 +190,12 @@ class Symbols:
           return functions[name]
     function = self.table[self.__func].get(name, None)
     if function is None:
-      raise ex.VarUndeclared(f'Fonction >{name}< non déclarée')
+      raise ex.VarUndeclared(f'Fonction `{name}` non déclarée')
     return function
   def declare_structure(self, structure):
     structs = self.get_structures()
     if structs.get(structure.name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la structure >{structure.name}<')
+      raise ex.VarRedeclared(f'Redéclaration de la structure `{structure.name}`')
     structs[structure.name] = structure
   def get_structure(self, name):
     if self.is_local_structure():
@@ -201,7 +204,7 @@ class Symbols:
           return structs[name]
     struct = self.table[self.__structs].get(name, None)
     if struct is None:
-      raise ex.VarRedeclared(f'Structure >{name}< non déclarée')
+      raise ex.VarRedeclared(f'Structure `{name}` non déclarée')
     return struct
   def set_local(self):
     self.table[self.__local].append({})
@@ -221,7 +224,7 @@ class Symbols:
     try:
       self.table[self.__vars].pop(name)
     except KeyError:
-      raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
+      raise ex.VarUndeclared(f'Variable `{name}` non déclarée')
   def reset(self):
     self.table[self.__func].clear()
     self.table[self.__local].clear()
@@ -232,12 +235,12 @@ class Symbols:
     self.table[self.__localstructs].clear()
   def dump(self):
     print('*** global variables')
-    for k in self.table[self.__vars].keys():
-      print(k)
+    for k, v in self.table[self.__vars].items():
+      print(k, v)
     print('---')
     print('*** functions')
-    for k in self.table[self.__func].keys():
-      print(k)
+    for k, v in self.table[self.__func].items():
+      print(k, v)
     print('---')
     print('*** refs')
     for refs in self.__localrefs:
@@ -249,25 +252,25 @@ class Symbols:
 
 class Namespaces:
   def __init__(self, get_type):
-    self.ns = {}
+    self.__ns = {}
     self.get_type = get_type
     # init main namespace
-    self.ns['main'] = Symbols(get_type_func=get_type)
+    self.__ns['main'] = Symbols(get_type_func=get_type)
     self.current_namespace = 'main'
   def set_current_namespace(self, name):
     self.current_namespace = name
   def declare_namespace(self, name):
-    if name in self.ns:
+    if name in self.__ns:
       raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
-    self.ns[name] = Symbols(self.get_type, name)
+    self.__ns[name] = Symbols(self.get_type, name)
     self.current_namespace = name
   def get_namespace(self, name):
     if not name:
       nm = self.current_namespace
     else:
       nm = name
-    if nm in self.ns:
-      return self.ns[nm]
+    if nm in self.__ns:
+      return self.__ns[nm]
     raise ex.VarUndeclared(f'Espace-nom \'{nm}\' non déclaré')
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
@@ -288,8 +291,10 @@ class Namespaces:
     sym = self.get_namespace(namespace)
     return sym.del_local()
   def reset(self):
-    for _, symbols in self.ns.items():
+    for symbols in self.__ns.values():
       symbols.reset()
-    self.ns.clear()
-    self.ns['main'] = Symbols(self.get_type, 'main')
+    self.__ns.clear()
+    self.__ns['main'] = Symbols(self.get_type, 'main')
     self.current_namespace = 'main'
+  def dump(self, namespace='main'):
+    self.__ns[namespace].dump()

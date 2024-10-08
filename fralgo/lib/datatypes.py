@@ -315,8 +315,13 @@ class Array(Base):
     self ← array
     self ← &array
     '''
-    if self.sizes != array.sizes:
-      raise BadType('Tableaux de taille differentes')
+    try:
+      if self.sizes != array.sizes:
+        raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
+    except AttributeError:
+      array = array.eval()
+      if self.sizes != array.sizes:
+        raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
     if self.datatype != array.datatype:
       raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
     # /!\ Not implemented in grammar.
@@ -334,8 +339,7 @@ class Array(Base):
     if isinstance(datatype, tuple): # sized char
       typed_value = Char(value.eval(), datatype[1])
       datatype = self.datatype
-    if isinstance(value, list) and (
-        indexes == [] or indexes == (None,) or indexes == ()): # sequence to array
+    if (isinstance(value, list) or issubclass(type(value), Array)) and indexes is None:
       if len(self.sizes) > 1:
         raise BadType('Interdit : Affectation directe de valeurs à un tableau multidimensionnel')
       if len(self.indexes) == 1 and self.indexes[0] == -1:
@@ -346,7 +350,9 @@ class Array(Base):
       for i, n in enumerate(value):
         try:
           if isinstance(n, Number) and datatype == 'Numérique':
-              n = Float(float(n.eval()))
+            n = Float(float(n.eval()))
+          elif isinstance(n, (int, float, bool, str)):
+            n = map_type(n)
           if n.data_type != datatype:
             raise BadType(f'Type {datatype} attendu ({n.data_type})')
         except AttributeError:
@@ -356,8 +362,6 @@ class Array(Base):
         array[i] = n.eval()
       self.value = array
       return
-    if value is None:
-      raise BadType('Erreur de syntaxe : [] manquants')
     if isinstance(value, Number) and datatype == 'Numérique':
       value = Float(float(value.eval()))
     typed_value = map_type(value.eval())
@@ -524,9 +528,13 @@ class StructureData(Base):
           self.data[name].set_value(indexes, map_type(value))
       else:
         try:
-          self.data[fieldname].set_value(value)
+          if isinstance(self.data[fieldname], Array):
+            if isinstance(value, (list, Array)):
+              self.data[fieldname].set_value(None, value)
+          else:
+            self.data[fieldname].set_value(value)
         except KeyError:
-          raise UnknownStructureField(f'{fieldname} ne fait pas partie de {self.name}')
+          raise UnknownStructureField(f'`{fieldname}` ne fait pas partie de `{self.name}`')
     else:
       if isinstance(value, StructureData):
         if value.name == self.name:
@@ -546,7 +554,7 @@ class StructureData(Base):
             if isinstance(self.data[name], StructureData):
               self.data[name].set_value(value, None)
             elif isinstance(self.data[name], Array):
-              self.data[name].set_value(value, None)
+              self.data[name].set_array(value[i])
             else:
               self.data[name].set_value(
                 value[i].eval() if isinstance(value, (list, tuple)) else map_type(value))
@@ -602,9 +610,6 @@ class StructureData(Base):
       return self.name == other.name and self.data == other.data
     return False
   def __str__(self):
-    # if 'FRALGOREPL' in os.environ:
-      # return self.__repr__()
-    # else:
     data = [str(v.eval()) for v in self.data.values()]
     return ', '.join(data)
   def __repr__(self):

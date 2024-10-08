@@ -3,6 +3,7 @@ Structure S
   DATA[] en Entier
 FinStructure
 
+Constante C [1,0,0,1,1,0]
 Variable s en S
 Variables test, final en Booléen
 
@@ -11,8 +12,8 @@ Début
   Redim s.DATA[5]
   test <- Taille(s.DATA) = 6
   final <- test
-  s.DATA[] <- 1,0,0,1,1,0
-  Ecrire s
+  s.DATA <- C
+  test <- test ET s.DATA = C
   Si final Alors
     Ecrire "Le test a réussi !"
   Sinon

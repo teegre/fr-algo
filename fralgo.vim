@@ -33,6 +33,7 @@ syn match Assignment "←\|<-"
 
 syn keyword Import Importer Alias
 syn keyword VarDeclaration Variable Variables Tableau Tableaux
+syn keyword Const Constante
 syn keyword Structure Structure FinStructure Table FinTable
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique Quelconque
 syn keyword Program Début Fin
@@ -65,6 +66,7 @@ syn sync lines=100
 
 let b:current_syntax = "algo"
 
+hi def link Const Constant
 hi def link Program Constant
 hi def link Library Constant
 hi def link Assignment Constant

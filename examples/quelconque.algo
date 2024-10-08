@@ -24,9 +24,9 @@ Variables c1, c2, c3, c4 en Entier
 Variable test en Booléen
 
 Début
-  T1[] <- 1, 2, 3, 4, 1
-  T2[] <- 1.2, 3.4, 4.3, 2.1, 1.2
-  T3[] <- "A", "B", "C", "D", "A"
+  T1 <- 1, 2, 3, 4, 1
+  T2 <- 1.2, 3.4, 4.3, 2.1, 1.2
+  T3 <- "A", "B", "C", "D", "A"
   c1 <- Compte(T1, 1)
   c2 <- Compte(T2, 1.2)
   c3 <- Compte(T3, "A")

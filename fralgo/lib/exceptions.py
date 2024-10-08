@@ -47,7 +47,9 @@ class VarUndefined(FralgoException):
   '''Attention, ne jamais toucher à une variable vide...'''
   # ... même tombée à terre !
 class ReadOnlyValue(FralgoException):
-  '''Affectation d\'une valeur à une constante (lecture seule)'''
+  '''Affectation d\'une valeur à une constante (lecture seule).'''
+class BadReference(FralgoException):
+  '''Référence invalide.'''
 class InterruptedByUser(FralgoException):
   '''Le programme a été interrompu par l\'utilisateur. '''
 class IndexOutOfRange(FralgoException):

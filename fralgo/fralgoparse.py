@@ -35,13 +35,13 @@ from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
 from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTable, DeclareStruct
-from fralgo.lib.ast import OpenFile, CloseFile, ReadFile, WriteFile, EOF
+from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
 from fralgo.lib.ast import get_type
-from fralgo.lib.datatypes import Array, map_type
+from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as fralgolex
 from fralgo.ply.yacc import yacc
@@ -233,6 +233,7 @@ def p_const_declaration(p):
                     | CONST ID FLOAT NEWLINE
                     | CONST ID INTEGER NEWLINE
                     | CONST ID STRING NEWLINE
+                    | CONST ID freeform_array NEWLINE
 
   '''
   p[0] = Node(DeclareConst(p[2], p[3]), p.lineno(1))
@@ -279,6 +280,23 @@ def p_array_max_index(p):
   array_max_index : INTEGER
   '''
   p[0] = [p[1]]
+
+# def p_freeform_arrays(p):
+#   '''
+#   freeform_arrays : LBRACKET freeform_arrays COMMA freeform_array RBRACKET
+#                   | freeform_array
+#   '''
+#   if len(p) == 6:
+#     print(p[1], p[2], p[3], p[4], p[5])
+#     p[0] = [p[2] + p[4]]
+#   else:
+#     p[0] = p[1]
+
+def p_freeform_array(p):
+  '''
+  freeform_array : LBRACKET sequence RBRACKET
+  '''
+  p[0] = FreeFormArray(p[2])
 
 def p_var_list(p):
   '''
@@ -800,6 +818,7 @@ def p_expression(p):
              | INTEGER
              | STRING
              | var
+             | freeform_array
   '''
   p[0] = map_type(p[1])
 

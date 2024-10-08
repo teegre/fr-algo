@@ -36,12 +36,12 @@ from datetime import datetime
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String, Table
-from fralgo.lib.datatypes import Structure, _get_type
+from fralgo.lib.datatypes import Structure, StructureData, _get_type
 from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
-from fralgo.lib.exceptions import VarUndefined, ZeroDivide
+from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount, FralgoInterruption, FatalError
 
 namespaces = Namespaces(_get_type)
@@ -205,6 +205,9 @@ class ArraySetItem:
     self.value = value
     self.indexes = indexes
   def eval(self):
+    var = namespaces.get_variable(self.var.name, None)
+    if isinstance(var, tuple):
+      raise ReadOnlyValue(f'Constante `{self.var.name}` : valeur en lecture seule')
     var = self.var.eval()
     var.set_value(self.indexes, self.value)
   def __repr__(self):
@@ -222,20 +225,42 @@ class ArrayResize:
     indexes = (str(index) for index in self.indexes)
     return f'Redim {self.var.name}[{", ".join(indexes)}]'
 
+class FreeFormArray(Array):
+  def __init__(self, value):
+    super().__init__(map_type(value[0]).data_type, len(value) - 1)
+    self.value = [v.eval() for v in value]
+  def eval(self):
+    if self.value:
+      return self.value
+    # there always should be a value
+    raise VarUndefined('Valeur indéfinie')
+  def __iter__(self):
+    return iter(self.value)
+  def __len__(self):
+    return len(self.value)
+  # def __repr__(self):
+  #   return f'{[v.eval() for v in self.value]}'
+  # def __str__(self):
+  #   return f'{[v.eval() for v in self.value]}'
+
 class SizeOf:
   def __init__(self, var):
     self.var = var
   def eval(self):
-    var = self.var.eval()
+    if issubclass(type(self.var), Array):
+      var = self.var
+    else:
+      var = self.var.eval()
     if isinstance(var, Array):
       return var.size
     if isinstance(var, Table):
       return len(var)
     raise BadType('Taille(T) : type Tableau attendu')
+  @property
   def data_type(self):
+    if isinstance(self.var, Array) or issubclass(type(self.var), Array):
+      return 'Entier' if len(self.var.sizes) == 1 else 'Tableau'
     var = self.var.eval()
-    if isinstance(var, Array):
-      return 'Entier' if len(var.sizes) == 1 else 'Tableau'
     if isinstance(var, Table):
       return 'Entier'
     return var.data_type
@@ -301,7 +326,7 @@ class StructureGetItem:
     value = map_type(self.eval())
     return value.data_type
   def __repr__(self):
-    return f'{self.var}.{self.field}'
+    return f'{self.name}.{self.field}'
 
 class StructureSetItem:
   def __init__(self, var, field, value, namespace=None):
@@ -326,7 +351,10 @@ class StructureSetItem:
           self.value if isinstance(self.value, list) else self.value.eval(),
           (self.field[0], (self.field[1],)))
     elif isinstance (self.value, list):
-      var.set_value(self.value, None)
+      if isinstance(var, StructureData):
+        var.set_value(self.value, self.field)
+      else:
+        var.set_value(None, self.value)
     else:
       if self.field is None:
         var.set_value(self.value.eval())
@@ -435,8 +463,12 @@ class FunctionCall:
       self._check_datatypes(params)
       # False if param is a Reference, True otherwise.
       types = [not isinstance(param[0], Reference) for param in params]
-      # Evaluate everything but References
-      values = [param.eval() if types[i] else param for i, param in enumerate(self.params)]
+      # Evaluate everything but References and FreeFormArray (Array subclass)
+      values = [
+          param.eval()
+          if types[i] and not issubclass(type(param), Array)
+          else param
+          for i, param in enumerate(self.params)]
       # set variables
       sym = namespaces.get_namespace(self.namespace)
       for i, param in enumerate(params):
@@ -454,9 +486,14 @@ class FunctionCall:
             if isinstance(self.params[i], StructureGetItem):
               array = self.params[i].eval()
             else:
-              array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
+              try:
+                array = namespaces.get_variable(self.params[i].name, self.params[i].namespace)
+              except AttributeError:
+                array = self.params[i]
             if array is None:
               array = self.params[i].eval()
+            if isinstance(array, tuple): # Constant!
+              array = array[1]
             sym.declare_array(n, t, *array.indexes)
           else:
             sym.declare_array(n, t, *s)
@@ -515,7 +552,10 @@ class Assign:
   def eval(self):
     sym = namespaces.get_namespace(name=None)
     value = self.value
-    sym.assign_value(self.var, value.eval())
+    if issubclass(type(value), Array):
+      sym.assign_value(self.var, value)
+    else:
+      sym.assign_value(self.var, value.eval())
   def __repr__(self):
     return f'{self.var} ← {self.value}'
 
@@ -538,8 +578,16 @@ class Variable:
     except (VarUndeclared, VarUndefined):
       return f'{self.name} → ?'
   @property
+  def is_constant(self):
+    value = namespaces.get_variable(self.name, self.namespace)
+    if isinstance(value, tuple):
+      return value[0] == 'CONST'
+    return False
+  @property
   def data_type(self):
     var = namespaces.get_variable(self.name, self.namespace)
+    if isinstance(var, tuple): # constant!
+      var = var[1]
     return var.data_type
   @property
   def key_type(self):
@@ -992,10 +1040,11 @@ class ToInteger:
     self.value = value
   def eval(self):
     value = algo_to_python(self.value)
+    tvalue = map_type(self.value)
     try:
       return int(value)
-    except ValueError:
-      raise BadType(f'Entier(>N|C<) : Conversion de >{value}< impossible')
+    except (ValueError, TypeError):
+      raise BadType(f'Entier(N ou C) : conversion du type `{repr_datatype(tvalue.data_type)}` impossible')
   def __repr__(self):
     return f'Entier({self.value})'
   @property
@@ -1007,10 +1056,11 @@ class ToFloat:
     self.value = value
   def eval(self):
     value = algo_to_python(self.value)
+    tvalue = map_type(self.value)
     try:
       return float(value)
-    except ValueError:
-      raise BadType(f'Entier(>E|C<) : Conversion de >{value}< impossible')
+    except (ValueError, TypeError):
+      raise BadType(f'Entier(E ou C) : Conversion du type `{repr_datatype(tvalue.data_type)}` impossible')
   def __repr__(self):
     return f'Numérique({self.value})'
   @property
@@ -1022,10 +1072,11 @@ class ToString:
     self.value = value
   def eval(self):
     value = algo_to_python(self.value)
+    tvalue = map_type(self.value)
     try:
       return str(value)
-    except ValueError:
-      raise BadType(f'Chaîne(>E|N<) : Conversion de >{value}< impossible')
+    except (ValueError, TypeError):
+      raise BadType(f'Chaîne(E ou N) : Conversion du type `{repr_datatype(tvalue.data_type)}` impossible')
   def __repr__(self):
     return f'Chaîne({self.value})'
   @property
@@ -1096,6 +1147,7 @@ def algo_to_python(expression):
       StructureGetItem,
       TableKeyExists,
       ToFloat, ToInteger, ToString, Trim,
+      Type,
       UnixTimestamp,
       Variable,
   )

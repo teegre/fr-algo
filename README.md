@@ -112,7 +112,7 @@ Bonjour le monde !
 
 Pour annuler une saisie en cours, appuyer sur <kbd>CTRL</kbd>+<kbd>c</kbd>.
 
-Pour réinitialiser **l'environnement interactif**, taper `REINIT`.
+Pour réinitialiser **l'environnement interactif**, taper `.réinit`.
 
 Il est possible de naviguer dans l'historique avec les touches <kbd>↑</kbd> et <kbd>↓</kbd>
 et d'effectuer une recherche avec <kbd>CTRL</kbd>+<kbd>r</kbd>.

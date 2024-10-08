@@ -76,13 +76,16 @@ class Interpreter:
         readline.write_history_file(history_file)
         sys.exit(0)
       match instruction:
-        case 'TRACE':
+        case '.trace':
           self.traceback = not self.traceback
-          print('*** TRACE est', map_type(self.traceback))
+          print('*** .trace est', map_type(self.traceback))
           continue
-        case 'REINIT':
+        case '.réinit':
           namespaces.reset()
-          print('*** Reinitialisation effectuée')
+          print('*** Réinitialisation effectuée')
+          continue
+        case '.dump':
+          namespaces.dump()
           continue
       if instruction in ('Début', 'Fin', 'Librairie', 'Initialise'):
         print('*** Instruction non admise en mode interpréteur.')

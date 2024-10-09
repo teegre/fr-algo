@@ -96,6 +96,7 @@ def p_import_statement(p):
   '''
   import_statement : IMPORT STRING NEWLINE
                    | IMPORT STRING ALIAS ID NEWLINE
+                   | IMPORT STRING TYPE_DECL ID NEWLINE
   '''
   if len(p) == 6:
     p[0] = Node(Import(p[2], yacc(), p[4]), p.lineno(1))

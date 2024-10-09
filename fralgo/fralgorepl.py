@@ -84,9 +84,22 @@ class Interpreter:
           namespaces.reset()
           print('*** Réinitialisation effectuée')
           continue
-        case '.dump':
-          namespaces.dump()
+        case '.espaces-nom':
+          namespaces.namespaces()
           continue
+      if instruction.startswith('.symboles'):
+        inst = instruction.split()
+        try:
+          if len(inst) == 2:
+            namespaces.dump(inst[1])
+          elif len(inst) == 1:
+            namespaces.dump()
+        except FralgoException as e:
+          print_err(e)
+        continue
+      if instruction.startswith('.'):
+        print(f'*** Commande `{instruction}` inconnue')
+        continue
       if instruction in ('Début', 'Fin', 'Librairie', 'Initialise'):
         print('*** Instruction non admise en mode interpréteur.')
         continue

@@ -234,18 +234,16 @@ class Symbols:
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
   def dump(self):
-    print('*** global variables')
-    for k, v in self.table[self.__vars].items():
-      print(k, v)
+    print('+++ Variables globales')
+    for k, v in sorted(self.table[self.__vars].items()):
+      if isinstance(v, tuple):
+        print('>>> Constante', k, '=', v[1])
+      else:
+        print('>>> Variable', k, '=', v)
     print('---')
-    print('*** functions')
-    for k, v in self.table[self.__func].items():
-      print(k, v)
-    print('---')
-    print('*** refs')
-    for refs in self.__localrefs:
-      for k in refs:
-        print(k)
+    print('+++ Fonctions et Procédures')
+    for k, v in sorted(self.table[self.__func].items()):
+      print(f'>>> {k}:', v)
     print('---')
   def __repr__(self):
     return f'Espace-nom {self.namespace}'
@@ -297,4 +295,9 @@ class Namespaces:
     self.__ns['main'] = Symbols(self.get_type, 'main')
     self.current_namespace = 'main'
   def dump(self, namespace='main'):
-    self.__ns[namespace].dump()
+    if self.__ns.get(namespace, None) is not None:
+      self.__ns[namespace].dump()
+    else:
+      raise ex.FralgoException(f'Espace-nom `{namespace}` inexistant')
+  def namespaces(self):
+    print(f'{", ".join(k for k in self.__ns.keys())}')

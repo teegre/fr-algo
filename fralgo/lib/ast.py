@@ -219,6 +219,8 @@ class ArrayResize:
     self.var = var
     self.indexes = indexes
   def eval(self):
+    if self.var.is_constant:
+      raise ReadOnlyValue(f'Constante `{self.var.name}` : en lecture seule')
     var = self.var.eval()
     var.resize(*self.indexes)
   def __repr__(self):
@@ -379,7 +381,10 @@ class Function:
     sym = namespaces.get_namespace(self.namespace)
     sym.declare_function(self)
   def __repr__(self):
-    params = [f'{param} en {datatype}' for param, datatype in self.params]
+    if self.params:
+      params = [f'{param[0]}{repr_datatype(param[1:], shortform=True)}' for param in self.params]
+    else:
+      params = ''
     if self.return_type is not None:
       return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
     return f'Procédure {self.name}({", ".join(params)})'
@@ -1159,17 +1164,25 @@ def algo_to_python(expression):
 def get_type(expr):
   return Type(expr).eval()
 
-def repr_datatype(datatype):
+def repr_datatype(datatype, shortform=False):
   if isinstance(datatype, (ArrayGetItem, StructureGetItem)):
     datatype = datatype.data_type
   datatype = algo_to_python(datatype)
+  if isinstance(datatype[0], tuple):
+    datatype = datatype[0]
   match datatype[0]:
     case 'Caractère':
+      if shortform:
+        return f' en {datatype[0]}*{datatype[1]}'
       return f'{datatype[0]}*{datatype[1]}'
     case 'Tableau':
       if isinstance(datatype[2], tuple):
         indexes = ', '.join(str(idx) for idx in datatype[2])
       else:
         indexes = datatype[2] if datatype[2] != -1 else ''
+      if shortform:
+        return f'[{indexes}] en {repr_datatype(datatype[1])}'
       return f'{datatype[0]}[{indexes}] en {repr_datatype(datatype[1])}'
+  if shortform:
+    return f' en {datatype}' if not isinstance(datatype, tuple) else f' en {datatype[0]}'
   return datatype if not isinstance(datatype, tuple) else datatype[0]

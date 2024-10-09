@@ -219,8 +219,9 @@ class ArrayResize:
     self.var = var
     self.indexes = indexes
   def eval(self):
-    if self.var.is_constant:
-      raise ReadOnlyValue(f'Constante `{self.var.name}` : en lecture seule')
+    if isinstance(self.var, Variable):
+      if self.var.is_constant:
+        raise ReadOnlyValue(f'Constante `{self.var.name}` : en lecture seule')
     var = self.var.eval()
     var.resize(*self.indexes)
   def __repr__(self):

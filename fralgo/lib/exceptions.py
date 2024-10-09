@@ -50,6 +50,8 @@ class ReadOnlyValue(FralgoException):
   '''Affectation d\'une valeur à une constante (lecture seule).'''
 class BadReference(FralgoException):
   '''Référence invalide.'''
+class PrivateSymbol(FralgoException):
+  '''Accès à un symbole privé.'''
 class InterruptedByUser(FralgoException):
   '''Le programme a été interrompu par l\'utilisateur. '''
 class IndexOutOfRange(FralgoException):
@@ -61,13 +63,12 @@ class InvalidCharacterSize(FralgoException):
 class UnknownStructureField(FralgoException):
   '''Le champ n\'appartient pas à la structure.'''
 class InvalidStructureValueCount(FralgoException):
-  '''Le nombre de valeurs ne correspond pas au nombre de champs de la structure'''
+  '''Le nombre de valeurs ne correspond pas au nombre de champs de la structure.'''
 class FatalError(FralgoException):
-  ''' ERREUR FATALE '''
+  ''' ERREUR FATALE !'''
 class ZeroDivide(FralgoException):
   ''' Division par 0 ! '''
 class FuncInvalidParameterCount(FralgoException):
-  '''Nombre de paramètres invalide'''
+  '''Nombre de paramètres invalide.'''
 class FralgoInterruption(FralgoException):
   '''Exécution interrompue '''
-

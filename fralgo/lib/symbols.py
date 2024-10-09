@@ -237,13 +237,13 @@ class Symbols:
     print('+++ Variables globales')
     for k, v in sorted(self.table[self.__vars].items()):
       if isinstance(v, tuple):
-        print('>>> Constante', k, '=', v[1])
+        print('<-> Constante', k, '=', v[1])
       else:
-        print('>>> Variable', k, '=', v)
+        print('<-> Variable', k, '=', v)
     print('---')
     print('+++ Fonctions et Procédures')
     for k, v in sorted(self.table[self.__func].items()):
-      print(f'>>> {k}:', v)
+      print(f'<-> {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
     print('---')
   def __repr__(self):
     return f'Espace-nom {self.namespace}'
@@ -277,6 +277,9 @@ class Namespaces:
     sym = self.get_namespace(namespace)
     return sym.get_variable(name)
   def get_function(self, name, namespace):
+    if name.startswith('___'):
+      if self.current_namespace != namespace:
+        raise ex.FralgoException('Appel à une fonction/procédure en dehors de son espace-nom.')
     sym = self.get_namespace(namespace)
     return sym.get_function(name)
   def get_structure(self, name, namespace):

@@ -11,7 +11,6 @@ syn case match
 
 " ========================================================================================
 
-
 syn match BinOp "\-"
 syn match BinOp "+"
 syn match BinOp "\*"
@@ -23,7 +22,7 @@ syn match BinOp "<"
 syn match BinOp "<="
 syn match BinOp ">"
 syn match BinOp ">="
-syn match BinOp "<>"
+syn match BinOp "\<<>\>"
 syn match BinOp "&"
 syn match BinOp "\<ET\>"
 syn match BinOp "\<OU\>"
@@ -54,6 +53,7 @@ syn region AlgoString start="'" skip=/\v\\./ end="'"
 
 syn keyword AlgoTodo TODO FIXME NOTE NOTES contained
 syn match AlgoComment "#.*" contains=Todo
+syn match Private "\<___\w*\>"
 
 syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained
 
@@ -81,6 +81,7 @@ hi def link Bool Boolean
 hi def link AlgoString String
 hi def link AlgoNumber Number
 hi def link File PreProc
+hi def link Private Special
 hi def link ID Identifier
 hi def link Import Include
 hi def link VarDeclaration Statement

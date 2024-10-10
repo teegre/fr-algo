@@ -156,9 +156,9 @@ class Symbols:
         visited = set()
       elif name in visited:
         return None
+      visited.add(name)
       for references in reversed(self.__localrefs):
         if name in references:
-          visited.add(name)
           var = references[name]
           try:
             if var.namespace != self.namespace and self.namespace is not None:
@@ -168,6 +168,8 @@ class Symbols:
           resolved = self.get_variable(var.name, visited)
           if resolved is not None:
             return resolved
+          else:
+            return var
       for variables in reversed(self.table[self.__local]):
         if name in variables:
           return variables[name]
@@ -234,17 +236,30 @@ class Symbols:
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
   def dump(self):
-    print('+++ Variables globales')
-    for k, v in sorted(self.table[self.__vars].items()):
-      if isinstance(v, tuple):
-        print('<-> Constante', k, '=', v[1])
-      else:
-        print('<-> Variable', k, '=', v)
-    print('---')
-    print('+++ Fonctions et Procédures')
-    for k, v in sorted(self.table[self.__func].items()):
-      print(f'<-> {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
-    print('---')
+    if not self.is_local():
+      print('+++ Variables globales')
+      for k, v in sorted(self.table[self.__vars].items()):
+        if isinstance(v, tuple):
+          print('<-> Constante', k, '=', v[1])
+        else:
+          print('<-> Variable', k, '=', v)
+      print('---')
+    if self.is_local() and self.table[self.__local]:
+      print('@@@ Variables locales')
+      for locs in self.table[self.__local]:
+        for k, v in locs.items():
+          print('<->', k, '=', v)
+      print('---')
+      print('@@@ Références locales')
+      for refs in self.__localrefs:
+        for k, v in sorted(refs.items()):
+          print('<->', k, '=', v)
+      print('---')
+    if not self.is_local():
+      print('+++ Fonctions et Procédures')
+      for k, v in sorted(self.table[self.__func].items()):
+        print(f'<-> {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
+      print('---')
   def __repr__(self):
     return f'Espace-nom {self.namespace}'
 

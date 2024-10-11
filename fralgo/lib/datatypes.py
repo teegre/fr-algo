@@ -322,7 +322,7 @@ class Array(Base):
       array = array.eval()
       if self.sizes != array.sizes:
         raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
-    if self.datatype != array.datatype:
+    if self.datatype != array.datatype and array.datatype != 'Quelconque':
       raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
     # /!\ Not implemented in grammar.
     # References are only available in procedure.
@@ -365,7 +365,7 @@ class Array(Base):
     if isinstance(value, Number) and datatype == 'Numérique':
       value = Float(float(value.eval()))
     typed_value = map_type(value.eval())
-    if typed_value.data_type != datatype:
+    if typed_value.data_type != datatype and datatype != 'Quelconque':
       raise BadType(f'Type {datatype} attendu ({typed_value.data_type})')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
@@ -664,6 +664,10 @@ class Any(Base):
     elif isinstance(value, (str, String)):
       self.__class__ = String
     self.value = map_type(value)
+  def __repr__(self):
+    if self.value is None:
+      return '? → ?'
+    return f'{self.data_type} → {self.value}'
 
 def _get_type(datatype, get_structure):
   __datatypes = {

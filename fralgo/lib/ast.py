@@ -408,6 +408,11 @@ class FunctionCall:
         raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalide : {a}, attendu {x} ')
   def _check_datatypes(self, params):
     for i, p in enumerate(self.params):
+      if isinstance(params[i][0], Reference):
+        # enable dereferencing
+        sym = namespaces.get_namespace(self.namespace)
+        sym.set_local_ref_context(dereference=True)
+      p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
       if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
         p2 = map_type(p.eval())
         p2 = p2.data_type
@@ -415,7 +420,6 @@ class FunctionCall:
         p2 = map_type(p).data_type
       else:
         p2 = p.data_type
-      p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
       p2 = (p2,) if not isinstance(p2, tuple) else p2
       if p1 == p2:
         continue
@@ -461,7 +465,8 @@ class FunctionCall:
   def eval(self):
     func = namespaces.get_function(self.name, self.namespace)
     params = func.params
-    namespaces.set_local(self.namespace)
+    namespaces.set_local(self.namespace, context_name=self.name)
+    sym = namespaces.get_namespace(self.namespace)
     if params is not None:
       # check parameter count
       self._check_param_count(params)
@@ -476,9 +481,8 @@ class FunctionCall:
           else param
           for i, param in enumerate(self.params)]
       # set variables
-      sym = namespaces.get_namespace(self.namespace)
       for i, param in enumerate(params):
-        if isinstance(self.params[i], (Variable, StructureGetItem)):
+        if isinstance(self.params[i], (Variable, StructureGetItem, ArrayGetItem)):
           if self.params[i].namespace is None:
             self.params[i].namespace = self.cnamespace
         if isinstance(param[0], Reference):
@@ -489,7 +493,7 @@ class FunctionCall:
           if t == 'Quelconque':
             t = self.params[i].data_type[1]
           if s == -1:
-            if isinstance(self.params[i], StructureGetItem):
+            if isinstance(self.params[i], (ArrayGetItem, StructureGetItem, Variable)):
               array = self.params[i].eval()
             else:
               try:
@@ -512,10 +516,14 @@ class FunctionCall:
           if t == 'Quelconque':
             t = self.params[i].data_type
           sym.declare_var(n, t)
+
         sym.assign_value(n, values[i])
+
     # function body
     body = func.body
+
     namespaces.set_current_namespace(self.namespace)
+
     try:
       result = body.eval()
       if result is not None:
@@ -818,7 +826,7 @@ class For:
   def eval(self):
     sym = namespaces.get_namespace(self.namespace)
     if self.var != self.var_next:
-      raise FralgoException(f'Pour >{self.var}< ... >{self.var_next}< Suivant')
+      raise FralgoException(f'Pour `{self.var}` ... `{self.var_next}` Suivant')
     i = self.start.eval()
     end = self.end.eval()
     step = self.step.eval()

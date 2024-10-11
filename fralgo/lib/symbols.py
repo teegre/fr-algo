@@ -25,6 +25,8 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from collections import namedtuple
+
 import fralgo.lib.exceptions as ex
 from fralgo.lib.datatypes import Array, Char, StructureData, Table
 
@@ -33,11 +35,14 @@ class Symbols:
   __vars         = 'variables'
   __structs      = 'structures'
   __local        = 'local'
+  __context      = 'context'
   __localfunc    = 'localfunctions'
   __localstructs = 'localstructs'
 
   __superglobal  = {}
   __localrefs    = []
+
+  Context      = namedtuple('Context', ['name', 'dereference'])
 
 # TODO: ORDER METHODS
 
@@ -49,9 +54,11 @@ class Symbols:
       self.__local        : [],
       self.__localfunc    : [],
       self.__localstructs : [],
+      self.__context      : [],
     }
     self.get_type = get_type_func
     self.namespace = namespace
+
   def is_structure(self, name):
     if self.is_local_structure():
       table = self.table[self.__localstructs]
@@ -70,6 +77,9 @@ class Symbols:
   def get_local_table(self):
     table = self.table[self.__local]
     return table[-1]
+  def get_local_ref_context(self):
+    table = self.table[self.__context]
+    return table[-1]
   def get_localrefs_table(self):
     table = self.__localrefs
     return table[-1]
@@ -87,6 +97,13 @@ class Symbols:
     if self.is_local_structure():
       return self.get_localstructs_table()
     return self.table[self.__structs]
+  def set_local_ref_context(self, name:str=None, dereference:bool=None):
+    context = self.get_local_ref_context()
+    if name:
+      context = context._replace(name=name)
+    if dereference is not None:
+      context = context._replace(dereference=dereference)
+    self.table[self.__context][-1] = context
   def declare_var(self, name, data_type, superglobal=False):
     if superglobal:
       variables = self.__superglobal
@@ -152,24 +169,24 @@ class Symbols:
       var.set_value(value)
   def get_variable(self, name, visited=None):
     if self.is_local():
-      if visited is None:
-        visited = set()
-      elif name in visited:
-        return None
-      visited.add(name)
-      for references in reversed(self.__localrefs):
-        if name in references:
-          var = references[name]
-          try:
-            if var.namespace != self.namespace and self.namespace is not None:
-              return var.eval()
-          except AttributeError:
-            raise ex.BadReference(f'Référence `{name}` invalide !')
-          resolved = self.get_variable(var.name, visited)
-          if resolved is not None:
-            return resolved
-          else:
-            return var
+      context = self.get_local_ref_context()
+      if context.dereference:
+        if visited is None:
+          visited = set()
+        elif name in visited:
+          return None
+        visited.add(name)
+        for references in reversed(self.__localrefs):
+          if name in references:
+            var = references[name]
+            try:
+              if var.namespace != self.namespace and self.namespace is not None:
+                return var.eval()
+            except AttributeError:
+              raise ex.BadReference(f'Référence `{name}` invalide !')
+            resolved = self.get_variable(var.name, visited)
+            if resolved is not None:
+              return resolved
       for variables in reversed(self.table[self.__local]):
         if name in variables:
           return variables[name]
@@ -208,14 +225,17 @@ class Symbols:
     if struct is None:
       raise ex.VarRedeclared(f'Structure `{name}` non déclarée')
     return struct
-  def set_local(self):
+  def set_local(self, context_name: str):
     self.table[self.__local].append({})
+    self.table[self.__context].append(self.Context(name=context_name, dereference=False))
     self.__localrefs.append({})
     self.table[self.__localfunc].append({})
     self.table[self.__localstructs].append({})
   def del_local(self):
     if self.table[self.__local]:
       self.table[self.__local].pop()
+    if self.table[self.__context]:
+      self.table[self.__context].pop()
     if self.__localrefs:
       self.__localrefs.pop()
     if self.table[self.__localfunc]:
@@ -230,6 +250,7 @@ class Symbols:
   def reset(self):
     self.table[self.__func].clear()
     self.table[self.__local].clear()
+    self.table[self.__context].clear()
     self.table[self.__vars].clear()
     self.table[self.__structs].clear()
     self.__localrefs.clear()
@@ -240,25 +261,27 @@ class Symbols:
       print('+++ Variables globales')
       for k, v in sorted(self.table[self.__vars].items()):
         if isinstance(v, tuple):
-          print('<-> Constante', k, '=', v[1])
+          print('... Constante', k, '=', v[1])
         else:
-          print('<-> Variable', k, '=', v)
+          print('... Variable', k, '=', v)
       print('---')
     if self.is_local() and self.table[self.__local]:
       print('@@@ Variables locales')
-      for locs in self.table[self.__local]:
+      for i, locs in enumerate(self.table[self.__local]):
+        context = self.table[self.__context][i]
+        print('### Contexte', context.name, '+' if context.dereference else '-')
         for k, v in locs.items():
-          print('<->', k, '=', v)
-      print('---')
-      print('@@@ Références locales')
+          print('...', k, '=', v)
+        print('---')
+      print('&&& Références locales')
       for refs in self.__localrefs:
         for k, v in sorted(refs.items()):
-          print('<->', k, '=', v)
+          print('...', k, '=', v)
       print('---')
     if not self.is_local():
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
-        print(f'<-> {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
+        print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
       print('---')
   def __repr__(self):
     return f'Espace-nom {self.namespace}'
@@ -277,14 +300,14 @@ class Namespaces:
       raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
     self.__ns[name] = Symbols(self.get_type, name)
     self.current_namespace = name
-  def get_namespace(self, name):
+  def get_namespace(self, name=None):
     if not name:
-      nm = self.current_namespace
+      context = self.current_namespace
     else:
-      nm = name
-    if nm in self.__ns:
-      return self.__ns[nm]
-    raise ex.VarUndeclared(f'Espace-nom \'{nm}\' non déclaré')
+      context = name
+    if context in self.__ns:
+      return self.__ns[context]
+    raise ex.VarUndeclared(f'Espace-nom \'{context}\' non déclaré')
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
@@ -300,9 +323,9 @@ class Namespaces:
   def get_structure(self, name, namespace):
     sym = self.get_namespace(namespace)
     return sym.get_structure(name)
-  def set_local(self, namespace):
+  def set_local(self, namespace:str, context_name:str):
     sym = self.get_namespace(namespace)
-    return sym.set_local()
+    return sym.set_local(context_name)
   def del_local(self, namespace):
     sym = self.get_namespace(namespace)
     return sym.del_local()
@@ -312,8 +335,14 @@ class Namespaces:
     self.__ns.clear()
     self.__ns['main'] = Symbols(self.get_type, 'main')
     self.current_namespace = 'main'
-  def dump(self, namespace='main'):
-    if self.__ns.get(namespace, None) is not None:
+  def dump(self, namespace='main', current=False):
+    print('=== Espace-nom :', end=' ')
+    if current:
+      print(self.current_namespace)
+      context = self.__ns[self.current_namespace]
+      context.dump()
+    elif self.__ns.get(namespace, None) is not None:
+      print(namespace)
       self.__ns[namespace].dump()
     else:
       raise ex.FralgoException(f'Espace-nom `{namespace}` inexistant')

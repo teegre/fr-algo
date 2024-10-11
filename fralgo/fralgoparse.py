@@ -183,9 +183,20 @@ def p_fp_var_declaration(p):
   fp_var_declaration : var_declaration
                      | VAR_DECL ID TYPE_DECL TYPE_ANY NEWLINE
                      | VARS_DECL var_list TYPE_DECL TYPE_ANY NEWLINE
+                     | ARRAYS_DECL array_list TYPE_DECL TYPE_ANY NEWLINE
+                     | ARRAY_DECL array TYPE_DECL TYPE_ANY NEWLINE
   '''
   if len(p) == 2:
     p[0] = p[1]
+  elif p[1].startswith('Tableau'):
+    # p[2] is a list of this form:
+    # ['name1', ['name2', [x1, x2, ..., xN]], 'name3', ..., ['nameN', [x1, x2, ..., xN]]]
+    # name being the variable name and x being indexes.
+    declarations = Node(lineno=p.lineno(1))
+    for params in p[2]:
+      name, indexes = (params[0], params[1])
+      declarations.append(DeclareArray(name, p[4], *indexes))
+    p[0] = declarations
   elif isinstance(p[2], list):
     declarations = Node(lineno=p.lineno(1))
     for name in p[2]:
@@ -218,14 +229,13 @@ def p_var_declaration(p):
       name, indexes = (params[0], params[1])
       declarations.append(DeclareArray(name, p[4], *indexes))
     p[0] = declarations
+  elif isinstance(p[2], list):
+    declarations = Node(lineno=p.lineno(1))
+    for name in p[2]:
+      declarations.append(Declare(name, p[4]))
+    p[0] = declarations
   else:
-    if isinstance(p[2], list):
-      declarations = Node(lineno=p.lineno(1))
-      for name in p[2]:
-        declarations.append(Declare(name, p[4]))
-      p[0] = declarations
-    else:
-      p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
+    p[0] = Node(Declare(p[2], p[4]), p.lineno(1))
 
 def p_const_declaration(p):
   '''

@@ -302,11 +302,11 @@ class Namespaces:
     self.current_namespace = name
   def get_namespace(self, name=None):
     if not name:
-      context = self.current_namespace
+      namespace = self.current_namespace
     else:
-      context = name
-    if context in self.__ns:
-      return self.__ns[context]
+      namespace = name
+    if namespace in self.__ns:
+      return self.__ns[namespace]
     raise ex.VarUndeclared(f'Espace-nom \'{context}\' non déclaré')
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
@@ -325,10 +325,16 @@ class Namespaces:
     return sym.get_structure(name)
   def set_local(self, namespace:str, context_name:str):
     sym = self.get_namespace(namespace)
-    return sym.set_local(context_name)
+    sym.set_local(context_name)
   def del_local(self, namespace):
     sym = self.get_namespace(namespace)
-    return sym.del_local()
+    sym.del_local()
+  def del_namespace(self, name):
+    namespace = self.__ns.get(name, None)
+    if namespace is not None:
+      self.__ns.pop(name)
+    else:
+      raise ex.VarUndeclared(f'Espace-nom `{name}` non défini.')
   def reset(self):
     for symbols in self.__ns.values():
       symbols.reset()

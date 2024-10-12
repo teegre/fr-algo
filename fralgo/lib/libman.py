@@ -62,15 +62,15 @@ class LibMan:
     except FatalError as e:
       print_err(f'Librairie : {libfile}.algo')
       raise e
-    if alias:
-      self.namespaces.declare_namespace(alias)
-    else:
-      self.namespaces.declare_namespace(os.path.basename(libfile))
+    if not alias:
+      alias = os.path.basename(libfile)
+    self.namespaces.declare_namespace(alias)
     try:
       statements = self.parser.parse(''.join(lib))
       statements.eval()
     except FralgoException as e:
       print_err(f'Librairie : {libfile}.algo')
+      self.namespaces.del_namespace(alias)
       raise e
     finally:
       self.namespaces.set_current_namespace('main')

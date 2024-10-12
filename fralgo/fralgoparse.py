@@ -409,14 +409,8 @@ def p_array_indexes(p):
 def p_array_index(p):
   '''
   array_index : expression
-              | empty
   '''
   p[0] = [p[1]]
-
-
-def p_empty(p):
-  'empty :'
-  pass
 
 def p_array_resize(p):
   '''

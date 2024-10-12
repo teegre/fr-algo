@@ -54,8 +54,8 @@ class Node:
     self.children = []
     self.lineno = lineno
   def append(self, stmt=None, lineno=0):
-    child = Node(stmt, lineno)
     if stmt is not None:
+      child = Node(stmt, lineno)
       self.children.append(child)
   def eval(self):
     result = None
@@ -413,13 +413,16 @@ class FunctionCall:
         sym = namespaces.get_namespace(self.namespace)
         sym.set_local_ref_context(dereference=True)
       p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
-      if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
-        p2 = map_type(p.eval())
-        p2 = p2.data_type
-      elif p.data_type == 'Quelconque':
-        p2 = map_type(p).data_type
-      else:
-        p2 = p.data_type
+      try:
+        if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
+          p2 = map_type(p.eval())
+          p2 = p2.data_type
+        elif p.data_type == 'Quelconque':
+          p2 = map_type(p).data_type
+        else:
+          p2 = p.data_type
+      except AttributeError:
+        raise BadType(f'{self.name} : paramètre {i+1} invalide.')
       p2 = (p2,) if not isinstance(p2, tuple) else p2
       if p1 == p2:
         continue
@@ -1044,7 +1047,10 @@ class Type:
       var = sym.get_variable(self.var)
       return repr_datatype(map_type(var.data_type))
     if isinstance(self.var, Node):
-      return repr_datatype(map_type(self.var.eval()).data_type)
+      try:
+        return repr_datatype(map_type(self.var.eval()).data_type)
+      except AttributeError:
+        raise BadType(f'Pas de type.')
     return repr_datatype(self.var.data_type)
   def __repr__(self):
     return f'Type({self.expr})'

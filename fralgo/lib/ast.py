@@ -173,7 +173,9 @@ class DeclareStruct:
     sym = namespaces.get_namespace(name=None)
     for field, datatype in self.fields:
       if datatype not in self.__types:
-        if isinstance(datatype, tuple) or sym.is_structure(datatype):
+        if datatype == self.name: # recursive structure.
+          continue
+        elif isinstance(datatype, tuple) or sym.is_structure(datatype):
           continue
         raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
     sym.declare_structure(Structure(self.name, self.fields))

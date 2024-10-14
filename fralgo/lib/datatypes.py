@@ -32,7 +32,7 @@ from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOut
 from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
 from fralgo.lib.exceptions import InvalidStructureValueCount, UnknownStructureField
 
-class Base():
+class Base:
   _type = 'Base'
   value = None
   def eval(self):
@@ -50,17 +50,37 @@ class Base():
   def data_type(self):
     return self._type
 
+class Nothing:
+  _type = 'Rien'
+  value = None
+  def eval(self):
+    raise VarUndefined('Valeur indéfinie.')
+  def __str__(self):
+    return '?'
+  def __repr__(self):
+    return '?'
+  def __bool__(self):
+    return False
+  def __eq__(self, other):
+    isinstance(other, Nothing) or other is None
+  def __lt__(self, other):
+    return False
+  def __le__(self, other):
+    return False
+  def __gt__(self, other):
+    return False
+  def __ge__(self, other):
+    return False
+  @property
+  def data_type(self):
+    return self._type
+
 class Number(Base):
   def set_value(self, value):
     raise NotImplementedError
   def eval(self):
-    if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __str__(self):
-    if self.value is None:
-      return '?'
-      # raise VarUndefined('Valeur indéfinie')
     return f'{self.value}'
   def __eq__(self, other):
     if isinstance(other, Number):
@@ -94,7 +114,7 @@ class Number(Base):
 class Integer(Number):
   _type = 'Entier'
   def __init__(self, value):
-    self.value = value
+    self.value = value if value is not None else Nothing()
   def set_value(self, value):
     if isinstance(value, int):
       self.value = value
@@ -106,7 +126,7 @@ class Integer(Number):
 class Float(Number):
   _type = 'Numérique'
   def __init__(self, value):
-    self.value = value
+    self.value = value if value is not None else Nothing()
   def set_value(self, value):
     if isinstance(value, float):
       self.value = value
@@ -120,7 +140,7 @@ class Float(Number):
 class String(Base):
   _type = 'Chaîne'
   def __init__(self, value):
-    self.value = value
+    self.value = value if value is not None else Nothing()
   def set_value(self, value):
     if isinstance(value, str):
       self.value = value
@@ -129,8 +149,6 @@ class String(Base):
     else:
       raise BadType(f'Type {self.data_type} attendu [{value}]')
   def eval(self):
-    if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __len__(self):
     return len(self.value)
@@ -192,8 +210,6 @@ class Char(String):
     except TypeError:
       raise BadType('Type Caractère attendu')
   def eval(self):
-    if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __repr__(self):
     if self.value is None:
@@ -203,21 +219,20 @@ class Char(String):
   def data_type(self):
     return (self._type, self.size.eval())
 
-
 class Boolean(Base):
   _type = 'Booléen'
   def __init__(self, value):
     if value in ('VRAI', 'FAUX'):
       self.value = value == 'VRAI'
-    else:
+    elif isinstance(value, bool):
       self.value = value
+    else:
+      self.value = Nothing()
   def set_value(self, value):
     if value not in (True, False):
       raise BadType(f'Type {self.data_type} attendu [{value}]')
     self.value = value
   def eval(self):
-    if self.value is None:
-      raise VarUndefined('Valeur indéfinie')
     return self.value
   def __eq__(self, other):
     if isinstance(other, Boolean):
@@ -288,9 +303,7 @@ class Array(Base):
       if size < 0 or size >= self.indexes[i] + 1:
         raise IndexOutOfRange(f'Index hors limite : {size}')
   def eval(self):
-    if self.value:
-      return self.value
-    raise VarUndefined('Valeur indéfinie')
+    return self.value
   def _eval_indexes(self, *indexes):
     '''Evaluate indexes until we get integers (int)'''
     idxs = []
@@ -364,9 +377,12 @@ class Array(Base):
       return
     if isinstance(value, Number) and datatype == 'Numérique':
       value = Float(float(value.eval()))
-    typed_value = map_type(value.eval())
+    if not issubclass(type(value), Array):
+      typed_value = map_type(value.eval())
+    else:
+      typed_value = value
     if typed_value.data_type != datatype and datatype != 'Quelconque':
-      raise BadType(f'Type {datatype} attendu ({typed_value.data_type})')
+      raise BadType(f'Type {datatype} attendu [{repr_datatype(typed_value.datatype, shortform=False)}]')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value
@@ -495,7 +511,8 @@ class Structure(Base):
   def __iter__(self):
     return iter(self.fields)
   def __repr__(self):
-    return f'{self.name} {", ".join(str(field) for field in self.fields)}'
+    data = [f'{n}{repr_datatype(t)}' for n, t in self.fields]
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -515,6 +532,11 @@ class StructureData(Base):
   def f_eval(self):
     data = [str(v.eval()) for v in self.data.values()]
     return ''.join(data)
+  def is_recursive(self):
+    for field, datatype in self.structure.fields:
+      if datatype == self.name:
+        return True
+    return False
   def set_value(self, value, fieldname=None):
     if fieldname is not None:
       if isinstance(fieldname, tuple): # Array!
@@ -531,6 +553,8 @@ class StructureData(Base):
           if isinstance(self.data[fieldname], Array):
             if isinstance(value, (list, Array)):
               self.data[fieldname].set_value(None, value)
+          elif self.data[fieldname] is None: # recursive structure
+            self.data[fieldname] = value
           else:
             self.data[fieldname].set_value(value)
         except KeyError:
@@ -538,7 +562,10 @@ class StructureData(Base):
     else:
       if isinstance(value, StructureData):
         if value.name == self.name:
-          self.data = deepcopy(value.data)
+          if self.is_recursive():
+            self.data = value.data
+          else:
+            self.data = deepcopy(value.data)
         else:
           raise BadType(f'{value.name} n\'est pas {self.name}')
       else:
@@ -553,6 +580,10 @@ class StructureData(Base):
           try:
             if isinstance(self.data[name], StructureData):
               self.data[name].set_value(value, None)
+            elif self.data[name] is None:
+              if value[i].data_type != self.name:
+                raise BadType(f'Type {self.name} attendu [{value[i].data_type}]')
+              self.data[name] = value[i].eval()
             elif isinstance(self.data[name], Array):
               self.data[name].set_array(value[i])
             else:
@@ -568,8 +599,6 @@ class StructureData(Base):
           return self.data[name[0]].get_item(name[1])
         raise VarUndefined(f'{name[0]} ne fait pas partie de {self.name}')
       if name in self.data.keys():
-        if self.data[name] is None:
-          raise VarUndefined(f'{self.name}.{name} : Valeur indéfinie')
         return self.data[name]
       raise UnknownStructureField(f'{name} ne fait pas partie de {self.name}')
     except TypeError:
@@ -578,7 +607,9 @@ class StructureData(Base):
     data = {}
     for name, datatype in self.structure:
       data_type = _get_type(datatype, self.get_structure)
-      if isinstance(data_type, (list, tuple)):
+      if datatype == self.name:
+        data[name] = None
+      elif isinstance(data_type, (list, tuple)):
         if issubclass(data_type[0], StructureData):
           struct = StructureData(data_type[1])
           struct.set_get_structure(self.get_structure)
@@ -610,11 +641,11 @@ class StructureData(Base):
       return self.name == other.name and self.data == other.data
     return False
   def __str__(self):
-    data = [str(v.eval()) for v in self.data.values()]
+    data = [str(v) if v is not None else '?' for v in self.data.values()]
     return ', '.join(data)
   def __repr__(self):
-    data = [k+": " + str(v) for k,v in self.data.items()]
-    return f'{self.name}: ({", ".join(data)})'
+    data = [k+": " + str(v) if v else '?' for k,v in self.data.items()]
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -636,9 +667,7 @@ class Table(Base):
     self.value[key.eval()] = value.eval()
   def get_item(self, key):
     value = self.value.get(key.eval())
-    if value is not None:
-      return value
-    raise VarUndefined('Valeur indéfinie')
+    return value
   def get_keys(self):
     return self.value.keys()
   def get_values(self):
@@ -680,15 +709,18 @@ def _get_type(datatype, get_structure):
     'Table': Table,
     'Quelconque': Any,
   }
-  if isinstance(datatype, (list, tuple)):
+  if isinstance(datatype, (tuple, list)):
     if datatype[0] == 'Caractère':
       return (Char, datatype[1])
     if datatype[0] == 'Tableau':
       return (Array, datatype[1], datatype[2])
+  elif isinstance(datatype, list):
+    structure = get_structure(datatype)
+    return (StructureData, structure)
   elif datatype in __datatypes.keys():
     return __datatypes[datatype]
-  else:
-    structure = get_structure(datatype)
+  structure = get_structure(datatype)
+  if structure:
     return (StructureData, structure)
   raise BadType(f'{datatype} : type de données inconnu')
 
@@ -705,3 +737,23 @@ def map_type(value):
   # if isinstance(value, list):
   #   return Array(datatype)
   return value
+
+def repr_datatype(datatype, shortform=True):
+  if isinstance(datatype[0], tuple):
+    datatype = datatype[0]
+  match datatype[0]:
+    case 'Caractère':
+      if shortform:
+        return f' en {datatype[0]}*{datatype[1]}'
+      return f'{datatype[0]}*{datatype[1]}'
+    case 'Tableau':
+      if isinstance(datatype[2], tuple):
+        indexes = ', '.join(str(idx) for idx in datatype[2])
+      else:
+        indexes = datatype[2] if datatype[2] != -1 else ''
+      if shortform:
+        return f'[{indexes}] en {repr_datatype(datatype[1])}'
+      return f'{datatype[0]}[{indexes}] en {repr_datatype(datatype[1])}'
+  if shortform:
+    return f' en {datatype}' if not isinstance(datatype, tuple) else f' en {datatype[0]}'
+  return datatype if not isinstance(datatype, tuple) else datatype[0]

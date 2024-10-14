@@ -193,7 +193,7 @@ def t_NEWLINE(t):
   return t
 
 def t_error(t):
-  msg = f'*** caractère invalide {t.value[0]!r}'
+  msg = f'caractère invalide {t.value[0]!r}'
   if 'FRALGOREPL' not in os.environ:
     msg += f'\n-v- ligne {t.lineno}.'
     raise FatalError(msg)

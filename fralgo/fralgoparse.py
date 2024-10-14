@@ -341,7 +341,13 @@ def p_type(p):
        | TYPE_INTEGER
        | TYPE_STRING
        | sized_char
-       | ID
+       | structure
+  '''
+  p[0] = p[1]
+
+def p_type_structure(p):
+  '''
+  structure : namespace
   '''
   p[0] = p[1]
 

@@ -1,0 +1,23 @@
+Librairie
+
+Structure Noeud
+  valeur en Entier
+  suivant en Noeud
+FinStructure
+
+Procédure Ajouter(&N en Noeud, valeur en Entier)
+  Variables n, x en Noeud
+  Si NON(N.valeur) Alors
+    N.valeur ← valeur
+  SinonSi NON(N.suivant) Alors
+    n.valeur ← valeur
+    N.suivant ← n
+  Sinon
+    n.valeur ← valeur
+    x ← N
+    TantQue x.suivant
+      x ← x.suivant
+    FinTantQue
+    x.suivant ← n
+  FinSi
+FinProcédure

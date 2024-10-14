@@ -25,24 +25,29 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import namedtuple
-
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Array, Char, StructureData, Table
+from fralgo.lib.datatypes import Nothing, Array, Char, StructureData, Table
+
+class Context:
+  def __init__(self, context_name:str):
+    self.name = context_name
+    self.dereference = False
+  def __repr__(self):
+    return f'{self.name} [{"+" if self.dereference else "-"}]'
+  def __str__(self):
+    return f'{self.name} [{"+" if self.dereference else "-"}]'
 
 class Symbols:
   __func         = 'functions'
   __vars         = 'variables'
   __structs      = 'structures'
   __local        = 'local'
-  __context      = 'context'
   __localfunc    = 'localfunctions'
   __localstructs = 'localstructs'
+  __context      = 'context'
 
   __superglobal  = {}
   __localrefs    = []
-
-  Context      = namedtuple('Context', ['name', 'dereference'])
 
 # TODO: ORDER METHODS
 
@@ -60,20 +65,17 @@ class Symbols:
     self.namespace = namespace
 
   def is_structure(self, name):
-    if self.is_local_structure():
-      table = self.table[self.__localstructs]
+    if self.is_local():
+      table = self.get_localstructs_table()
       for structs in reversed(table):
         if structs.get(name, None) is not None:
           return True
-      return False
     struct = self.table[self.__structs].get(name, None)
     return struct is not None
   def is_local(self):
     return bool(self.table[self.__local])
   def is_local_function(self):
     return bool(self.table[self.__localfunc])
-  def is_local_structure(self):
-    return bool(self.table[self.__localstructs])
   def get_local_table(self):
     table = self.table[self.__local]
     return table[-1]
@@ -94,16 +96,12 @@ class Symbols:
       return self.get_local_table()
     return self.table[self.__vars]
   def get_structures(self):
-    if self.is_local_structure():
+    if self.is_local():
       return self.get_localstructs_table()
     return self.table[self.__structs]
-  def set_local_ref_context(self, name:str=None, dereference:bool=None):
+  def set_local_ref_context(self, dereference:bool):
     context = self.get_local_ref_context()
-    if name:
-      context = context._replace(name=name)
-    if dereference is not None:
-      context = context._replace(dereference=dereference)
-    self.table[self.__context][-1] = context
+    context.dereference = dereference
   def declare_var(self, name, data_type, superglobal=False):
     if superglobal:
       variables = self.__superglobal
@@ -217,7 +215,7 @@ class Symbols:
       raise ex.VarRedeclared(f'Redéclaration de la structure `{structure.name}`')
     structs[structure.name] = structure
   def get_structure(self, name):
-    if self.is_local_structure():
+    if self.is_local():
       for structs in reversed(self.table[self.__localstructs]):
         if name in structs:
           return structs[name]
@@ -227,7 +225,7 @@ class Symbols:
     return struct
   def set_local(self, context_name: str):
     self.table[self.__local].append({})
-    self.table[self.__context].append(self.Context(name=context_name, dereference=False))
+    self.table[self.__context].append(Context(context_name))
     self.__localrefs.append({})
     self.table[self.__localfunc].append({})
     self.table[self.__localstructs].append({})
@@ -265,6 +263,10 @@ class Symbols:
         else:
           print('... Variable', k, '=', v)
       print('---')
+      print('+++ Structures')
+      for v in sorted(self.table[self.__structs].values()):
+        print('...', v)
+      print('---')
     if self.is_local() and self.table[self.__local]:
       print('@@@ Variables locales')
       for i, locs in enumerate(self.table[self.__local]):
@@ -284,30 +286,30 @@ class Symbols:
         print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
       print('---')
   def __repr__(self):
-    return f'Espace-nom {self.namespace}'
+    return f'Espace {self.namespace}'
 
 class Namespaces:
   def __init__(self, get_type):
-    self.__ns = {}
+    self.__namespaces = {}
     self.get_type = get_type
     # init main namespace
-    self.__ns['main'] = Symbols(get_type_func=get_type)
+    self.__namespaces['main'] = Symbols(get_type_func=get_type)
     self.current_namespace = 'main'
   def set_current_namespace(self, name):
     self.current_namespace = name
   def declare_namespace(self, name):
-    if name in self.__ns:
-      raise ex.VarRedeclared(f"Redéclaration de l'espace-nom '{name}'")
-    self.__ns[name] = Symbols(self.get_type, name)
+    if name in self.__namespaces:
+      raise ex.VarRedeclared(f"Redéclaration de l'espace '{name}'")
+    self.__namespaces[name] = Symbols(self.get_type, name)
     self.current_namespace = name
   def get_namespace(self, name=None):
     if not name:
       namespace = self.current_namespace
     else:
       namespace = name
-    if namespace in self.__ns:
-      return self.__ns[namespace]
-    raise ex.VarUndeclared(f'Espace-nom \'{context}\' non déclaré')
+    if namespace in self.__namespaces:
+      return self.__namespaces[namespace]
+    raise ex.VarUndeclared(f'Espace \'{name}\' non déclaré')
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
@@ -317,7 +319,7 @@ class Namespaces:
   def get_function(self, name, namespace):
     if name.startswith('___'):
       if self.current_namespace != namespace:
-        raise ex.FralgoException('Appel à une fonction/procédure en dehors de son espace-nom.')
+        raise ex.FralgoException('Appel à une fonction/procédure en dehors de son espace.')
     sym = self.get_namespace(namespace)
     return sym.get_function(name)
   def get_structure(self, name, namespace):
@@ -330,27 +332,26 @@ class Namespaces:
     sym = self.get_namespace(namespace)
     sym.del_local()
   def del_namespace(self, name):
-    namespace = self.__ns.get(name, None)
+    namespace = self.__namespaces.get(name, None)
     if namespace is not None:
-      self.__ns.pop(name)
+      self.__namespaces.pop(name)
     else:
-      raise ex.VarUndeclared(f'Espace-nom `{name}` non défini.')
+      raise ex.VarUndeclared(f'Espace `{name}` non défini.')
   def reset(self):
-    for symbols in self.__ns.values():
+    for symbols in self.__namespaces.values():
       symbols.reset()
-    self.__ns.clear()
-    self.__ns['main'] = Symbols(self.get_type, 'main')
+    self.__namespaces.clear()
+    self.__namespaces['main'] = Symbols(self.get_type, 'main')
     self.current_namespace = 'main'
   def dump(self, namespace='main', current=False):
-    print('=== Espace-nom :', end=' ')
+    self.get_namespace(namespace)
+    print('=== Espace :', end=' ')
     if current:
       print(self.current_namespace)
-      context = self.__ns[self.current_namespace]
+      context = self.__namespaces[self.current_namespace]
       context.dump()
-    elif self.__ns.get(namespace, None) is not None:
+    elif self.__namespaces.get(namespace, None) is not None:
       print(namespace)
-      self.__ns[namespace].dump()
-    else:
-      raise ex.FralgoException(f'Espace-nom `{namespace}` inexistant')
+      self.__namespaces[namespace].dump()
   def namespaces(self):
-    print(f'{", ".join(k for k in self.__ns.keys())}')
+    print(f'{", ".join(k for k in self.__namespaces.keys())}')

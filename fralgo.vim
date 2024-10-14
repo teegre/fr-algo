@@ -33,7 +33,7 @@ syn match Assignment "←\|<-"
 syn keyword Import Importer Alias
 syn keyword VarDeclaration Variable Variables Tableau Tableaux
 syn keyword Const Constante
-syn keyword Structure Structure FinStructure Table FinTable
+syn keyword Struct Structure FinStructure Table FinTable
 syn keyword VarType Booléen Caractère Chaîne Entier Numérique Quelconque
 syn keyword Program Début Fin
 syn keyword Library Librairie Initialise
@@ -85,7 +85,7 @@ hi def link Private Special
 hi def link ID Identifier
 hi def link Import Include
 hi def link VarDeclaration Statement
-hi def link Structure Structure
+hi def link Struct Structure
 hi def link AlgoComment Comment
 hi def link AlgoTodo Todo
 hi def link Loop Repeat

@@ -28,6 +28,7 @@ import os
 import sys
 import readline
 from time import sleep
+from datetime import datetime
 from pathlib import Path
 import traceback
 
@@ -72,7 +73,7 @@ class Interpreter:
         continue
       except EOFError:
         print()
-        print('*** Au revoir,', os.getenv('USER').capitalize(), '!')
+        print(f'*** Au revoir,', os.getenv('USER').capitalize(), f'!\n--- {greetings(bye=True)}')
         readline.write_history_file(history_file)
         sys.exit(0)
       match instruction:
@@ -94,6 +95,8 @@ class Interpreter:
             namespaces.dump(inst[1])
           elif len(inst) == 1:
             namespaces.dump()
+          else:
+            print_err('.symboles [espace]')
         except FralgoException as e:
           print_err(e)
         continue
@@ -103,7 +106,6 @@ class Interpreter:
       if instruction in ('Début', 'Fin', 'Librairie', 'Initialise'):
         print('*** Instruction non admise en mode interpréteur.')
         continue
-
       result = self.proceed(instruction)
       if result is None:
         continue
@@ -176,6 +178,20 @@ class Interpreter:
       return ':x: '
     return '::: '
 
+def greetings(bye=False):
+  h = datetime.now().hour
+  if h in range(18, 24):
+    if bye:
+      return 'Bonne soirée !'
+    return 'Bonsoir'
+  if h in range(5):
+    if bye:
+      return 'Faites de beaux rêves !'
+    return "Bonne nuit"
+  if bye:
+    return 'A bientôt !'
+  return "Bonjour"
+
 def main():
   readline.parse_and_bind(r'"[" "\C-v[]\e[D"')
   readline.parse_and_bind(r'"(" "\C-v()\e[D"')
@@ -195,7 +211,7 @@ def main():
   print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
   sleep(0.0625)
   print()
-  print('Bonjour,', os.getenv('USER').capitalize(), '!')
+  print(f'{greetings()},', os.getenv('USER').capitalize(), '!')
   print('En attente de vos instructions.')
   print()
   libs.set_main()

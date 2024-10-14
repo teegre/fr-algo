@@ -26,7 +26,7 @@
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import fralgo.lib.exceptions as ex
-from fralgo.lib.datatypes import Nothing, Array, Char, StructureData, Table
+from fralgo.lib.datatypes import Array, Char, StructureData, Table
 
 class Context:
   def __init__(self, context_name:str):
@@ -36,6 +36,25 @@ class Context:
     return f'{self.name} [{"+" if self.dereference else "-"}]'
   def __str__(self):
     return f'{self.name} [{"+" if self.dereference else "-"}]'
+
+class StructuresRegistry:
+  __structures = {}
+
+  @classmethod
+  def register_structure(cls, namespace, name, structure):
+    cls.__structures[name] = structure
+
+  @classmethod
+  def get_structure(cls, namespace,name):
+    return cls.__structures.get(name)
+
+  @classmethod
+  def del_structure(cls, namespace, name):
+    cls.__structures.pop(name)
+
+  @classmethod
+  def clear_structures(cls):
+    cls.__structures.clear()
 
 class Symbols:
   __func         = 'functions'
@@ -65,11 +84,17 @@ class Symbols:
     self.namespace = namespace
 
   def is_structure(self, name):
+    if isinstance(name, list):
+      namespace, name = name[0], name[1]
+    else:
+      namespace = self.namespace
     if self.is_local():
       table = self.get_localstructs_table()
       for structs in reversed(table):
         if structs.get(name, None) is not None:
           return True
+    if namespace != self.namespace:
+      return StructuresRegistry.get_structure(namespace, name) is not None
     struct = self.table[self.__structs].get(name, None)
     return struct is not None
   def is_local(self):
@@ -110,9 +135,8 @@ class Symbols:
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     datatype = self.get_type(data_type, self.get_structure)
-    if self.is_structure(data_type):
-      structure = self.get_structure(data_type)
-      data = StructureData(structure)
+    if isinstance(datatype, tuple): # structure!
+      data = datatype[0](datatype[1])
       data.set_get_structure(self.get_structure)
       data.data = data.new_structure_data()
       variables[name] = data
@@ -213,16 +237,26 @@ class Symbols:
     structs = self.get_structures()
     if structs.get(structure.name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la structure `{structure.name}`')
+    if not self.is_local():
+      StructuresRegistry.register_structure(self.namespace, structure.name, structure)
     structs[structure.name] = structure
   def get_structure(self, name):
+    if isinstance(name, list):
+      namespace, name = name[0], name[1]
+    else:
+      namespace = self.namespace
     if self.is_local():
       for structs in reversed(self.table[self.__localstructs]):
         if name in structs:
           return structs[name]
-    struct = self.table[self.__structs].get(name, None)
-    if struct is None:
-      raise ex.VarRedeclared(f'Structure `{name}` non déclarée')
-    return struct
+    if self.namespace == namespace:
+      struct = self.table[self.__structs].get(name, None)
+      if struct is not None:
+        return struct
+    struct = StructuresRegistry.get_structure(namespace, name)
+    if struct is not None:
+      return struct
+    raise ex.VarUndeclared(f'Structure `{name}` non déclarée')
   def set_local(self, context_name: str):
     self.table[self.__local].append({})
     self.table[self.__context].append(Context(context_name))
@@ -256,31 +290,44 @@ class Symbols:
     self.table[self.__localstructs].clear()
   def dump(self):
     if not self.is_local():
-      print('+++ Variables globales')
-      for k, v in sorted(self.table[self.__vars].items()):
-        if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1])
-        else:
-          print('... Variable', k, '=', v)
-      print('---')
-      print('+++ Structures')
-      for v in sorted(self.table[self.__structs].values()):
-        print('...', v)
-      print('---')
-    if self.is_local() and self.table[self.__local]:
-      print('@@@ Variables locales')
-      for i, locs in enumerate(self.table[self.__local]):
-        context = self.table[self.__context][i]
-        print('### Contexte', context.name, '+' if context.dereference else '-')
-        for k, v in locs.items():
-          print('...', k, '=', v)
+      if self.table[self.__vars]:
+        print('+++ Variables globales')
+        for k, v in sorted(self.table[self.__vars].items()):
+          if isinstance(v, tuple):
+            print('... Constante', k, '=', v[1])
+          else:
+            print('... Variable', k, '=', v)
         print('---')
-      print('&&& Références locales')
-      for refs in self.__localrefs:
-        for k, v in sorted(refs.items()):
-          print('...', k, '=', v)
-      print('---')
-    if not self.is_local():
+      if self.table[self.__structs]:
+        print('+++ Structures')
+        for v in sorted(self.table[self.__structs].values()):
+          print('...', v)
+        print('---')
+    if self.is_local():
+      if self.table[self.__local]:
+        print('@@@ Variables locales')
+        for i, locs in enumerate(self.table[self.__local]):
+          context = self.table[self.__context][i]
+          print('### Contexte', context.name, '+' if context.dereference else '-')
+          for k, v in locs.items():
+            print('...', k, '=', v)
+          print('---')
+        if self.table[self.__localstructs]:
+          print('+++ Structures locales')
+          for v in sorted(self.table[self.__localstructs].values()):
+            print('...', v)
+        if not self.table[self.__localfunc]:
+          print('+++ Fonctions et Procédures')
+          for k, v in sorted(self.table[self.__localfunc].items()):
+            print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
+          print('---')
+        if self.__localrefs:
+          print('&&& Références locales')
+          for refs in self.__localrefs:
+            for k, v in sorted(refs.items()):
+              print('...', k, '=', v)
+          print('---')
+    if not self.is_local() and self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
         print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
@@ -293,7 +340,7 @@ class Namespaces:
     self.__namespaces = {}
     self.get_type = get_type
     # init main namespace
-    self.__namespaces['main'] = Symbols(get_type_func=get_type)
+    self.__namespaces['main'] = Symbols(get_type_func=get_type, namespace='main')
     self.current_namespace = 'main'
   def set_current_namespace(self, name):
     self.current_namespace = name
@@ -340,6 +387,7 @@ class Namespaces:
   def reset(self):
     for symbols in self.__namespaces.values():
       symbols.reset()
+    StructuresRegistry.clear_structures()
     self.__namespaces.clear()
     self.__namespaces['main'] = Symbols(self.get_type, 'main')
     self.current_namespace = 'main'

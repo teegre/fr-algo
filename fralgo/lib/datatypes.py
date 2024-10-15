@@ -45,7 +45,7 @@ class Base:
     return f'{self.data_type} → {self.value}'
   @property
   def is_empty(self):
-    return self.value is None
+    return self.value is None or isinstance(self.value, Nothing)
   @property
   def data_type(self):
     return self._type
@@ -382,7 +382,7 @@ class Array(Base):
     else:
       typed_value = value
     if typed_value.data_type != datatype and datatype != 'Quelconque':
-      raise BadType(f'Type {datatype} attendu [{repr_datatype(typed_value.datatype, shortform=False)}]')
+      raise BadType(f'Type {datatype} attendu [{repr_datatype(typed_value.data_type, shortform=False)}]')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value

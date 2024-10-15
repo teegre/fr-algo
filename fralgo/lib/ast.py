@@ -1178,6 +1178,7 @@ def algo_to_python(expression):
       Ord,
       Mid,
       Node,
+      Nothing,
       Random,
       SizeOf,
       String,

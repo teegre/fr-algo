@@ -36,11 +36,11 @@ from datetime import datetime
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.datatypes import Array, Boolean, Char, Number, Float, Integer, String, Table
-from fralgo.lib.datatypes import Structure, StructureData, _get_type
+from fralgo.lib.datatypes import Nothing, Structure, StructureData, _get_type
 from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
-from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared
+from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared, PanicException
 from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide
 from fralgo.lib.exceptions import FuncInvalidParameterCount, FralgoInterruption, FatalError
 
@@ -1056,6 +1056,21 @@ class Type:
     return repr_datatype(self.var.data_type)
   def __repr__(self):
     return f'Type({self.expr})'
+
+class Panic:
+  def __init__(self, data):
+    self.data = data
+  def eval(self):
+    data = []
+    for e in self.data:
+      if isinstance(e, (BinOp, Variable)):
+        if isinstance(e.eval(), bool):
+          data.append(str(map_type(e.eval())))
+          continue
+      data.append(str(e.eval()))
+      raise PanicException(' '.join(data))
+  def __repr__(self):
+    return f'Panique {self.data}'
 
 class ToInteger:
   def __init__(self, value):

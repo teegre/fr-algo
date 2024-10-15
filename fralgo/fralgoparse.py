@@ -40,7 +40,7 @@ from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import get_type
+from fralgo.lib.ast import Panic
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 import fralgo.fralgolex as fralgolex
@@ -502,6 +502,12 @@ def p_statement_writefile(p):
   statement : WRITEFILE expression COMMA expression NEWLINE
   '''
   p[0] = Node(WriteFile(p[2], p[4]), p.lineno(1))
+
+def p_statement_panic(p):
+  '''
+  statement : PANIC sequence NEWLINE
+  '''
+  p[0] = Node(Panic(p[2]), p.lineno(1))
 
 def p_var_assignment(p):
   '''

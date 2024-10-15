@@ -81,6 +81,7 @@ reserved = {
   'OU':            'OR',
   'OUX':           'XOR',
   'Ouvrir':        'OPEN',
+  'Panique':       'PANIC',
   'Pas':           'STEP',
   'Pour':          'FOR',
   'Procédure':     'PROCEDURE',

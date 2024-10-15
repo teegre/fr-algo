@@ -71,4 +71,6 @@ class ZeroDivide(FralgoException):
 class FuncInvalidParameterCount(FralgoException):
   '''Nombre de paramètres invalide.'''
 class FralgoInterruption(FralgoException):
-  '''Exécution interrompue '''
+  '''Exécution interrompue.'''
+class PanicException(FralgoException):
+  '''Interruption programmée.'''

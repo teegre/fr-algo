@@ -108,8 +108,8 @@ class Number(Base):
     return False
   def __repr__(self):
     if self.value is None:
-      return f'{self.data_type} → ?'
-    return str(f'{self.data_type} → {self.value}')
+      return '?'
+    return str(self.value)
 
 class Integer(Number):
   _type = 'Entier'
@@ -261,11 +261,11 @@ class Boolean(Base):
   def __str__(self):
     if self.value is not None:
       return 'VRAI' if self.value is True else 'FAUX'
-    return f'{self.data_type}'
+    return '?'
   def __repr__(self):
     if self.value is None:
-      return f'{self.data_type} → ?'
-    return f'{self.data_type} → VRAI' if self.value else f'{self.data_type} → FAUX'
+      return '?'
+    return 'VRAI' if self.value else 'FAUX'
 
 class Array(Base):
   _type = 'Tableau'
@@ -447,6 +447,8 @@ class Array(Base):
         if not map_type(item).is_empty:
           return False
     return True
+  def __len__(self):
+    return len(self.value)
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value

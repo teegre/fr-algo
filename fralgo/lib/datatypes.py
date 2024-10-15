@@ -79,7 +79,7 @@ class Number(Base):
   def set_value(self, value):
     raise NotImplementedError
   def eval(self):
-    return self.value
+    return self.value.eval() if isinstance(self.value, Nothing) else self.value
   def __str__(self):
     return f'{self.value}'
   def __eq__(self, other):
@@ -106,6 +106,10 @@ class Number(Base):
     if isinstance(other, Number):
       return self.value <= other.value
     return False
+  def __bool__(self):
+    if self.value is None or isinstance(self.value, Nothing) or self.value <= 0:
+      return False
+    return True
   def __repr__(self):
     if self.value is None:
       return '?'
@@ -176,6 +180,10 @@ class String(Base):
     if isinstance(other, String):
       return self.value <= other.value
     return False
+  def __bool__(self):
+    if self.value is None or isinstance(self.value, Nothing) or self.value == '':
+      return False
+    return True
   def __str__(self):
     if self.value is None:
       return '?'
@@ -473,6 +481,8 @@ class Array(Base):
     if isinstance(other, Array):
       return self.value <= other.value
     return False
+  def __bool__(self):
+    return not self.is_empty()
   def __repr__(self):
     def recursive_repr(array):
       if isinstance(array, list):

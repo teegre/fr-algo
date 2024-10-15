@@ -366,7 +366,19 @@ class Array(Base):
       if len(self.indexes) == 1 and self.indexes[0] == -1:
         raise BadType('Tableau non dimensionné')
       if self.sizes[0] != len(value):
-        raise BadType(f'Nombre de valeurs invalide : {len(value)} ({len(self.value)})')
+        # check if elements are lists and check their lengths
+        length = sum([len(ar.eval()) for ar in value if isinstance(ar.eval(), (Array, list))])
+        if length != self.sizes[0]:
+          raise BadType(f'Nombre de valeurs invalide : {len(value)} ({len(self.value)})')
+        else:
+          array = []
+          for e in value:
+            v = e.eval()
+            array += v.value if not isinstance(v, list) else v
+          self.value = array
+          return
+        self.set_array(array)
+        return
       array = self.new_array(len(value))
       for i, n in enumerate(value):
         try:

@@ -188,7 +188,10 @@ class Symbols:
     elif issubclass(type(value), Array):
       var.set_array(value)
     else:
-      var.set_value(value)
+      try:
+        var.set_value(value)
+      except TypeError:
+        raise ex.FralgoException(f'{name} ← {value} : affectation impossible')
   def get_variable(self, name, visited=None):
     if self.is_local():
       context = self.get_local_ref_context()

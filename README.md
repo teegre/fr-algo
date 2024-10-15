@@ -4,8 +4,7 @@
 
 ## Installation
 
-Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 (ou ultérieure)
-et **pipx** sont installés sur votre système :
+Avant d'installer **FR-ALGO**, vérifiez que **python** version 3.10 (ou ultérieure) et **pipx** sont installés sur votre système :
 
 ```shell
 $ python --version
@@ -13,11 +12,13 @@ Python 3.11.8
 $ which pipx
 /usr/bin/pipx
 ```
+
 Cloner ce dépôt :
 
 `git clone https://github.com/teegre/fr-algo`
 
 Puis :
+
 ```
 $ cd fr-algo
 $ python -m build
@@ -89,6 +90,7 @@ En attente de vos instructions.
 
 :::
 ```
+
 ... Et l'on peut entrer n'importe quelle expression en **ALGO** qui sera exécutée après un appui sur la touche <kbd>Entrée</kbd>
 
 ```
@@ -114,8 +116,7 @@ Pour annuler une saisie en cours, appuyer sur <kbd>CTRL</kbd>+<kbd>c</kbd>.
 
 Pour réinitialiser **l'environnement interactif**, taper `.réinit`.
 
-Il est possible de naviguer dans l'historique avec les touches <kbd>↑</kbd> et <kbd>↓</kbd>
-et d'effectuer une recherche avec <kbd>CTRL</kbd>+<kbd>r</kbd>.
+Il est possible de naviguer dans l'historique avec les touches <kbd>↑</kbd> et <kbd>↓</kbd> et d'effectuer une recherche avec <kbd>CTRL</kbd>+<kbd>r</kbd>.
 
 Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>d</kbd>.
 
@@ -271,6 +272,7 @@ Tableaux v[1,1], w[7,7,7] en Entier
 ```
 
 ### Affectation
+
 ```
 t[0] <- 1
 t[1] <- 2
@@ -315,6 +317,25 @@ T[3] = 4
 # VRAI
 ```
 
+Il est également possible d'affecter une liste de tableaux à un tableau.
+Pour cela la somme des tailles des tableaux à affecter doit être égale à la taille de la cible. Exemple :
+
+```
+Tableaux T[9], A[4], B[4] en Entier
+A <- 1, 2, 3, 4, 5
+B <- 6, 7, 8, 9, 10
+Taille(T)
+# 10
+Taille(A)
+# 5
+Taille(B)
+# 5
+
+T <- A, B
+T
+# [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
 ## Tables <a name="table"></a>
 
 Une `Table` est un **tableau associatif**.
@@ -331,6 +352,7 @@ FinTable
 ```
 
 ### Affectation
+
 ```
 t["A"] <- 65
 t["B"] <- 66
@@ -368,6 +390,7 @@ p2 = p1
 ### Accès aux champs d'une structure
 
 Pour récupérer la valeur d'un champ, la syntaxe est la suivante :
+
 ```
 p1.prenom
 # John
@@ -761,6 +784,15 @@ Valeurs(t)
 Dormir(1)
 Dormir(0.5)
 
+# 'Panique' interrompt le programme en cours d'exécution
+# Exemple :
+Fonction PlusUn(n en Quelconque) en Quelconque
+  Si Type(n) <> "Entier" OU Type(n) <> "Numérique" Alors
+    Panique "Je ne peux pas ajouter 1 à", n
+  FinSi
+  Retourne n + 1
+FinFonction
+
 # 'TempsUnix' retourne un "unix timestamp" de la date et l'heure courante.
 # Exemple :
 TempsUnix()
@@ -821,6 +853,9 @@ factorielle(10)
 
 ```
 Procédure remplir(&t[] en Entier, taille en Entier)
+  # Redimensionne un tableau selon une taille donnée et
+  # le remplit avec des valeurs aléatoires comprises
+  # entre 1 et 9.
   Variable i en Entier
   Si taille < 1 Alors
     Ecrire "Erreur : taille invalide [", taille, "]"
@@ -835,6 +870,25 @@ FinProcédure
 
 Note : une procédure ne retourne <u>jamais</u> de valeur.
 
+Il est possible d'interrompre l'exécution d'une procédure
+avec l'instruction `Terminer`.
+
+Reprenons l'exemple précédent :
+
+```
+Procédure remplir(&t[] en Entier, taille en Entier)
+  Variable i en Entier
+  Si taille < 1 Alors
+    Ecrire "Erreur : taille invalide [", taille, "]"
+    Terminer
+  FinSi
+  Redim t[taille - 1]
+  Pour i <- 0 à taille - 1
+    t[i] <- Entier(Aléa() * 9 + 1)
+  i Suivant
+FinProcédure
+```
+
 ### Appel
 
 ```
@@ -846,31 +900,58 @@ remplir(tab, n)
 # t = [1, 2, 8, 6, 8, 5, 7, 3]
 ```
 
-### Passage de variable par valeur ou par référence
+## Passage de variable par valeur ou par référence
 
-Dans l'exemple précédent, le tableau `tab[]` est passé par référence (`&t[]`)
-en paramètre de la procédure. C'est-à-dire que la variable ___globale___ `tab` est directement modifiée dans la procédure.
+Dans l'exemple précédent, le tableau `tab[]` est passé par référence (`&t[]`)en paramètre de la procédure. C'est-à-dire que la variable ___globale___ `tab` est directement modifiée dans la procédure.
 
-En ce qui concerne le paramètre `taille`, au contraire, seule la valeur de `n`, soit `8`
-dans notre exemple, est passée. Lors de l'appele à la procédure `remplir`, une variable `taille` est créée ___localement___ et la valeur `8` est affectée à `taille`.
-Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée, laissant
-intacte la variable originale `n`.
+En ce qui concerne le paramètre `taille`, au contraire, seule la valeur de `n`, soit `8` dans notre exemple, est passée. Lors de l'appel à la procédure `remplir`, une variable `taille` est créée ___localement___ et la valeur `8` est affectée à `taille`.
+Enfin, la variable est détruite lorsque l'exécution de la procédure est terminée, laissant intacte la variable originale `n`.
 
 ```
 n = 8
 # VRAI
 ```
 
+Autre exemple :
+
+```
+Variables y, z en Entier
+
+Procédure test_ref_val(&ref en Entier, val en Entier)
+  Ecrire "Avant : valeur de ref =", ref, ", valeur de val =", val
+  ref <- 123
+  val <- 456
+  Ecrire "Après : valeur de ref =", ref, ", valeur de val = ", val
+FinProcédure
+
+y <- 1999
+z <- 777
+
+test_ref_val(y, z)
+# Avant : valeur de ref = 1999, valeur de val = 777
+# Après : valeur de ref = 123, valeur de val = 456
+
+y
+# La valeur de y a changé :
+# 123
+
+z
+# Mais pas celle de z :
+# 177
+```
+
 ## Le type `Quelconque` <a name="quelconque"></a>
 
-C'est un type générique qui peut être n'importe lequel des types suivants : `Booléen`, `Entier`, `Numérique` ou `Chaîne`.
+C'est un type générique qui peut être n'importe lequel des types suivants :
+`Booléen`, `Entier`, `Numérique` ou `Chaîne`.
 Il est utilisable dans les paramètres et/ou dans le corps d'une fonction ou d'une procédure.
 Il peut être également utilisé comme type retourné par une fonction.
 
 ### Utilité
 
 Un exemple : vous devez écrire une fonction qui retourne le nombre d'occurences d'un élément dans un tableau.
-Un tableau ne pouvant contenir des éléments que d'un seul type, il est nécessaire d'écrire une fonction par type :
+Un tableau ne pouvant contenir qu'un seul type d'éléments, il est nécessaire d'écrire une fonction par type :
+
 ```
 Fonction CompteEntier(T[] en Entier, valeur en Entier) en Entier
   Variables i, c en Entier
@@ -883,12 +964,12 @@ Fonction CompteEntier(T[] en Entier, valeur en Entier) en Entier
   Retourne c
 FinFonction
 
-Fonction CompteNumérique(T[] en Numérique, valeur en Numérique)
+Fonction CompteNumérique(T[] en Numérique, valeur en Numérique) en Entier
   # Corps de la fonction identique au précédent...
   # ...
 FinFonction
 
-Fonction CompteChaîne(T[] en Chaîne, valeur en Chaîne)
+Fonction CompteChaîne(T[] en Chaîne, valeur en Chaîne) en Entier
   # Corps de la fonction identique à CompteEntier()...
   # ...
 FinFonction
@@ -910,6 +991,7 @@ Fonction Compte(T[] en Quelconque, valeur en Quelconque) en Entier
   Retourne c
 FinFonction
 ```
+
 De cette manière, une seule fonction est nécessaire pour tous les types
 cités précédemment.
 
@@ -940,6 +1022,7 @@ Début
   Ecrire "T2 contient", Compte(T2, 1), "fois le chiffre 1."
 Fin
 ```
+
 A l'exécution du programme ci-dessus, on obtient :
 
 ```
@@ -953,37 +1036,39 @@ T2 contient 3 fois le chiffre 1.
 
 ### Minimum
 
-*  `Début`
-*  Instructions
-*  `Fin`
+* `Début`
+* Instructions
+* `Fin`
 
 ### Maximum
 
-*  Déclaration de variables, de constantes de tableaux, de structures...
-*  Déclaration de fonctions, de procédures...
-*  `Début`
-*  Instructions
-*  `Fin`
+* Déclaration de variables, de constantes de tableaux, de structures...
+* Déclaration de fonctions, de procédures...
+* `Début`
+* Instructions
+* `Fin`
 
 ## Librairies et importation de librairies ALGO <a name="librairie"></a>
 
-Une **librairie** est un fichier qui peut contenir des variables, des structures,
-des tableaux, des fonctions et des procédures qui pourront être réutilisées dans
-d'autres programmes **ALGO**.
+Une **librairie** est un fichier qui peut contenir des variables, des structures, des tableaux, des fonctions et des procédures qui pourront être réutilisées dans d'autres programmes **ALGO**.
 
 La structure d'une librairie se présente comme suit :
 
-*  `Librairie`
-*  Déclarations
 
-Au besoin, si des variables doivent être initialisées ou si des ajustements sont
-nécessaires (comme par exemple remplir un tableau, appeler une fonction, etc.),
-on utilise le mot réservé `Initialise` :
 
-*  `Librairie`
-*  Déclarations
-*  `Initialise`
-*  Instructions
+* `Librairie`
+* Déclarations
+  
+  
+
+Au besoin, si des variables doivent être initialisées ou si des ajustements sont nécessaires (comme par exemple remplir un tableau, appeler une fonction, etc.), on utilise le mot réservé `Initialise` :
+
+
+
+* `Librairie`
+* Déclarations
+* `Initialise`
+* Instructions
 
 ### Exemple de librairie et importation dans un programme
 
@@ -1052,13 +1137,20 @@ Fin
 # toutes les autres librairies importées.
 ```
 
+### Fonctions et procédures privées
+
+Il est parfois souhaitable que l'accès à une fonction ou une procédure soit limité à la librairie à laquelle elle appartient.
+
+Pour ce faire il suffit de faire débuter le nom de la fonction ou de la procédure par `___` (3 tirets de soulignement).
+
+*Dans une future version de **fr-algo**, il sera également possible d'appliquer ce principe aux variables et aux constantes.*
+
 ## Arguments de la ligne de commande <a name="argument"></a>
 
-Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour
-gérer des arguments de la ligne de commande. Ses éléments sont tous du type
-`Chaîne`
+Une variable spéciale nommée `_ARGS` de type `Tableau` est disponible pour gérer des arguments de la ligne de commande. Ses éléments sont tous du type `Chaîne`
 
 Exemple :
+
 ```
 # mon_programme.algo
 Procédure repete(phrase en Chaîne, nombre en Entier)
@@ -1078,6 +1170,7 @@ $ fralgo mon_programme.algo "Bonjour tout le monde !" 2
 Bonjour tout le monde !
 Bonjour tout le monde !
 ```
+
 Par défaut `_ARGS[0]` contient le nom du programme **ALGO** courant. Dans notre exemple,
 `_ARGS[0]` est égal à `mon_programme.algo`.
 
@@ -1104,6 +1197,7 @@ Puis de changer les permissions du programme comme suit :
 ## Index des mots reservés et fonctions prédéfinies
 
 ### -
+
 [%](#opérateur)
 
 [&](#opérateur)
@@ -1123,6 +1217,7 @@ Puis de changer les permissions du programme comme suit :
 [_REP](#répertoire)
 
 ### A
+
 [à](#pour)
 
 [Ajout](#fichier)
@@ -1134,9 +1229,11 @@ Puis de changer les permissions du programme comme suit :
 [Aléa](#autre)
 
 ### B
+
 [Booléen](#type)
 
 ### C
+
 [Car](#chaîne)
 
 [Caractère](#type)
@@ -1150,6 +1247,7 @@ Puis de changer les permissions du programme comme suit :
 [CodeCar](#chaîne)
 
 ### D
+
 [DP](#opérateur)
 
 [Dormir](#autre)
@@ -1159,6 +1257,7 @@ Puis de changer les permissions du programme comme suit :
 [Début](#programme)
 
 ### E
+
 [en](#variable)
 
 [en (mode d'ouverture)](#fichier)
@@ -1180,6 +1279,7 @@ Puis de changer les permissions du programme comme suit :
 [Extraire](#chaîne)
 
 ### F
+
 [FDF](#fichier)
 
 [Fermer](#fichier)
@@ -1197,14 +1297,17 @@ Puis de changer les permissions du programme comme suit :
 [Fonction](#fonction)
 
 ### G
+
 [Gauche](#chaîne)
 
 ### I
+
 [Importer](#librairie)
 
 [Initialise](#librairie)
 
 ### L
+
 [Lecture](#fichier)
 
 [Librairie](#librairie)
@@ -1216,6 +1319,7 @@ Puis de changer les permissions du programme comme suit :
 [Longueur](#chaîne)
 
 ### N
+
 [NON](#opérateur_binaire)
 
 [Numérique](#type)
@@ -1223,6 +1327,7 @@ Puis de changer les permissions du programme comme suit :
 [Numérique()](#conversion)
 
 ### O
+
 [OU](#opérateur_binaire)
 
 [OUX](#opérateur_binaire)
@@ -1230,6 +1335,9 @@ Puis de changer les permissions du programme comme suit :
 [Ouvrir](#fichier)
 
 ### P
+
+[Panique](#autre)
+
 [Pas](#pour)
 
 [Pour](#pour)
@@ -1237,14 +1345,17 @@ Puis de changer les permissions du programme comme suit :
 [Procédure](#procédure)
 
 ### Q
+
 [Quelconque](#quelconque)
 
 ### R
+
 [Redim](#redim)
 
 [Retourne](#fonction)
 
 ### S
+
 [Si](#test)
 
 [Sinon](#test)
@@ -1258,6 +1369,7 @@ Puis de changer les permissions du programme comme suit :
 [sur](#fichier)
 
 ### T
+
 [Table](#table)
 
 [Tableau](#tableau)
@@ -1268,11 +1380,14 @@ Puis de changer les permissions du programme comme suit :
 
 [TempsUnix](#autre)
 
+[Terminer](#procédure)
+
 [Trouve](#chaîne)
 
 [Type](#type)
 
 ### V
+
 [Valeurs](#fonctions_table)
 
 [Variable](#variable)

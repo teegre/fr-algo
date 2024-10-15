@@ -32,7 +32,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo.lib.ast import ArrayGetItem, ArraySetItem, ArrayResize
 from fralgo.lib.ast import Assign, Variable, Print, PrintErr, Read, BinOp, Neg
-from fralgo.lib.ast import Function, FunctionCall, FunctionReturn
+from fralgo.lib.ast import Function, FunctionCall, FunctionReturn, ProcTerminate
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFile, EOF
@@ -628,39 +628,6 @@ def p_return_statement(p):
   '''
   p[0] = Node(FunctionReturn(p[2]), p.lineno(1))
 
-def p_parameters(p):
-  '''
-  parameters : parameters COMMA parameter
-             | parameter
-  '''
-  if len(p) == 4:
-    p[0] = p[1] + p[3]
-  else:
-    p[0] = p[1]
-
-def p_parameter(p):
-  '''
-  parameter : var_list TYPE_DECL ftype
-            | ID TYPE_DECL ftype
-            | array TYPE_DECL ftype
-            | array_list TYPE_DECL ftype
-  '''
-  if isinstance(p[1], list):
-    # multiple variables with the same type
-    parameters = []
-    for param in p[1]:
-      if isinstance(param, list): # Array
-        if len(param[1]) == 1:
-          array = (param[0], 'Tableau', p[3], param[1][0])
-        else:
-          array = (param[0], 'Tableau', p[3], (*param[1],))
-        parameters.append((array))
-      else:
-        parameters.append((param, p[3]))
-    p[0] = parameters
-  else:
-    p[0] = [(p[1], p[3])]
-
 def p_function_call(p):
   '''
   expression : namespace LPAREN expressions RPAREN
@@ -677,7 +644,7 @@ def p_function_call(p):
 
 def p_procedure_declaration(p):
   '''
-  procedure_declaration : PROCEDURE ID LPAREN proc_params RPAREN NEWLINE proc_body ENDPROCEDURE NEWLINE
+  procedure_declaration : PROCEDURE ID LPAREN parameters RPAREN NEWLINE proc_body ENDPROCEDURE NEWLINE
                         | PROCEDURE ID LPAREN RPAREN NEWLINE proc_body ENDPROCEDURE NEWLINE
   '''
   if len(p) == 10:
@@ -685,19 +652,19 @@ def p_procedure_declaration(p):
   else:
     p[0] = Node(Function(p[2], None, p[6]), p.lineno(1))
 
-def p_proc_params(p):
+def p_parameters(p):
   '''
-  proc_params : proc_params COMMA proc_param
-              | proc_param
+  parameters : parameters COMMA parameter
+              | parameter
   '''
   if len(p) == 4:
     p[0] = p[1] + p[3]
   else:
     p[0] = p[1]
 
-def p_proc_param(p):
+def p_parameter(p):
   '''
-  proc_param : proc_var_list TYPE_DECL ftype
+  parameter : proc_var_list TYPE_DECL ftype
   '''
   parameters = []
   if isinstance(p[1], list):
@@ -758,6 +725,13 @@ def p_proc_body(p):
   if len(p) == 3:
     p[1].append(p[2])
   p[0] = p[1]
+
+
+def p_terminate_statement(p):
+  '''
+  statement : TERMINATE NEWLINE
+  '''
+  p[0] = Node(ProcTerminate(), p.lineno(1))
 
 def p_expressions(p):
   '''

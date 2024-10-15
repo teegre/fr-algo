@@ -62,11 +62,15 @@ class Node:
     try:
       if self.statement:
         result = self.statement.eval()
+        if isinstance(result, ProcTerminate):
+          return result
         if result is not None:
           return result
       if self.children:
         for statement in self.children:
           result = statement.eval()
+          if isinstance(result, ProcTerminate):
+            return result
           if result is not None:
             return result
       return result
@@ -531,7 +535,7 @@ class FunctionCall:
 
     try:
       result = body.eval()
-      if result is not None:
+      if not isinstance(result, ProcTerminate) and result is not None:
         if func.ftype == 'Procédure':
           raise FralgoException(f'{self.name} : instruction >Retourne< inattendue')
         self._check_returned_type(func.return_type, result)
@@ -563,6 +567,12 @@ class FunctionReturn:
     raise FralgoException('Erreur de syntaxe : Retourne en dehors d\'une fonction')
   def __repr__(self):
     return f'Retourne {self.expression}'
+
+class ProcTerminate:
+  def eval(self):
+    return self
+  def __repr__(self):
+    return 'Terminer'
 
 class Assign:
   def __init__(self, var, value):

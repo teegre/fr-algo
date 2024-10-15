@@ -99,6 +99,7 @@ reserved = {
   'Taille':        'SIZE',
   'TantQue':       'WHILE',
   'TempsUnix':     'UNIXTIMESTAMP',
+  'Terminer':      'TERMINATE',
   'Trouve':        'FIND',
   'Type':          'DATA_TYPE',
   'Valeur':        'VALUE',

@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/05/28
+" Last change: 2024/10/15
 
 if exists("b:current_syntax")
   finish
@@ -39,7 +39,7 @@ syn keyword Program Début Fin
 syn keyword Library Librairie Initialise
 syn keyword File Ajout Ecriture Lecture
 syn keyword Func Fonction Retourne FinFonction
-syn keyword Proc Procédure FinProcédure
+syn keyword Proc Procédure FinProcédure Terminer
 syn keyword StockFunc Aléa Car Clefs CodeCar Dormir Droite Ecrire EcrireErr EcrireFichier Existe
 syn keyword StockFunc Extraire FDF Fermer Gauche Lire LireFichier Longueur NON Ouvrir Panique
 syn keyword StockFunc Redim Taille

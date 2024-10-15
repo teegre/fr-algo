@@ -201,7 +201,7 @@ class Char(String):
     sz = self.size.eval()
     if sz > 255 or sz < 1:
       raise InvalidCharacterSize(f'Taille invalide : {sz}')
-    if self.value is not None:
+    if self.value is not None and not isinstance(self.value, Nothing):
       self.set_value(value)
   def set_value(self, value):
     size = self.size.eval()

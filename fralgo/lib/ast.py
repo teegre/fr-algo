@@ -876,7 +876,7 @@ class Len:
     try:
       return len(self.value.eval())
     except TypeError:
-      raise BadType('Longueur(>C<) : Type Chaîne attendu')
+      raise BadType('Longueur(>C ou T<) : Type Chaîne ou Tableau attendu')
   def __repr__(self):
     return f'Longueur({self.value})'
 

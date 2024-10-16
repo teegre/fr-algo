@@ -315,7 +315,7 @@ class Array(Base):
       if size < 0 or size >= self.indexes[i] + 1:
         raise IndexOutOfRange(f'Index hors limite : {size}')
   def eval(self):
-    return self.value
+    return self
   def _eval_indexes(self, *indexes):
     '''Evaluate indexes until we get integers (int)'''
     idxs = []
@@ -472,7 +472,7 @@ class Array(Base):
           return False
     return True
   def __len__(self):
-    return len(self.value)
+    return sum([1 if e is not None and not isinstance(e.eval(), Nothing) else 0 for e in self.value])
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value

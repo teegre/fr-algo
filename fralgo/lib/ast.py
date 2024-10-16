@@ -49,6 +49,7 @@ libs = LibMan()
 libs.set_namespaces(namespaces)
 
 class Node:
+  # TODO: IMPROVE THIS CLASS!
   def __init__(self, stmt=None, lineno=0):
     self.statement = stmt
     self.children = []
@@ -1070,7 +1071,7 @@ class Type:
         raise BadType(f'Pas de type.')
     return repr_datatype(self.var.data_type)
   def __repr__(self):
-    return f'Type({self.expr})'
+    return f'Type({self.var})'
 
 class Panic:
   def __init__(self, data):
@@ -1215,7 +1216,8 @@ def algo_to_python(expression):
       String,
       StructureGetItem,
       TableKeyExists,
-      ToFloat, ToInteger, ToString, Trim,
+      ToBoolean, ToFloat, ToInteger, ToString,
+      Trim,
       Type,
       UnixTimestamp,
       Variable,

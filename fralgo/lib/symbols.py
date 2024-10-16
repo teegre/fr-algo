@@ -318,6 +318,7 @@ class Symbols:
             print('...', k, '=', v)
           print('---')
         if self.table[self.__localstructs]:
+          # TODO: Somethings broken here...
           print('+++ Structures locales')
           for v in sorted(self.table[self.__localstructs].values()):
             print('...', v)

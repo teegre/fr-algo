@@ -266,12 +266,16 @@ class Boolean(Base):
     if isinstance(other, Boolean):
       return self.value <= other.value
     return False
+  def __bool__(self):
+    if self.value is None or isinstance(self.value, Nothing):
+      return False
+    return self.value
   def __str__(self):
-    if self.value is not None:
+    if self.value is not None or not isinstance(self.value, Nothing):
       return 'VRAI' if self.value is True else 'FAUX'
     return '?'
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing):
       return '?'
     return 'VRAI' if self.value else 'FAUX'
 
@@ -373,7 +377,7 @@ class Array(Base):
         else:
           array = []
           for e in value:
-            v = e.eval()
+            v = e.eval() if not isinstance(e, Boolean) else e
             array += v.value if not isinstance(v, list) else v
           self.value = array
           return
@@ -392,7 +396,7 @@ class Array(Base):
           nn = map_type(n.eval())
           if nn.data_type != datatype:
             raise BadType(f'Type {datatype} attendu ({nn.data_type})')
-        array[i] = n.eval()
+        array[i] = n.eval() if not isinstance(n, Boolean) else n
       self.value = array
       return
     if isinstance(value, Number) and datatype == 'Numérique':
@@ -412,7 +416,7 @@ class Array(Base):
     if isinstance(typed_value, StructureData):
       array[idxs[-1]] = deepcopy(typed_value)
     else:
-      array[idxs[-1]] = typed_value.eval()
+      array[idxs[-1]] = typed_value.eval() if not isinstance(typed_value, Boolean) else typed_value
   def _indexes_to_copy(self, old, new):
     '''
     Generator yielding indexes for copying values

@@ -153,7 +153,7 @@ t_ignore = ' \t'
 
 def t_STRING(t):
   r'\".*?\"|\'.*?\''
-  t.value = t.value[1:-1].encode('latin-1', 'ignore').decode('unicode-escape', 'ignore')
+  t.value = t.value[1:-1].encode('utf-8').decode('unicode_escape').encode('latin-1').decode('utf-8')
   return t
 
 def t_FLOAT(t):

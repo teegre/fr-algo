@@ -539,7 +539,7 @@ class FunctionCall:
         if func.ftype == 'Procédure':
           raise FralgoException(f'{self.name} : instruction >Retourne< inattendue')
         self._check_returned_type(func.return_type, result)
-        return result
+        return result if not isinstance(result, bool) else map_type(result)
       if func.ftype == 'Fonction':
         raise FralgoException(f'{self.name} : instruction >Retourne< absente')
     except FralgoException as e:

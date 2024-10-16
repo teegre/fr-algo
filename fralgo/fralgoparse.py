@@ -511,7 +511,9 @@ def p_statement_panic(p):
 
 def p_var_assignment(p):
   '''
-  var_assignment : ID ARROW sequence NEWLINE
+  var_assignment : namespace ARROW sequence NEWLINE
+                 | namespace ARROW expression NEWLINE
+                 | ID ARROW sequence NEWLINE
                  | ID ARROW expression NEWLINE
   '''
   if isinstance(p[3], list): # sequence

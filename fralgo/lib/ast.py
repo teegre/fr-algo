@@ -557,9 +557,9 @@ class FunctionCall:
       return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
-  def __init__(self, expression, namespace=None):
+  def __init__(self, expression):
     self.expression = expression
-    self.namespace = namespace
+    self.namespace = namespaces.current_namespace
   def eval(self):
     sym = namespaces.get_namespace(self.namespace)
     if sym.is_local_function():
@@ -579,22 +579,27 @@ class Assign:
     self.var = var
     self.value = value
   def eval(self):
-    sym = namespaces.get_namespace(name=None)
+    if isinstance(self.var, list):
+      namespace, name = self.var
+    else:
+      namespace, name = namespaces.current_namespace, self.var
+    sym = namespaces.get_namespace(namespace)
     value = self.value
     if issubclass(type(value), Array):
-      sym.assign_value(self.var, value)
+      sym.assign_value(name, value, namespace)
     else:
-      sym.assign_value(self.var, value.eval())
+      sym.assign_value(name, value.eval(), namespace)
   def __repr__(self):
     return f'{self.var} ← {self.value}'
 
 class Variable:
   def __init__(self, name, namespace=None):
     self.name = name
-    self.namespace = namespace
+    self.namespace = namespace if namespace is not None else namespaces.current_namespace
   def eval(self):
-    sym = namespaces.get_namespace(self.namespace)
-    var = sym.get_variable(self.name)
+    var = namespaces.get_variable(self.name, self.namespace)
+    # sym = namespaces.get_namespace(self.namespace)
+    # var = sym.get_variable(self.name)
     if isinstance(var, tuple): # constant!
       var = var[1]
     if isinstance(var, (Boolean, Number, String, Variable)):
@@ -678,14 +683,15 @@ class Read:
     self.args = args
   def eval(self):
     '''... on evaluation'''
-    sym = namespaces.get_namespace(name=None)
+    # sym = namespaces.get_namespace(name=None)
     try:
       user_input = input()
     except (KeyboardInterrupt, EOFError):
       print()
       raise InterruptedByUser('Interrompu par l\'utilisateur')
     try:
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var, None)
+      # var = sym.get_variable(self.var)
       if isinstance(var, Boolean):
         var.set_value(Boolean(user_input).eval())
       if isinstance(var, Integer):
@@ -1055,8 +1061,7 @@ class Type:
     self.var = var
   def eval(self):
     if isinstance(self.var, str):
-      sym = namespaces.get_namespace(name=None)
-      var = sym.get_variable(self.var)
+      var = namespaces.get_variable(self.var)
       return repr_datatype(map_type(var.data_type))
     if isinstance(self.var, Node):
       try:

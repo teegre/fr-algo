@@ -181,7 +181,9 @@ class Symbols:
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Char(None, size)
-  def assign_value(self, name, value):
+  def assign_value(self, name, value, namespace=None):
+    if name.startswith('___') and self.namespace != namespace:
+      raise ex.FralgoException('Affectation d\'une valeur à une variable privée.')
     var = self.get_variable(name)
     if isinstance(var, tuple): # constant!
       raise ex.ReadOnlyValue(f'Constante `{name}` : en lecture seule')
@@ -297,9 +299,9 @@ class Symbols:
         print('+++ Variables globales')
         for k, v in sorted(self.table[self.__vars].items()):
           if isinstance(v, tuple):
-            print('... Constante', k, '=', v[1])
+            print('... Constante', k, '=', v[1], '[PRIVÉ]' if k.startswith('___') else '')
           else:
-            print('... Variable', k, '=', v)
+            print('... Variable', k, '=', v, '[PRIVÉ]' if k.startswith('___') else '')
         print('---')
       if self.table[self.__structs]:
         print('+++ Structures')
@@ -363,7 +365,10 @@ class Namespaces:
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
-  def get_variable(self, name, namespace):
+  def get_variable(self, name, namespace=None):
+    if name.startswith('___'):
+      if self.current_namespace != namespace:
+        raise ex.FralgoException('Utilisation d\'une variable/constante en dehors de son espace.')
     sym = self.get_namespace(namespace)
     return sym.get_variable(name)
   def get_function(self, name, namespace):

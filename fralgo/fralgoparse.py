@@ -39,7 +39,7 @@ from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFi
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
-from fralgo.lib.ast import ToFloat, ToInteger, ToString, Type, Random, Sleep, SizeOf
+from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
 from fralgo.lib.ast import Panic
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
@@ -958,6 +958,7 @@ def p_expression_type_conv(p):
   expression : TYPE_INTEGER LPAREN expression RPAREN
              | TYPE_FLOAT LPAREN expression RPAREN
              | TYPE_STRING LPAREN expression RPAREN
+             | TYPE_BOOLEAN LPAREN expression RPAREN
   '''
   match p[1]:
     case 'Entier':
@@ -966,6 +967,8 @@ def p_expression_type_conv(p):
       p[0] = ToFloat(p[3])
     case 'Chaîne':
       p[0] = ToString(p[3])
+    case 'Booléen':
+      p[0] = ToBoolean(p[3])
 
 def p_expression_random(p):
   '''

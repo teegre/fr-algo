@@ -1135,6 +1135,22 @@ class ToString:
   def data_type(self):
     return 'Chaîne'
 
+class ToBoolean:
+  def __init__(self, value):
+    self.value = value
+  def eval(self):
+    value = algo_to_python(self.value)
+    tvalue = map_type(self.value)
+    try:
+      return map_type(bool(value))
+    except (ValueError, TypeError):
+      raise BadType(f'Booléen(C ou E ou N) : Conversion du type `{repr_datatype(tvalue.data_type)}` impossible')
+  def __repr__(self):
+    return f'Booléen({self.value})'
+  @property
+  def data_type(self):
+    return 'Booléen'
+
 class Random:
   def eval(self):
     return map_type(random())

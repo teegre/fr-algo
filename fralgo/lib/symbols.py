@@ -299,9 +299,9 @@ class Symbols:
         print('+++ Variables globales')
         for k, v in sorted(self.table[self.__vars].items()):
           if isinstance(v, tuple):
-            print('... Constante', k, '=', v[1], '[PRIVÉ]' if k.startswith('___') else '')
+            print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
           else:
-            print('... Variable', k, '=', v, '[PRIVÉ]' if k.startswith('___') else '')
+            print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
         print('---')
       if self.table[self.__structs]:
         print('+++ Structures')
@@ -324,18 +324,18 @@ class Symbols:
         if not self.table[self.__localfunc]:
           print('+++ Fonctions et Procédures')
           for k, v in sorted(self.table[self.__localfunc].items()):
-            print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
+            print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
           print('---')
         if self.__localrefs:
           print('&&& Références locales')
           for refs in self.__localrefs:
             for k, v in sorted(refs.items()):
-              print('...', k, '=', v)
+              print('...', k, '=', v, '[-]' if k.startswith('___') else '')
           print('---')
     if not self.is_local() and self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
-        print(f'... {k} :', v, '[PRIVÉ]' if k.startswith('___') else '')
+        print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
       print('---')
   def __repr__(self):
     return f'Espace {self.namespace}'

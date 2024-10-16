@@ -120,6 +120,13 @@ Il est possible de naviguer dans l'historique avec les touches <kbd>↑</kbd> et
 
 Pour quitter, appuyer sur <kbd>CTRL</kbd>+<kbd>d</kbd>.
 
+## Commandes
+
+Outre la commande `.réinit` citée plus haut, il existe d'autres commandes qui permettent d'obtenir des informations sur l'environnement en cours :
+
+*  `.espaces` - affiche la liste des espaces en cours
+*  `.symboles [espace]` - fournit des informations sur l'espace donné (constantes, variables, structures, procédures et fonctions)
+
 ## Syntaxe
 
 Elle doit être scrupuleusement appliquée sous peine d'avoir des erreurs lors de l'exécution des programmes !
@@ -1137,13 +1144,11 @@ Fin
 # toutes les autres librairies importées.
 ```
 
-### Fonctions et procédures privées
+### Eléments privés
 
-Il est parfois souhaitable que l'accès à une fonction ou une procédure soit limité à la librairie à laquelle elle appartient.
+Il est parfois souhaitable que l'accès à une fonction, une procédure une variable ou une constante soit limité à la librairie à laquelle elle appartient.
 
-Pour ce faire il suffit de faire débuter le nom de la fonction ou de la procédure par `___` (3 tirets de soulignement).
-
-*Dans une future version de **fr-algo**, il sera également possible d'appliquer ce principe aux variables et aux constantes.*
+Pour ce faire il suffit de faire débuter le nom de l'élément par `___` (3 tirets de soulignement).
 
 ## Arguments de la ligne de commande <a name="argument"></a>
 

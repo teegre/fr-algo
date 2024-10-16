@@ -49,6 +49,7 @@ class Interpreter:
   loop_hook = ('Fonction', 'Table', 'Procédure', 'TantQue', 'Pour', 'Si', 'Structure')
   while_end_hook = 'Suivant'
   end_hook = ('FinTantQue', 'FinSi', 'FinTable', 'FinStructure', 'FinFonction', 'FinProcédure')
+
   def __init__(self):
     self.loop = False
     self.cancel = False
@@ -85,7 +86,7 @@ class Interpreter:
           namespaces.reset()
           print('*** Réinitialisation effectuée')
           continue
-        case '.espaces-nom':
+        case '.espaces':
           namespaces.namespaces()
           continue
       if instruction.startswith('.symboles'):

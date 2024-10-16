@@ -5,9 +5,11 @@
 
 for f in *.algo
 do
-  echo "${counter}. ${f}"
+  clear
+  echo "${counter}. ${f^^}"
   python ../fralgo/fralgocli.py  "$f" || ((errors++))
   ((counter++))
+  read -p "Pressez la touche ENTRÉE..."
 done
 
 echo "${counter} tests effectués."

@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/10/15
+" Last change: 2024/10/16
 
 if exists("b:current_syntax")
   finish
@@ -48,12 +48,13 @@ syn keyword Loop TantQue FinTantQue Pour Pas Suivant
 syn keyword Condition Si Alors SinonSi Sinon FinSi
 syn keyword Bool VRAI FAUX
 syn keyword Conjonction à en sur
-syn keyword Arguments _ARGS Clef Valeur
+syn keyword Arguments _ARGS _REP Clef Valeur
+
 syn region AlgoString start='"' skip=/\v\\./ end='"'
 syn region AlgoString start="'" skip=/\v\\./ end="'"
 
 syn keyword AlgoTodo TODO FIXME NOTE NOTES contained
-syn match AlgoComment "#.*" contains=Todo
+syn match AlgoComment "#.*" contains=AlgoTodo
 syn match Private "\<___\w*\>"
 
 syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained

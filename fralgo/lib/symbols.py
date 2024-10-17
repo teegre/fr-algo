@@ -146,7 +146,16 @@ class Symbols:
     variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la constante `{name}`')
-    variables[name] = ('CONST', value)
+    if issubclass(type(value), Array):
+      indexes = Array.get_indexes(value.value)
+      datatype = Array.get_datatype(value.value)
+      array = Array(datatype, *indexes)
+      array.set_get_structure(self.get_structure)
+      array.value = array.new_array(*array.sizes)
+      array.set_array(value)
+      variables[name] = ('CONST', array)
+    else:
+      variables[name] = ('CONST', value)
   def declare_ref(self, name, var):
     refs = self.get_localrefs_table()
     if refs.get(name, None) is not None:

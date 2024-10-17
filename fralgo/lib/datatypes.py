@@ -281,6 +281,17 @@ class Boolean(Base):
 
 class Array(Base):
   _type = 'Tableau'
+
+  @classmethod
+  def get_datatype(cls, value):
+    if isinstance(value, list):
+      return cls.get_datatype(value[0])
+    return map_type(value).data_type
+  @classmethod
+  def get_indexes(cls, value):
+    if isinstance(value, list) and len(value) > 0:
+      return (len(value) - 1,) + cls.get_indexes(value[0])
+    return ()
   def __init__(self, datatype, *indexes):
     # http://cours.pise.info/algo/tableaux.htm
     # http://cours.pise.info/algo/tableauxmulti.htm
@@ -340,6 +351,17 @@ class Array(Base):
     self ← array
     self ← &array
     '''
+    if issubclass(type(array), Array):
+      indexes = Array.get_indexes(array.value)
+      datatype = Array.get_datatype(array.value)
+      temparray = Array(datatype, *indexes)
+      if self.sizes == temparray.sizes:
+        self.indexes = indexes
+        self.sizes = temparray.sizes
+        self.value = array.value
+        return
+      else:
+        raise BadType(f'Nombre de valeurs invalide : {len(array.value)} ({len(self.value)})')
     try:
       if self.sizes != array.sizes:
         raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
@@ -349,9 +371,9 @@ class Array(Base):
         raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
     if self.datatype != array.datatype and array.datatype != 'Quelconque':
       raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
-    # /!\ Not implemented in grammar.
-    # References are only available in procedure.
     if ref:
+      # /!\ Not implemented in grammar.
+      # References are only available in procedure.
       self.indexes = array.indexes
       self.sizes = array.sizes
       self.value = array.value

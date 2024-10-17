@@ -37,6 +37,8 @@ def print_err(message):
   stderr.write(f'*** {message}\n')
   stderr.flush()
 
+class ArrayInvalidSize(FralgoException):
+  '''La taille d\'un Tableau est invalide.'''
 class VarUndeclared(FralgoException):
   '''Variable non déclarée.'''
 class BadType(FralgoException):

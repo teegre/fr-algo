@@ -29,7 +29,7 @@ import os
 from copy import deepcopy
 
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
-from fralgo.lib.exceptions import ArrayResizeFailed, InvalidCharacterSize
+from fralgo.lib.exceptions import ArrayInvalidSize, ArrayResizeFailed, InvalidCharacterSize
 from fralgo.lib.exceptions import InvalidStructureValueCount, UnknownStructureField
 
 class Base:
@@ -288,10 +288,32 @@ class Array(Base):
       return cls.get_datatype(value[0])
     return map_type(value).data_type
   @classmethod
+  def check_types(cls, value, expected, datatype=None, index=None):
+    if isinstance(value, list):
+      for i, e in enumerate(value):
+        if isinstance(e, list):
+          if index is None:
+            cls.check_types(e, expected, datatype, (i,))
+          else:
+            cls.check_types(e, expected, datatype, index + (i,))
+        else:
+          if datatype is None:
+            datatype = type(e)
+          elif type(e) != datatype:
+            indexes = ','.join(str(idx) for idx in index + (i,)) if index is not None else i
+            badtype = map_type(e).data_type
+            raise BadType(f'Type `{badtype}` invalide à l\'index [{indexes}] : attendu `{expected}`')
+  @classmethod
   def get_indexes(cls, value):
     if isinstance(value, list) and len(value) > 0:
+      if isinstance(value[0], list):
+        size = len(value[0]) - 1
+        for idx, e in enumerate(value):
+          if isinstance(e, list) and size != len(e) - 1:
+            raise ArrayInvalidSize(f'Taille invalide à l\'index {idx} : {len(e)} ({size+1})')
       return (len(value) - 1,) + cls.get_indexes(value[0])
     return ()
+
   def __init__(self, datatype, *indexes):
     # http://cours.pise.info/algo/tableaux.htm
     # http://cours.pise.info/algo/tableauxmulti.htm
@@ -354,11 +376,14 @@ class Array(Base):
     if issubclass(type(array), Array):
       indexes = Array.get_indexes(array.value)
       datatype = Array.get_datatype(array.value)
+      if datatype != self.datatype:
+        raise BadType(f'Type `{self.datatype}` attendu [`{datatype}`]')
+      Array.check_types(array.value, datatype)
       temparray = Array(datatype, *indexes)
       if self.sizes == temparray.sizes:
         self.indexes = indexes
         self.sizes = temparray.sizes
-        self.value = array.value
+        self.value = deepcopy(array.value)
         return
       else:
         raise BadType(f'Nombre de valeurs invalide : {len(array.value)} ({len(self.value)})')
@@ -524,7 +549,7 @@ class Array(Base):
   def __repr__(self):
     def recursive_repr(array):
       if isinstance(array, list):
-        return '[' + ', '.join(recursive_repr(item) for item in array) + ']'
+        return '[' + ','.join(recursive_repr(item) for item in array) + ']'
       return '?' if array is None else str(map_type(array))
     return recursive_repr(self.value)
   def __str__(self):
@@ -537,7 +562,7 @@ class Array(Base):
       return map_type(self.sizes[0])
     array = Array('Entier', len(self.sizes) - 1)
     array.set_get_structure(self.get_structure)
-    array.new_array(*array.sizes)
+    array.value = array.new_array(*array.sizes)
     for idx, value in enumerate(self.sizes):
       array.set_value((idx,), Integer(value))
     return array
@@ -562,7 +587,7 @@ class Structure(Base):
     return iter(self.fields)
   def __repr__(self):
     data = [f'{n}{repr_datatype(t)}' for n, t in self.fields]
-    return f'{self.name} → {", ".join(data)}'
+    return f'{self.name} → {",".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -692,10 +717,10 @@ class StructureData(Base):
     return False
   def __str__(self):
     data = [str(v) if v is not None else '?' for v in self.data.values()]
-    return ', '.join(data)
+    return ','.join(data)
   def __repr__(self):
     data = [k+": " + str(v) if v else '?' for k,v in self.data.items()]
-    return f'{self.name} → {", ".join(data)}'
+    return f'{self.name} → {",".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -725,7 +750,7 @@ class Table(Base):
   def __len__(self):
     return len(self.value)
   def __repr__(self):
-    return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
+    return f'({(",".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
 
 class Any(Base):
   def __init__(self, value=None):
@@ -798,7 +823,7 @@ def repr_datatype(datatype, shortform=True):
       return f'{datatype[0]}*{datatype[1]}'
     case 'Tableau':
       if isinstance(datatype[2], tuple):
-        indexes = ', '.join(str(idx) for idx in datatype[2])
+        indexes = ','.join(str(idx) for idx in datatype[2])
       else:
         indexes = datatype[2] if datatype[2] != -1 else ''
       if shortform:

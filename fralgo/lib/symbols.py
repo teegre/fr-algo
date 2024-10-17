@@ -149,6 +149,7 @@ class Symbols:
     if issubclass(type(value), Array):
       indexes = Array.get_indexes(value.value)
       datatype = Array.get_datatype(value.value)
+      Array.check_types(value.value, datatype)
       array = Array(datatype, *indexes)
       array.set_get_structure(self.get_structure)
       array.value = array.new_array(*array.sizes)

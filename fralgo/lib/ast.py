@@ -143,7 +143,7 @@ class DeclareArray:
     sym.declare_array(self.name, self.var_type, *self.max_indexes)
   def __repr__(self):
     indexes = [str(n) for n in self.max_indexes]
-    idx = ', '.join(indexes)
+    idx = ','.join(indexes)
     if idx == '-1':
       idx = ''
     return f'Tableau {self.name}[{idx}] en {self.var_type}'
@@ -204,7 +204,7 @@ class ArrayGetItem:
     return value.data_type
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
-    return f'{self.var.name}[{", ".join(indexes)}]'
+    return f'{self.var.name}[{",".join(indexes)}]'
 
 class ArraySetItem:
   def __init__(self, var, value, *indexes):
@@ -219,7 +219,7 @@ class ArraySetItem:
     var.set_value(self.indexes, self.value)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
+    return f'{self.var.name}[{",".join(indexes)}] ← {self.value}'
 
 class ArrayResize:
   def __init__(self, var, *indexes):
@@ -233,7 +233,7 @@ class ArrayResize:
     var.resize(*self.indexes)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'Redim {self.var.name}[{", ".join(indexes)}]'
+    return f'Redim {self.var.name}[{",".join(indexes)}]'
 
 class FreeFormArray(Array):
   def __init__(self, value):
@@ -269,10 +269,17 @@ class SizeOf:
   @property
   def data_type(self):
     if isinstance(self.var, Array) or issubclass(type(self.var), Array):
-      return 'Entier' if len(self.var.sizes) == 1 else 'Tableau'
+      if len(self.var.sizes) == 1:
+        return 'Entier'
+      indexes = ",".join([str(v) for v in var.indexes])
+      return f'Tableau[{len(var.indexes) - 1}] en Entier'
     var = self.var.eval()
     if isinstance(var, Table):
       return 'Entier'
+    if isinstance(var, Array) or issubclass(type(var), Array):
+      if len(var.sizes) == 1:
+        return 'Entier'
+      return f'Tableau[{len(var.indexes) - 1}] en Entier'
     return var.data_type
   def __repr__(self):
     return f'Taille({self.var})'
@@ -394,8 +401,8 @@ class Function:
     else:
       params = ''
     if self.return_type is not None:
-      return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
-    return f'Procédure {self.name}({", ".join(params)})'
+      return f'Fonction {self.name}({",".join(params)}) en {self.return_type}'
+    return f'Procédure {self.name}({",".join(params)})'
 
 class FunctionCall:
   '''Function call'''
@@ -553,9 +560,9 @@ class FunctionCall:
     func = namespaces.get_function(self.name, self.namespace)
     params = [str(param) for param in self.params]
     if func.return_type is not None:
-      return f'{self.name}({", ".join(params)}) → {func.return_type}'
+      return f'{self.name}({",".join(params)}) → {func.return_type}'
     else:
-      return f'{self.name}({", ".join(params)})'
+      return f'{self.name}({",".join(params)})'
 
 class FunctionReturn:
   def __init__(self, expression):
@@ -1243,7 +1250,7 @@ def repr_datatype(datatype, shortform=False):
       return f'{datatype[0]}*{datatype[1]}'
     case 'Tableau':
       if isinstance(datatype[2], tuple):
-        indexes = ', '.join(str(idx) for idx in datatype[2])
+        indexes = ','.join(str(idx) for idx in datatype[2])
       else:
         indexes = datatype[2] if datatype[2] != -1 else ''
       if shortform:

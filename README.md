@@ -246,15 +246,15 @@ n
 
 ### Déclaration
 
-`Constante C 12`
+`Constante Inople 12`
 
 ## Affectation
 
 La valeur d'un constante ne peut évidemment pas être modifiée.
 
 ```
-C ← 13
-*** Constante C : en lecture seule
+Inople ← 13
+*** Constante `Inople` : en lecture seule
 ```
 
 Il est possible d'affecter à une constante les types suivants :
@@ -341,6 +341,32 @@ Taille(B)
 T <- A, B
 T
 # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+### Différence entre taille et longueur d'un tableau
+
+La taille d'un tableau correspond au nombre d'éléments qu'il peut contenir :
+```
+Tableau T[3] en Entier
+Taille(T) = 4
+# VRAI
+```
+
+La longueur d'un tableau correspond au nombre d'éléments non vides qu'il contient :
+```
+Tableau T[3] en Entier
+Longueur(T) = 0
+# VRAI
+# En effet, puisque le tableau est vide.
+
+T[0] ← 1
+Longueur(T) = 1
+# VRAI
+# Le tableau contient effectivement un élément.
+
+T ← [1,2,3,4]
+Longueur(T) = 4
+# VRAI
 ```
 
 ## Tables <a name="table"></a>
@@ -739,6 +765,7 @@ Taille(t)
 Tableau t2[7,7]
 Taille(t2)
 # [8, 8]
+
 ```
 
 ### Tables <a name="fonctions_table"></a>

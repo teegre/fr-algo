@@ -533,7 +533,8 @@ class Array(Base):
     if len(self.sizes) == 1:
       return sum([1 if not isinstance(map_type(e).value, Nothing) else 0 for e in self.value])
     return Array.multi_len(self.value)
-
+  def __getitem__(self, index):
+    return self.value[index]
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value

@@ -435,7 +435,7 @@ class Array(Base):
         else:
           array = []
           for e in value:
-            v = map_type(e)
+            v = map_type(e.eval())
             array += v.value if not isinstance(v, list) else v
           self.value = array
           return

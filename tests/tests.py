@@ -20,6 +20,26 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_concatenation_de_listes_a_affecter_a_une_variable(self):
+    prog='''Tableaux T[11], A[3], B[3], C[3]  en Entier
+    Variable test en Booléen
+    Début
+      Ecrire "23. Test affectation de Tableaux à un Tableau"
+      test ← VRAI
+      A ← [1,2,3,4]
+      B ← [5,6,7,8]
+      C ← [9,10,11,12]
+      T ← A, B, C
+      test ← T = [1,2,3,4,5,6,7,8,9,10,11,12]
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+
+
   def test_longueur_taille_tableau_tableau_multi(self):
     prog='''Tableau T1[3] en Entier
     Tableau T2[1,1] en Entier

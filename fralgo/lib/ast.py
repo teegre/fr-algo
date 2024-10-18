@@ -238,11 +238,11 @@ class ArrayResize:
 class FreeFormArray(Array):
   def __init__(self, value):
     super().__init__(map_type(value[0]).data_type, len(value) - 1)
-    self.value = [v.eval() for v in value]
+    self.value = [v for v in value]
   def eval(self):
     if self.value:
       return self.value
-    # there always should be a value
+    # there should always be a value
     raise VarUndefined('Valeur indéfinie')
   def __iter__(self):
     return iter(self.value)
@@ -312,7 +312,7 @@ class TableGetValues:
     self.var = var
   def eval(self):
     var = self.var.eval()
-    values =Array(self.var.value_type, len(var.get_values()) - 1)
+    values = Array(self.var.value_type, len(var.get_values()) - 1)
     values.value = list(var.get_values())
     return values
   def __repr__(self):

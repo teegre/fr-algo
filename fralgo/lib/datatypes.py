@@ -424,7 +424,7 @@ class Array(Base):
         else:
           array = []
           for e in value:
-            v = e.eval() if not isinstance(e, Boolean) else e
+            v = map_type(e)
             array += v.value if not isinstance(v, list) else v
           self.value = array
           return
@@ -443,7 +443,7 @@ class Array(Base):
           nn = map_type(n.eval())
           if nn.data_type != datatype:
             raise BadType(f'Type {datatype} attendu ({nn.data_type})')
-        array[i] = n.eval() if not isinstance(n, Boolean) else n
+        array[i] = map_type(n)
       self.value = array
       return
     if isinstance(value, Number) and datatype == 'Numérique':
@@ -463,7 +463,7 @@ class Array(Base):
     if isinstance(typed_value, StructureData):
       array[idxs[-1]] = deepcopy(typed_value)
     else:
-      array[idxs[-1]] = typed_value.eval() if not isinstance(typed_value, Boolean) else typed_value
+      array[idxs[-1]] = typed_value
   def _indexes_to_copy(self, old, new):
     '''
     Generator yielding indexes for copying values
@@ -809,8 +809,6 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
-  # if isinstance(value, list):
-  #   return Array(datatype)
   return value
 
 def repr_datatype(datatype, shortform=True):

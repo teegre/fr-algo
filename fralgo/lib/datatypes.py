@@ -442,7 +442,7 @@ class Array(Base):
         self.set_array(array)
         return
       array = self.new_array(len(value))
-      for i, n in enumerate(value):
+      for i, n in enumerate(value if isinstance(value, list) else value.value):
         try:
           if isinstance(n, Number) and datatype == 'Numérique':
             n = Float(float(n.eval()))

@@ -66,6 +66,7 @@ class Symbols:
   __context      = 'context'
 
   __superglobal  = {}
+  __main_global  = {}
   __localrefs    = []
 
 # TODO: ORDER METHODS
@@ -119,6 +120,8 @@ class Symbols:
   def get_variables(self):
     if self.is_local():
       return self.get_local_table()
+    if self.namespace == 'main':
+      return self.__main_global
     return self.table[self.__vars]
   def get_structures(self):
     if self.is_local():
@@ -142,8 +145,11 @@ class Symbols:
       variables[name] = data
     else:
       variables[name] = datatype(None)
-  def declare_const(self, name, value):
-    variables = self.get_variables()
+  def declare_const(self, name, value, superglobal=False):
+    if superglobal:
+      variables = self.__superglobal
+    else:
+      variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la constante `{name}`')
     if issubclass(type(value), Array):
@@ -168,7 +174,7 @@ class Symbols:
     elif self.is_local():
       variables = self.get_local_table()
     else:
-      variables = self.table[self.__vars]
+      variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared((f'Redéclaration de la variable `{name}`'))
     array = Array(data_type, *max_indexes)
@@ -176,18 +182,12 @@ class Symbols:
     array.value = array.new_array(*array.sizes)
     variables[name] = array
   def declare_table(self, name, key_type, value_type):
-    if self.is_local():
-      variables = self.get_local_table()
-    else:
-      variables = self.table[self.__vars]
+    variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Table(key_type, value_type)
   def declare_sized_char(self, name, size):
-    if self.is_local():
-      variables = self.get_local_table()
-    else:
-      variables = self.table[self.__vars]
+    variables = self.get_variables()
     if variables.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Char(None, size)
@@ -229,6 +229,9 @@ class Symbols:
           return variables[name]
     var = self.table[self.__vars].get(name, None)
     if var is None:
+      var = self.__main_global.get(name, None)
+      if var is not None:
+        return var
       var = self.__superglobal.get(name, None)
       if var is not None:
         return var
@@ -295,6 +298,8 @@ class Symbols:
     except KeyError:
       raise ex.VarUndeclared(f'Variable `{name}` non déclarée')
   def reset(self):
+    self.__superglobal.clear()
+    self.__main_global.clear()
     self.table[self.__func].clear()
     self.table[self.__local].clear()
     self.table[self.__context].clear()
@@ -304,15 +309,15 @@ class Symbols:
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
   def dump(self):
+    if self.__main_global:
+      print('+++ Variables globales')
+      for k, v in sorted(self.__main_global.items()):
+        if isinstance(v, tuple):
+          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+        else:
+          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+      print('---')
     if not self.is_local():
-      if self.table[self.__vars]:
-        print('+++ Variables globales')
-        for k, v in sorted(self.table[self.__vars].items()):
-          if isinstance(v, tuple):
-            print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
-          else:
-            print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
-        print('---')
       if self.table[self.__structs]:
         print('+++ Structures')
         for v in sorted(self.table[self.__structs].values()):
@@ -327,8 +332,7 @@ class Symbols:
           for k, v in locs.items():
             print('...', k, '=', v)
           print('---')
-        if self.table[self.__localstructs]:
-          # TODO: Somethings broken here...
+        if self.table[self.__localstructs][-1]:
           print('+++ Structures locales')
           for v in sorted(self.table[self.__localstructs].values()):
             print('...', v)

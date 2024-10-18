@@ -20,6 +20,30 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_longueur_taille_tableau_tableau_multi(self):
+    prog='''Tableau T1[3] en Entier
+    Tableau T2[1,1] en Entier
+    Variable test en Booléen
+    Début
+      Ecrire "22. Test Taille et Longueur de tableaux uni et multidimensionnels"
+      test ← VRAI
+      test ← test ET Taille(T1) = 4
+      test ← test ET Longueur(T1) = 0
+      test ← test ET Taille(T2) = [2,2]
+      test ← test ET Longueur(T2) = 0
+      T1 ← [1,2,3,4]
+      T2 ← [[1,2],[3,4]]
+      test ← test ET Longueur(T1) = 4
+      test ← test ET Longueur(T2) = 4
+      test ← test ET Longueur(T1) = Longueur(T2)
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
+
   def test_affectation_directe_de_valeurs_a_une_structure(self):
     prog='''Structure S
     a en Entier
@@ -89,21 +113,19 @@ class Test(unittest.TestCase):
 
   def test_tableau_direct(self):
     prog='''Tableau t[8] en Entier
-    Variables test1, test2 en Booléen
+    Variable test en Booléen
     Début
       Ecrire "18. Test affectation directe de valeurs à un tableau"
+      test <- VRAI
       t <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
-      test1 <- t[0] = 1
-      test2 <- t[8] = 9
+      test <- test ET t = [1,2,3,4,5,6,7,8,9]
     Fin'''
 
     reset_parser()
     statements = parser.parse(prog)
     statements.eval()
-    t1 = sym.get_variable('test1')
-    t2 = sym.get_variable('test2')
-    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
-    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    t = sym.get_variable('test')
+    self.assertEqual(t.eval(), True, 'test should be VRAI')
 
   def test_table(self):
     prog='''Table t
@@ -302,14 +324,14 @@ class Test(unittest.TestCase):
     statements = parser.parse(prog)
     statements.eval()
     t = sym.get_variable('T')
-    self.assertEqual(t.value[0], 1, 'Should be 1')
-    self.assertEqual(t.value[1], 2, 'Should be 2')
-    self.assertEqual(t.value[2], 3, 'Should be 3')
-    self.assertEqual(t.value[3], 4, 'Should be 4')
-    self.assertEqual(t.value[4], 5, 'Should be 5')
-    self.assertEqual(t.value[5], 6, 'Should be 6')
-    self.assertEqual(t.value[6], 7, 'Should be 7')
-    self.assertEqual(t.value[7], 8, 'Should be 8')
+    self.assertEqual(t.value[0].eval(), 1, 'Should be 1')
+    self.assertEqual(t.value[1].eval(), 2, 'Should be 2')
+    self.assertEqual(t.value[2].eval(), 3, 'Should be 3')
+    self.assertEqual(t.value[3].eval(), 4, 'Should be 4')
+    self.assertEqual(t.value[4].eval(), 5, 'Should be 5')
+    self.assertEqual(t.value[5].eval(), 6, 'Should be 6')
+    self.assertEqual(t.value[6].eval(), 7, 'Should be 7')
+    self.assertEqual(t.value[7].eval(), 8, 'Should be 8')
 
   def test_while(self):
     prog = '''Variable Marche en Booléen

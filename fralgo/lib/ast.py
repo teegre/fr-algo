@@ -246,6 +246,8 @@ class FreeFormArray(Array):
     raise VarUndefined('Valeur indéfinie')
   def __iter__(self):
     return iter(self.value)
+  def __getitem__(self, index):
+    return self.value[index]
   def __len__(self):
     return len(self.value)
   # def __repr__(self):

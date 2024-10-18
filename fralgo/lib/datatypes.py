@@ -284,14 +284,14 @@ class Array(Base):
 
   @classmethod
   def get_datatype(cls, value):
-    if isinstance(value, list):
+    if isinstance(value, list) or issubclass(type(value), Array):
       return cls.get_datatype(value[0])
     return map_type(value).data_type
   @classmethod
   def check_types(cls, value, expected, datatype=None, index=None):
     if isinstance(value, list):
       for i, e in enumerate(value):
-        if isinstance(e, list):
+        if isinstance(e, list) or issubclass(type(e), Array):
           if index is None:
             cls.check_types(e, expected, datatype, (i,))
           else:
@@ -305,14 +305,25 @@ class Array(Base):
             raise BadType(f'Type `{badtype}` invalide à l\'index [{indexes}] : attendu `{expected}`')
   @classmethod
   def get_indexes(cls, value):
-    if isinstance(value, list) and len(value) > 0:
-      if isinstance(value[0], list):
+    if (isinstance(value, list) or issubclass(type(value), Array)) and len(value) > 0:
+      if isinstance(value[0], list) or issubclass(type(value[0]), Array):
         size = len(value[0]) - 1
         for idx, e in enumerate(value):
-          if isinstance(e, list) and size != len(e) - 1:
+          if (isinstance(e, list) or issubclass(type(e), Array)) and size != len(e) - 1:
             raise ArrayInvalidSize(f'Taille invalide à l\'index {idx} : {len(e)} ({size+1})')
       return (len(value) - 1,) + cls.get_indexes(value[0])
     return ()
+
+  @classmethod
+  def multi_len(cls, value):
+    count = 0
+    if isinstance(value, list) or issubclass(type(value), Array):
+      for e in value:
+        count += cls.multi_len(e)
+    else:
+      if not isinstance(value.value, Nothing):
+        count += 1
+    return count
 
   def __init__(self, datatype, *indexes):
     # http://cours.pise.info/algo/tableaux.htm
@@ -519,7 +530,10 @@ class Array(Base):
           return False
     return True
   def __len__(self):
-    return sum([1 if e is not None and not isinstance(e.eval(), Nothing) else 0 for e in self.value])
+    if len(self.sizes) == 1:
+      return sum([1 if not isinstance(map_type(e).value, Nothing) else 0 for e in self.value])
+    return Array.multi_len(self.value)
+
   def __eq__(self,  other):
     if isinstance(other, Array):
       return self.value == other.value
@@ -809,6 +823,8 @@ def map_type(value):
     return Boolean(value)
   if isinstance(value, str):
     return String(value)
+  if value is None:
+    return Nothing()
   return value
 
 def repr_datatype(datatype, shortform=True):

@@ -317,12 +317,19 @@ class Symbols:
         else:
           print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
       print('---')
-    if not self.is_local():
-      if self.table[self.__structs]:
-        print('+++ Structures')
-        for v in sorted(self.table[self.__structs].values()):
-          print('...', v)
-        print('---')
+    if self.table[self.__vars]:
+      print('+++ Variables locales', self.namespace)
+      for k, v in sorted(self.table[self.__vars].items()):
+        if isinstance(v, tuple):
+          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+        else:
+          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+      print('---')
+    if self.table[self.__structs]:
+      print('+++ Structures')
+      for v in sorted(self.table[self.__structs].values()):
+        print('...', v)
+      print('---')
     if self.is_local():
       if self.table[self.__local]:
         print('@@@ Variables locales')
@@ -347,7 +354,7 @@ class Symbols:
             for k, v in sorted(refs.items()):
               print('...', k, '=', v, '[-]' if k.startswith('___') else '')
           print('---')
-    if not self.is_local() and self.table[self.__func]:
+    if self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
         print(f'... {k} :', v, '[-]' if k.startswith('___') else '')

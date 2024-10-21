@@ -232,14 +232,19 @@ class Boolean(Base):
   def __init__(self, value):
     if value in ('VRAI', 'FAUX'):
       self.value = value == 'VRAI'
+    elif isinstance(value, Boolean):
+      self.value = value.eval()
     elif isinstance(value, bool):
       self.value = value
     else:
       self.value = Nothing()
   def set_value(self, value):
-    if value not in (True, False):
+    if isinstance(value, Boolean):
+      self.value = value.eval()
+    elif value not in (True, False):
       raise BadType(f'Type {self.data_type} attendu [{value}]')
-    self.value = value
+    else:
+      self.value = value
   def eval(self):
     return self.value
   def __eq__(self, other):
@@ -385,6 +390,9 @@ class Array(Base):
     self ← &array
     '''
     if issubclass(type(array), Array):
+      if len(array) == 0:
+        self.value = []
+        return
       indexes = Array.get_indexes(array.value)
       datatype = Array.get_datatype(array.value)
       if datatype != self.datatype:
@@ -454,7 +462,7 @@ class Array(Base):
           nn = map_type(n.eval())
           if nn.data_type != datatype:
             raise BadType(f'Type {datatype} attendu ({nn.data_type})')
-        array[i] = map_type(n)
+        array[i] = map_type(n.eval())
       self.value = array
       return
     if isinstance(value, Number) and datatype == 'Numérique':

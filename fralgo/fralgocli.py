@@ -33,7 +33,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from fralgo import __version__
 from fralgo.lib.datatypes import map_type
 from fralgo.fralgoparse import parser
-from fralgo.lib.ast import libs, namespaces
+from fralgo.lib.ast import libs, namespaces, FreeFormArray
 from fralgo.lib.exceptions import FatalError, print_err
 
 sym = namespaces.get_namespace('main')
@@ -72,17 +72,13 @@ def main():
     sys.exit(1)
 
   # Commandline arguments
-  sym.declare_array('_ARGS', 'Chaîne', len(sys.argv[2:]), superglobal=True)
-  args_array = sym.get_variable('_ARGS')
-  args_array.set_value((0,), map_type(sys.argv[1]))
-  if len(sys.argv) > 2:
-    for idx, arg in enumerate(sys.argv[2:]):
-      args_array.set_value((idx + 1,), map_type(arg))
+  args = [map_type(sys.argv[1])]
+  args += [map_type(arg) for arg in sys.argv[2:]]
+  sym.declare_const('_ARGS', FreeFormArray(args), superglobal=True)
 
   # Current working directory
-  sym.declare_var('_REP', 'Chaîne', superglobal=True)
-  rep_var = sym.get_variable('_REP')
-  rep_var.set_value(os.path.dirname(os.path.abspath(algofile)))
+  rep = os.path.dirname(os.path.abspath(algofile))
+  sym.declare_const('_REP', map_type(rep), superglobal=True)
 
   try:
     libs.set_main(algofile)

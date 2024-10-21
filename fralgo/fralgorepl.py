@@ -206,7 +206,6 @@ def main():
   sleep(0.0625)
   version = f'fr-v100 {__version__}mg'
   print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
-  print()
   sleep(0.0625)
   print()
   print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
@@ -216,6 +215,9 @@ def main():
   print('En attente de vos instructions.')
   print()
   libs.set_main()
+  sym = namespaces.get_namespace('main')
+  rep = map_type(os.path.abspath(os.curdir))
+  sym.declare_const('_REP', rep, superglobal=True)
   repl = Interpreter()
   repl.input_loop()
 

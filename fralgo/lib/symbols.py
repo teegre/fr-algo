@@ -309,6 +309,14 @@ class Symbols:
     self.table[self.__localfunc].clear()
     self.table[self.__localstructs].clear()
   def dump(self):
+    if self.__superglobal:
+      print('%%% Super globales')
+      for k, v in sorted(self.__superglobal.items()):
+        if isinstance(v, tuple):
+          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+        else:
+          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+      print('---')
     if self.__main_global:
       print('+++ Variables globales')
       for k, v in sorted(self.__main_global.items()):

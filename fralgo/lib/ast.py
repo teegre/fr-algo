@@ -56,7 +56,7 @@ class Node:
     self.lineno = lineno
   def append(self, stmt=None, lineno=0):
     if stmt is not None:
-      child = Node(stmt, lineno)
+      child = Node(stmt, self.lineno if lineno == 0 else lineno)
       self.children.append(child)
   def eval(self):
     result = None

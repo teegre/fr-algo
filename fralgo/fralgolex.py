@@ -187,7 +187,7 @@ def t_ID(t):
 
 def t_COMMENT(t):
   r'\#.*\n*'
-  t.lexer.lineno += 1
+  t.lexer.lineno += t.value.count('\n')
 
 def t_NEWLINE(t):
   r'\n+'

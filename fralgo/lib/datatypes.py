@@ -294,7 +294,7 @@ class Array(Base):
     return map_type(value).data_type
   @classmethod
   def check_types(cls, value, expected, datatype=None, index=None):
-    if isinstance(value, list):
+    if isinstance(value, list) or issubclass(type(value), Array):
       for i, e in enumerate(value):
         if isinstance(e, list) or issubclass(type(e), Array):
           if index is None:

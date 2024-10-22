@@ -239,6 +239,9 @@ class FreeFormArray(Array):
   def __init__(self, value):
     super().__init__(map_type(value[0]).data_type, len(value) - 1)
     self.value = [v.eval() if isinstance(v, (Variable, BinOp)) else v for v in value]
+  def check(self):
+    datatype = Array.get_datatype(self.value)
+    Array.check_types(self.value, datatype)
   def eval(self):
     if self.value:
       return self.value

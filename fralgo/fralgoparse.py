@@ -50,6 +50,8 @@ namespaces = []
 
 tokens = fralgolex.tokens
 
+array_depth = 0
+
 precedence = (
     ('left', 'EQ', 'NE'),
     ('left', 'GT', 'LT', 'GE', 'LE'),
@@ -303,11 +305,26 @@ def p_array_max_index(p):
 #   else:
 #     p[0] = p[1]
 
+
 def p_freeform_array(p):
   '''
-  freeform_array : LBRACKET sequence RBRACKET
+  freeform_array : freeform_array_start sequence RBRACKET
   '''
+  global array_depth
+  array_depth -= 1
+
   p[0] = FreeFormArray(p[2])
+
+  if array_depth == 0:
+    p[0].check()
+
+def p_freeform_array_start(p):
+  '''
+  freeform_array_start : LBRACKET
+  '''
+  global array_depth
+  array_depth += 1
+  p[0] = p[1]
 
 def p_var_list(p):
   '''

@@ -272,7 +272,7 @@ L'affectation d'un tableau à une constante se fait de la manière suivante :
 Tableau t1[3] en Entier
 # t1[3] désigne un tableau pouvant contenir 4 éléments (numérotés de 0 à 3).
 
-Tableau u[]
+Tableau u[] en Entier
 # u[] désigne un tableau qui sera dimensionné ultérieurement (voir plus bas).
 
 Tableaux v[1,1], w[7,7,7] en Entier
@@ -298,6 +298,15 @@ w[7,7,7] <- 512
 ### Dimensionnement <a name="redim"></a>
 
 `Redim u[3]`
+
+L'effacement de toutes les valeurs d'un tableau peut se faire de la manière suivante :
+
+```
+Redim u[-1]
+# Le tableau est vide et doit être redimensionné avant de pouvoir y placer des valeurs.
+Type(u)
+# Tableau[] en Entier
+```
 
 ### Affectation d'un tableau à un autre tableau de même dimension :
 
@@ -801,6 +810,11 @@ Clefs(t)
 # 'Valeurs' retourne la liste de valeurs.
 Valeurs(t)
 # [65, 66, 67, ..., 88, 89, 90]
+
+# 'Effacer' efface une clef et la valeur qui lui est associée.
+Effacer(t, "A")
+Existe(t, "A")
+# FAUX
 ```
 
 ### Autres <a name="autre"></a>
@@ -1301,6 +1315,8 @@ Puis de changer les permissions du programme comme suit :
 [EcrireFichier](#fichier)
 
 [Ecriture](#fichier)
+
+[Effacer](#fonctions_table)
 
 [Entier](#type)
 

@@ -313,25 +313,31 @@ class Symbols:
       print('%%% Super globales')
       for k, v in sorted(self.__superglobal.items()):
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          if k.startswith('___'):
+            continue
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.__main_global:
       print('+++ Variables globales')
       for k, v in sorted(self.__main_global.items()):
+        if k.startswith('___'):
+          continue
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.table[self.__vars]:
       print('+++ Variables locales', self.namespace)
       for k, v in sorted(self.table[self.__vars].items()):
+        if k.startswith('___'):
+          continue
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.table[self.__structs]:
       print('+++ Structures')
@@ -345,7 +351,7 @@ class Symbols:
           context = self.table[self.__context][i]
           print('### Contexte', context.name, '+' if context.dereference else '-')
           for k, v in locs.items():
-            print('...', k, '=', v)
+            print('...', k, '=', repr(v))
           print('---')
         if self.table[self.__localstructs][-1]:
           print('+++ Structures locales')
@@ -354,18 +360,22 @@ class Symbols:
         if not self.table[self.__localfunc]:
           print('+++ Fonctions et Procédures')
           for k, v in sorted(self.table[self.__localfunc].items()):
-            print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
+            if k.startswith('___'):
+              continue
+            print(f'... {k} :', v)
           print('---')
         if self.__localrefs:
           print('&&& Références locales')
           for refs in self.__localrefs:
             for k, v in sorted(refs.items()):
-              print('...', k, '=', v, '[-]' if k.startswith('___') else '')
+              print('...', k, '=', repr(v))
           print('---')
     if self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
-        print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
+        if k.startswith('___'):
+          continue
+        print(f'... {k} :', v)
       print('---')
   def __repr__(self):
     return f'Espace {self.namespace}'

@@ -191,7 +191,7 @@ class String(Base):
   def __repr__(self):
     if self.value is None:
       return '?'
-    return f'"{self.value}"'
+    return f'"{self.value.encode("unicode_escape").decode("ASCII")}"'
 
 class Char(String):
   _type = 'Caractère'

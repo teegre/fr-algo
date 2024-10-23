@@ -153,7 +153,7 @@ class Test(unittest.TestCase):
       Valeur en Entier
     FinTable
     Variables clef, valeur en Entier
-    Variables test1, test2 en Booléen
+    Variables test1, test2, test3 en Booléen
     Début
       Ecrire "17. Test Table"
       clef <- Entier(Aléa() * 255 + 1)
@@ -161,6 +161,8 @@ class Test(unittest.TestCase):
       t[clef] <- valeur
       test1 <- t[clef] = valeur
       test2 <- NON(Existe(t, 0))
+      Effacer(t, clef)
+      test3 <- Existe(t, clef)
     Fin'''
 
     reset_parser()
@@ -168,8 +170,10 @@ class Test(unittest.TestCase):
     statements.eval()
     t1 = sym.get_variable('test1')
     t2 = sym.get_variable('test2')
-    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
-    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+    t3 = sym.get_variable('test3')
+    self.assertEqual(t1.eval(), True,  'test1 should be VRAI')
+    self.assertEqual(t2.eval(), True,  'test2 should be VRAI')
+    self.assertEqual(t3.eval(), False, 'test3 should be FAUX')
 
   def test_procedure_split(self):
     prog = '''Procédure scinder(chaine, separateur, &elements[] en Chaîne)

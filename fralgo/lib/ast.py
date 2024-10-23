@@ -49,64 +49,53 @@ libs = LibMan()
 libs.set_namespaces(namespaces)
 
 class Node:
-  # TODO: IMPROVE THIS CLASS!
   def __init__(self, stmt=None, lineno=0):
     self.statement = stmt
     self.children = []
     self.lineno = lineno
   def append(self, stmt=None, lineno=0):
     if stmt is not None:
-      child = Node(stmt, self.lineno if lineno == 0 else lineno)
+      if not isinstance(stmt, Node):
+        child = Node(stmt, self.lineno if lineno == 0 else lineno)
+      else:
+        child = stmt
       self.children.append(child)
   def eval(self):
     result = None
     try:
       if self.statement:
+        node = self.statement
         result = self.statement.eval()
-        if isinstance(result, ProcTerminate):
-          return result
         if result is not None:
           return result
       if self.children:
         for statement in self.children:
+          node = statement
           result = statement.eval()
-          if isinstance(result, ProcTerminate):
-            return result
           if result is not None:
             return result
       return result
     except RecursionError:
-      print_err('STOP : excès de récursivité !')
-      if 'FRALGOREPL' not in os.environ:
-        print_err(f'Ligne {self.lineno}')
-        print('\033[?25h\033[0m', end='')
-        sys.exit(666)
-      raise FralgoInterruption('')
+      self.handle_err('STOP : excès de récursivité !', node)
     except FatalError as e:
-      print_err(f'{e.message}')
-      if 'FRALGOREPL' not in os.environ:
-        print_err(f'Ligne {self.lineno}')
-        print('\033[?25h\033[0m', end='')
-        sys.exit(666)
-      raise FralgoInterruption('')
+      self.handle_err(e.message, node)
     except FralgoException as e:
-      if e.message:
-        print_err(e.message)
-      if 'FRALGOREPL' not in os.environ:
-        print_err(f'Ligne {self.lineno}')
-        print_err('Erreur fatale')
-        print('\033[?25h\033[0m', end='')
-        sys.exit(666)
-      raise FralgoInterruption('')
-  def __getitem__(self, start=0, end=0):
-    return self.children[start:end] if end != 0 else self.children[start]
+      self.handle_err(e.message if e.message else 'Erreur fatale', node)
+  def handle_err(self, message, node):
+    if namespaces.current_namespace != 'main':
+      print_err(f'Espace `{namespaces.current_namespace}`')
+    print_err(message)
+    if 'FRALGOREPL' not in os.environ:
+      print_err(f'Ligne {self.lineno}')
+      print('\033[?25h\033[0m', end='')
+      sys.exit(666)
+    raise FralgoInterruption('')
+  def __getitem__(self, index):
+    return self.children[index]
   def __iter__(self):
     return iter(self.children)
   def __str__(self):
-    statements = []
-    for statement in self:
-      statements.append(str(statement))
-    return '\n'.join(statements)
+    return '\n'.join(str(child) for child in self.children)
   def __repr__(self):
     return f'Node({self.lineno}) {self.statement}'
 
@@ -562,10 +551,14 @@ class FunctionCall:
       namespaces.set_current_namespace(self.cnamespace)
     return None
   def __repr__(self):
-    func = namespaces.get_function(self.name, self.namespace)
+    try:
+      func = namespaces.get_function(self.name, self.namespace)
+    except VarUndeclared:
+      func = None
     params = [str(param) for param in self.params]
-    if func.return_type is not None:
-      return f'{self.name}({",".join(params)}) → {func.return_type}'
+    if func:
+      if func.return_type is not None:
+        return f'{self.name}({",".join(params)}) → {func.return_type}'
     else:
       return f'{self.name}({",".join(params)})'
 
@@ -1195,13 +1188,17 @@ class UnixTimestamp:
     return 'Numérique'
 
 class Import:
-  def __init__(self, filename, parser, alias=None):
+  def __init__(self, filename, Lexer, lex, parser, alias=None):
     self.filename = filename
+    self.lexer = lex(object=Lexer())
     self.parser = parser
     self.alias = alias
   def eval(self):
+    libs.set_lexer(self.lexer)
     libs.set_parser(self.parser)
     libs.import_lib(self.filename, self.alias)
+  def __str__(self):
+    return repr(self)
   def __repr__(self):
     if self.alias:
       return f'Importer "{self.filename}" Alias {self.alias}'

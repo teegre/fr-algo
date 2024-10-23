@@ -29,7 +29,6 @@ import os
 
 from fralgo.lib.exceptions import FralgoException, FatalError, print_err
 
-
 class LibMan:
   def __init__(self):
     self.parser = None
@@ -43,6 +42,8 @@ class LibMan:
       self.__path = os.path.dirname(os.path.abspath(mainfile))
     else:
       self.__path = os.getcwd()
+  def set_lexer(self, lexer):
+    self.lexer = lexer
   def set_parser(self, parser):
     self.parser = parser
   def set_namespaces(self, ns):
@@ -66,10 +67,11 @@ class LibMan:
       alias = os.path.basename(libfile)
     self.namespaces.declare_namespace(alias)
     try:
-      statements = self.parser.parse(''.join(lib))
+      statements = self.parser.parse(''.join(lib), lexer=self.lexer)
       statements.eval()
     except FralgoException as e:
       print_err(f'Librairie : {libfile}.algo')
+      print_err(f'Ligne {self.lexer.lineno - 1}')
       self.namespaces.del_namespace(alias)
       raise e
     finally:
@@ -81,7 +83,7 @@ class LibMan:
         start = True
         break
     if not start:
-      raise FatalError(f'{libfile} : ceci n\'est pas une librairie.')
+      raise FatalError(f'{libfile} n\'est pas une librairie.')
   @property
   def path(self):
     return self.__path

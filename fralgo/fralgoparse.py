@@ -43,12 +43,12 @@ from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random
 from fralgo.lib.ast import Panic
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
-import fralgo.fralgolex as fralgolex
-from fralgo.ply.yacc import yacc
+from fralgo.fralgolex import Lexer, lexer, lex
+from fralgo.ply import yacc
 
 namespaces = []
 
-tokens = fralgolex.tokens
+tokens = Lexer.tokens
 
 array_depth = 0
 
@@ -94,6 +94,19 @@ def p_program(p):
 
   p[0] = root
 
+def p_empty_lines(p):
+  '''
+  empty_lines : empty_lines empty_line
+              | empty_line
+  '''
+  pass
+
+def p_empty_line(p):
+  '''
+  empty_line : NEWLINE
+  '''
+  pass
+
 def p_import_statement(p):
   '''
   import_statement : IMPORT STRING NEWLINE
@@ -101,9 +114,9 @@ def p_import_statement(p):
                    | IMPORT STRING TYPE_DECL ID NEWLINE
   '''
   if len(p) == 6:
-    p[0] = Node(Import(p[2], yacc(), p[4]), p.lineno(1))
+    p[0] = Node(Import(p[2], Lexer, lex, parser, p[4]), p.lineno(1))
   else:
-    p[0] = Node(Import(p[2], yacc()), p.lineno(1))
+    p[0] = Node(Import(p[2], Lexer, lex, parser), p.lineno(1))
 
 def p_table_declaration(p):
   '''
@@ -219,6 +232,7 @@ def p_var_declaration(p):
                   | function_declaration
                   | procedure_declaration
                   | import_statement
+                  | empty_lines
   '''
   if len(p) == 2:
     p[0] = p[1]
@@ -475,6 +489,7 @@ def p_statement(p):
             | READ array_access NEWLINE
             | SLEEP LPAREN expression RPAREN NEWLINE
             | expression NEWLINE
+            | empty_lines
   '''
   if p[1] == 'Ecrire':
     newline = len(p) < 5
@@ -490,7 +505,11 @@ def p_statement(p):
   elif p[1] == 'Dormir':
     p[0] = Node(Sleep(p[3]), p.lineno(1))
   else:
-    p[0] = Node(p[1], p.lineno(1))
+    try:
+      lineno = p.lineno(2) if p.lineno(1) == 0 else 0
+    except IndexError:
+      lineno = 0
+    p[0] = Node(p[1], lineno)
 
 def p_statement_open(p):
   '''
@@ -657,9 +676,9 @@ def p_function_call(p):
   else:
     params = None
   if isinstance(p[1], list):
-    p[0] = Node(FunctionCall(p[1][1], params, p[1][0]), p.lineno(1))
+    p[0] = Node(FunctionCall(p[1][1], params, p[1][0]), p.lineno(2))
   else:
-    p[0] = Node(FunctionCall(p[1], params), p.lineno(1))
+    p[0] = Node(FunctionCall(p[1], params), p.lineno(2))
 
 def p_procedure_declaration(p):
   '''
@@ -674,7 +693,7 @@ def p_procedure_declaration(p):
 def p_parameters(p):
   '''
   parameters : parameters COMMA parameter
-              | parameter
+             | parameter
   '''
   if len(p) == 4:
     p[0] = p[1] + p[3]
@@ -1019,11 +1038,11 @@ def p_error(p):
       value = p.value
     msg = f'Erreur de syntaxe > {value} <'
     if 'FRALGOREPL' not in os.environ:
-      msg += f'\n-v- ligne {p.lineno}'
+      msg += f'\n*** Ligne {p.lineno}'
   else:
     msg = 'Fin de fichier prématurée.'
   if 'FRALGOREPL' not in os.environ:
     raise FatalError(msg)
   raise FralgoException(msg)
 
-parser = yacc()
+parser = yacc.yacc()

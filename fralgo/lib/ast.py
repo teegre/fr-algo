@@ -267,7 +267,7 @@ class SizeOf:
       if len(self.var.sizes) == 1:
         return 'Entier'
       indexes = ",".join([str(v) for v in self.var.indexes])
-      return f'Tableau[{len(var.indexes) - 1}] en Entier'
+      return f'Tableau[{len(self.var.indexes) - 1}] en Entier'
     var = self.var.eval()
     if isinstance(var, Table):
       return 'Entier'

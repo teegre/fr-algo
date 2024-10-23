@@ -318,7 +318,6 @@ class Array(Base):
             raise ArrayInvalidSize(f'Taille invalide à l\'index {idx} : {len(e)} ({size+1})')
       return (len(value) - 1,) + cls.get_indexes(value[0])
     return ()
-
   @classmethod
   def multi_len(cls, value):
     count = 0
@@ -509,7 +508,7 @@ class Array(Base):
       return
     for i, idx in enumerate(self.indexes):
       try:
-        if idxs[i] < 0:
+        if idxs[i] < -1:
           raise ArrayResizeFailed('Redimensionnement impossible')
       except IndexError:
         raise ArrayResizeFailed('Redimensionnement impossible')

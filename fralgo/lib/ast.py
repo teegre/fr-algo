@@ -76,15 +76,16 @@ class Node:
             return result
       return result
     except RecursionError:
-      self.handle_err('STOP : excès de récursivité !', node)
+      self.handle_err('STOP : excès de récursivité !')
     except FatalError as e:
-      self.handle_err(e.message, node)
+      self.handle_err(e.message)
     except FralgoException as e:
-      self.handle_err(e.message if e.message else 'Erreur fatale', node)
-  def handle_err(self, message, node):
+      self.handle_err(e.message)
+  def handle_err(self, message):
     if namespaces.current_namespace != 'main':
       print_err(f'Espace `{namespaces.current_namespace}`')
-    print_err(message)
+    if message:
+      print_err(message)
     if 'FRALGOREPL' not in os.environ:
       print_err(f'Ligne {self.lineno}')
       print('\033[?25h\033[0m', end='')

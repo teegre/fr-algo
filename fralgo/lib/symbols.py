@@ -235,7 +235,7 @@ class Symbols:
       var = self.__superglobal.get(name, None)
       if var is not None:
         return var
-      raise ex.VarUndeclared(f'Variable >{name}< non déclarée')
+      raise ex.VarUndeclared(f'Variable `{name}` non déclarée')
     return var
   def declare_function(self, function):
     if self.is_local_function():
@@ -381,7 +381,7 @@ class Namespaces:
     self.current_namespace = name
   def declare_namespace(self, name):
     if name in self.__namespaces:
-      raise ex.VarRedeclared(f"Redéclaration de l'espace '{name}'")
+      raise ex.VarRedeclared(f'Redéclaration de l\'espace `{name}`')
     self.__namespaces[name] = Symbols(self.get_type, name)
     self.current_namespace = name
   def get_namespace(self, name=None):
@@ -391,20 +391,20 @@ class Namespaces:
       namespace = name
     if namespace in self.__namespaces:
       return self.__namespaces[namespace]
-    raise ex.VarUndeclared(f'Espace \'{name}\' non déclaré')
+    raise ex.VarUndeclared(f'Espace `{name}` non déclaré')
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
   def get_variable(self, name, namespace=None):
     if name.startswith('___'):
       if self.current_namespace != namespace:
-        raise ex.FralgoException('Utilisation d\'une variable/constante en dehors de son espace.')
+        raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)
     return sym.get_variable(name)
   def get_function(self, name, namespace):
     if name.startswith('___'):
       if self.current_namespace != namespace:
-        raise ex.FralgoException('Appel à une fonction/procédure en dehors de son espace.')
+        raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)
     return sym.get_function(name)
   def get_structure(self, name, namespace):

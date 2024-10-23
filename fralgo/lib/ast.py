@@ -171,7 +171,7 @@ class DeclareStruct:
           continue
         elif isinstance(datatype, tuple) or sym.is_structure(datatype):
           continue
-        raise BadType(f'Type invalide : {self.name}.{field} en >{datatype}<')
+        raise BadType(f'Type invalide : `{self.name}.{field} en >{datatype}`')
     sym.declare_structure(Structure(self.name, self.fields))
   def __repr__(self):
     return f'Structure {self.name} {self.fields}'
@@ -259,7 +259,7 @@ class SizeOf:
       return var.size
     if isinstance(var, Table):
       return len(var)
-    raise BadType('Taille(T) : type Tableau attendu')
+    raise BadType('Taille(T) : type `Tableau` attendu')
   @property
   def data_type(self):
     if isinstance(self.var, Array) or issubclass(type(self.var), Array):
@@ -285,7 +285,7 @@ class TableKeyExists:
   def eval(self):
     var = self.var.eval()
     if not isinstance(var, Table):
-      raise BadType(f'Existe({self.var.name, ...}) : type Table attendu')
+      raise BadType(f'Existe({self.var.name, ...}) : type `Table` attendu')
     return var.value.get(self.key.eval()) is not None
   def __repr__(self):
     return f'Existe({self.var.name}, {self.key})'
@@ -331,7 +331,7 @@ class StructureGetItem:
     try:
       return var.get_item(self.field)
     except AttributeError:
-      raise BadType(f'{self.var} : Erreur inattendue')
+      raise BadType(f'`{self.var}` : Erreur inattendue')
   @property
   def data_type(self):
     value = map_type(self.eval())
@@ -408,12 +408,12 @@ class FunctionCall:
   def _check_param_count(self, params):
     if self.params is None and params is not None:
       x = len(params) # expected
-      raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalide : 0, attendu {x} ')
+      raise FuncInvalidParameterCount(f'`{self.name}` nombre de paramètres invalide : 0, attendu {x} ')
     if self.params is not None:
       if len(self.params) != len(params):
         a = len(self.params) # actual
         x = len(params) # expected
-        raise FuncInvalidParameterCount(f'{self.name} nombre de paramètres invalide : {a}, attendu {x} ')
+        raise FuncInvalidParameterCount(f'`{self.name}` nombre de paramètres invalide : {a}, attendu {x} ')
   def _check_datatypes(self, params):
     for i, p in enumerate(self.params):
       if isinstance(params[i][0], Reference):
@@ -430,7 +430,7 @@ class FunctionCall:
         else:
           p2 = p.data_type
       except AttributeError:
-        raise BadType(f'{self.name} : paramètre {i+1} invalide.')
+        raise BadType(f'`{self.name}` : paramètre {i+1} invalide.')
       p2 = (p2,) if not isinstance(p2, tuple) else p2
       if p1 == p2:
         continue
@@ -457,7 +457,7 @@ class FunctionCall:
         if t5 == -1 and not isinstance(t6, tuple):
           ok &= True
       if not ok:
-        raise BadType(f'{self.name} : type {repr_datatype(p1)} attendu [paramètre {i + 1}]')
+        raise BadType(f'`{self.name}` : type {repr_datatype(p1)} attendu [paramètre {i + 1}]')
   def _check_returned_type(self, rt, value):
     mv = map_type(value)
     if isinstance(rt, tuple): # Sized char.
@@ -472,7 +472,7 @@ class FunctionCall:
     if rt == 'Quelconque':
       return
     if rt != mvdt:
-      raise BadType(f'Type {rt} attendu [{mv.data_type}]')
+      raise BadType(f'Type `{rt}` attendu [{mv.data_type}]')
   def eval(self):
     func = namespaces.get_function(self.name, self.namespace)
     params = func.params
@@ -539,11 +539,11 @@ class FunctionCall:
       result = body.eval()
       if not isinstance(result, ProcTerminate) and result is not None:
         if func.ftype == 'Procédure':
-          raise FralgoException(f'{self.name} : instruction >Retourne< inattendue')
+          raise FralgoException(f'`{self.name}` : instruction `Retourne` inattendue')
         self._check_returned_type(func.return_type, result)
         return result if not isinstance(result, bool) else map_type(result)
       if func.ftype == 'Fonction':
-        raise FralgoException(f'{self.name} : instruction >Retourne< absente')
+        raise FralgoException(f'`{self.name}` : instruction `Retourne` absente')
     except FralgoException as e:
       raise e
     finally:
@@ -570,7 +570,7 @@ class FunctionReturn:
     sym = namespaces.get_namespace(self.namespace)
     if sym.is_local_function():
       return self.expression.eval()
-    raise FralgoException('Erreur de syntaxe : Retourne en dehors d\'une fonction')
+    raise FralgoException('Erreur de syntaxe : `Retourne` en dehors d\'une fonction')
   def __repr__(self):
     return f'Retourne {self.expression}'
 
@@ -634,13 +634,13 @@ class Variable:
     if self.data_type == 'Table':
       var = namespaces.get_variable(self.name, self.namespace)
       return var.key_type
-    raise BadType(f'La variable {self.name} n\'est pas de type Table')
+    raise BadType(f'La variable `{self.name}` n\'est pas de type Table')
   @property
   def value_type(self):
     if self.data_type == 'Table':
       var = namespaces.get_variable(self.name, self.namespace)
       return var.value_type
-    raise BadType(f'La variable {self.name} n\'est pas de type Table')
+    raise BadType(f'La variable `{self.name}` n\'est pas de type Table')
 
 class Reference(Variable):
   def __repr__(self):
@@ -717,7 +717,7 @@ class Read:
           case 'Numérique':
             var.set_value(self.args, Float(float(user_input)))
     except ValueError:
-      raise BadType(f'Type {var.data_type} attendu')
+      raise BadType(f'Type `{var.data_type}` attendu')
   def __repr__(self):
     return f'Lire {self.var}'
 
@@ -881,7 +881,7 @@ class Len:
     try:
       return len(self.value.eval())
     except TypeError:
-      raise BadType('Longueur(>C ou T<) : Type Chaîne ou Tableau attendu')
+      raise BadType('Longueur(C | T) : Type Chaîne ou Tableau attendu')
   def __repr__(self):
     return f'Longueur({self.value})'
 
@@ -895,11 +895,11 @@ class Mid:
     start = algo_to_python(self.start)
     length = algo_to_python(self.length)
     if not isinstance(exp, str):
-      raise BadType('Extraire(>C<, E, E) : Type Chaîne attendu')
+      raise BadType('Extraire(`C`, E, E) : Type Chaîne attendu')
     if not isinstance(start, int):
-      raise BadType('Extraire(C, >E<, E) : Type Entier attendu')
+      raise BadType('Extraire(C, `E`, E) : Type Entier attendu')
     if not isinstance(length, int):
-      raise BadType('Extraire(C, E, >E<) : Type Entier attendu')
+      raise BadType('Extraire(C, E, `E`) : Type Entier attendu')
     return exp[start-1:start-1+length]
   def __repr__(self):
     return f'Extraire{self.exp, self.start, self.length}'
@@ -920,9 +920,9 @@ class Trim:
     exp = algo_to_python(self.exp)
     length = algo_to_python(self.length)
     if not isinstance(exp, str):
-      raise BadType(f'{self.cmd}(>C<, E) : Type Chaîne attendu')
+      raise BadType(f'{self.cmd}(`C`, E) : Type Chaîne attendu')
     if not isinstance(length, int):
-      raise BadType(f'{self.cmd}(C, >E<) : Type Entier attendu')
+      raise BadType(f'{self.cmd}(C, `E`) : Type Entier attendu')
     if not self.right:
       return exp[:length]
     return exp[len(exp) - length:]
@@ -943,9 +943,9 @@ class Find:
       result = str1.find(str2)
       return result + 1
     except AttributeError:
-      raise BadType('Trouve(>C<, C) : Type Chaîne attendu')
+      raise BadType('Trouve(`C`, C) : Type Chaîne attendu')
     except TypeError:
-      raise BadType('Trouve(C, >C<) : Type Chaîne attendu')
+      raise BadType('Trouve(C, `C`) : Type Chaîne attendu')
   def __repr__(self):
     return f'Trouve({self.str1}, {self.str2})'
   @property
@@ -1038,7 +1038,7 @@ class Chr:
   def eval(self):
     value = self.value.eval()
     if not isinstance(value, int):
-      raise BadType('Car(>E<) : Type Entier attendu')
+      raise BadType('Car(`E`) : Type Entier attendu')
     return chr(value)
   def __repr__(self):
     return f'Car({self.value})'
@@ -1052,9 +1052,9 @@ class Ord:
   def eval(self):
     value = self.value.eval()
     if not isinstance(value, str):
-      raise BadType('CodeCar(>C<) : Type Chaîne attendu')
+      raise BadType('CodeCar(`C`) : Type Chaîne attendu')
     if len(value) != 1:
-      raise BadType('CodeCar(>C<) : Chaîne de longueur 1 attendue')
+      raise BadType('CodeCar(`C`) : Chaîne de longueur 1 attendue')
     return ord(value)
   def __repr__(self):
     return f'CodeCar({self.value})'
@@ -1174,7 +1174,7 @@ class Sleep:
     try:
       sleep(duration)
     except TypeError:
-      raise BadType('Dormir(E|N) : Type Entier ou Numérique attendu')
+      raise BadType('Dormir(E ou N) : Type Entier ou Numérique attendu')
   def __repr__(self):
     return f'Dormir({self.duration})'
 

@@ -57,7 +57,7 @@ class LibMan:
         lib = f.readlines()
     except FileNotFoundError:
       name = os.path.basename(libpath)
-      raise FatalError(f'Importer : fichier {name} non trouvé')
+      raise FatalError(f'Importer : fichier `{name}` non trouvé')
     try:
       self.checklib(lib, libfile)
     except FatalError as e:
@@ -83,7 +83,7 @@ class LibMan:
         start = True
         break
     if not start:
-      raise FatalError(f'{libfile} n\'est pas une librairie.')
+      raise FatalError(f'`{libfile}` n\'est pas une librairie.')
   @property
   def path(self):
     return self.__path

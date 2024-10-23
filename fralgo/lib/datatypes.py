@@ -125,7 +125,7 @@ class Integer(Number):
     elif isinstance(value, Integer):
       self.value = value.eval()
     else:
-      raise BadType(f'Type {self.data_type} attendu [{value}]')
+      raise BadType(f'Type `{self.data_type}` attendu [{value}]')
 
 class Float(Number):
   _type = 'Numérique'
@@ -139,7 +139,7 @@ class Float(Number):
     elif isinstance(value, Number):
       self.value = float(value.eval())
     else:
-      raise BadType(f'Type {self.data_type} attendu [{value}]')
+      raise BadType(f'Type `{self.data_type}` attendu [{value}]')
 
 class String(Base):
   _type = 'Chaîne'
@@ -151,7 +151,7 @@ class String(Base):
     elif isinstance(value, String):
       self.value = value.eval()
     else:
-      raise BadType(f'Type {self.data_type} attendu [{value}]')
+      raise BadType(f'Type `{self.data_type}` attendu [{value}]')
   def eval(self):
     return self.value
   def __len__(self):
@@ -216,7 +216,7 @@ class Char(String):
       else:
         self.value = val[:size]
     except TypeError:
-      raise BadType('Type Caractère attendu')
+      raise BadType('Type `Caractère` attendu')
   def eval(self):
     return self.value
   def __repr__(self):
@@ -242,7 +242,7 @@ class Boolean(Base):
     if isinstance(value, Boolean):
       self.value = value.eval()
     elif value not in (True, False):
-      raise BadType(f'Type {self.data_type} attendu [{value}]')
+      raise BadType(f'Type `{self.data_type}` attendu [{value}]')
     else:
       self.value = value
   def eval(self):
@@ -414,7 +414,7 @@ class Array(Base):
       if self.sizes != array.sizes:
         raise BadType(f'Nombre de valeurs invalide : {len(array)} ({len(self.value)}) ')
     if self.datatype != array.datatype and array.datatype != 'Quelconque':
-      raise BadType(f'Type {self.datatype} attendu [{array.datatype}]')
+      raise BadType(f'Type `{self.datatype}` attendu [`{array.datatype}`]')
     if ref:
       # /!\ Not implemented in grammar.
       # References are only available in procedure.
@@ -457,11 +457,11 @@ class Array(Base):
           elif isinstance(n, (int, float, bool, str)):
             n = map_type(n)
           if n.data_type != datatype:
-            raise BadType(f'Type {datatype} attendu ({n.data_type})')
+            raise BadType(f'Type `{datatype}` attendu [`{n.data_type}`]')
         except AttributeError:
           nn = map_type(n.eval())
           if nn.data_type != datatype:
-            raise BadType(f'Type {datatype} attendu ({nn.data_type})')
+            raise BadType(f'Type `{datatype}` attendu [{nn.data_type}]')
         array[i] = map_type(n.eval())
       self.value = array
       return
@@ -472,7 +472,7 @@ class Array(Base):
     else:
       typed_value = value
     if typed_value.data_type != datatype and datatype != 'Quelconque':
-      raise BadType(f'Type {datatype} attendu [{repr_datatype(typed_value.data_type, shortform=False)}]')
+      raise BadType(f'Type `{datatype}` attendu [{repr_datatype(typed_value.data_type, shortform=False)}]')
     idxs = self._eval_indexes(*indexes)
     self._validate_index(idxs)
     array = self.value
@@ -665,22 +665,22 @@ class StructureData(Base):
           else:
             self.data = deepcopy(value.data)
         else:
-          raise BadType(f'{value.name} n\'est pas {self.name}')
+          raise BadType(f'`{value.name}` n\'est pas `{self.name}`')
       else:
         try:
           if len(value) != len(self.data):
-            raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
+            raise InvalidStructureValueCount(f'`{self.name}` : nombre de valeurs invalide')
         except TypeError as e:
           # Dealing with a mono-field structure here
           if len(self.data) > 1 and isinstance(self.data, (list, tuple)):
-            raise InvalidStructureValueCount(f'{self.name} nombre de valeurs invalide')
+            raise InvalidStructureValueCount(f'`{self.name}` : nombre de valeurs invalide')
         for i, name in enumerate(self.data):
           try:
             if isinstance(self.data[name], StructureData):
               self.data[name].set_value(value, None)
             elif self.data[name] is None:
               if value[i].data_type != self.name:
-                raise BadType(f'Type {self.name} attendu [{value[i].data_type}]')
+                raise BadType(f'Type `{self.name}` attendu [{value[i].data_type}]')
               self.data[name] = value[i].eval()
             elif isinstance(self.data[name], Array):
               self.data[name].set_array(value[i])
@@ -695,12 +695,12 @@ class StructureData(Base):
       if isinstance(name, tuple): # Array!
         if name[0] in self.data.keys():
           return self.data[name[0]].get_item(name[1])
-        raise VarUndefined(f'{name[0]} ne fait pas partie de {self.name}')
+        raise VarUndefined(f'`{name[0]}` ne fait pas partie de `{self.name}`')
       if name in self.data.keys():
         return self.data[name]
-      raise UnknownStructureField(f'{name} ne fait pas partie de {self.name}')
+      raise UnknownStructureField(f'`{name}` ne fait pas partie de `{self.name}`')
     except TypeError:
-      raise BadType(f'{self.name} : Type d\'accès invalide')
+      raise BadType(f'`{self.name}` : type d\'accès invalide')
   def new_structure_data(self):
     data = {}
     for name, datatype in self.structure:
@@ -759,9 +759,9 @@ class Table(Base):
   def set_value(self, key, value):
     key = key[0]
     if key.data_type != self.key_type:
-      raise BadType(f'Clef : Type {self.key_type} attendu')
+      raise BadType(f'Clef : type `{self.key_type}` attendu')
     if value.data_type != self.value_type:
-      raise BadType(f'Valeur : Type {self.value_type} attendu')
+      raise BadType(f'Valeur : type `{self.value_type}` attendu')
     self.value[key.eval()] = value.eval()
   def get_item(self, key):
     value = self.value.get(key.eval())
@@ -820,7 +820,7 @@ def _get_type(datatype, get_structure):
   structure = get_structure(datatype)
   if structure:
     return (StructureData, structure)
-  raise BadType(f'{datatype} : type de données inconnu')
+  raise BadType(f'`{datatype}` : type de données inconnu')
 
 def map_type(value):
   '''Convert Python type to an Algo type'''

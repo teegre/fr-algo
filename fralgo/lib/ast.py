@@ -460,6 +460,9 @@ class FunctionCall:
           case 2:
             t5, t6 = q
       ok = True
+      if isinstance(t1, tuple):
+        if t1[0] == t2 == 'Caractère':
+          continue
       if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
       if t1 == 'Quelconque':

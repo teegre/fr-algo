@@ -30,7 +30,7 @@ from copy import deepcopy
 
 from fralgo.lib.exceptions import BadType, VarUndefined, VarUndeclared, IndexOutOfRange
 from fralgo.lib.exceptions import ArrayInvalidSize, ArrayResizeFailed, InvalidCharacterSize
-from fralgo.lib.exceptions import InvalidStructureValueCount, UnknownStructureField
+from fralgo.lib.exceptions import InvalidStructureValueCount, UnknownStructureField, KeyNotFound
 
 class Base:
   _type = 'Base'
@@ -765,14 +765,37 @@ class Table(Base):
   def get_item(self, key):
     value = self.value.get(key.eval())
     return value
+  def delete_key(self, key):
+    try:
+      self.value.pop(key)
+    except KeyError:
+      raise KeyNotFound(f'Clef `{key}` inexistante')
   def get_keys(self):
-    return self.value.keys()
+    keys = list(self.value.keys())
+    datatype = self.key_type
+    indexes = Array.get_indexes(keys)
+    Array.check_types(keys, datatype)
+    array = Array(datatype, *indexes)
+    if keys:
+      array.set_value(None, keys)
+    else:
+      array.value = array.new_array()
+    return array
   def get_values(self):
-    return self.value.values()
+    values = list(self.value.values())
+    datatype = self.value_type
+    indexes = Array.get_indexes(values)
+    Array.check_types(values, datatype)
+    array = Array(datatype, *indexes)
+    if values:
+      array.set_value(None, values)
+    else:
+      array.value = array.new_array()
+    return array
   def __len__(self):
     return len(self.value)
   def __repr__(self):
-    return f'({(",".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
+    return f'({(", ".join(str(k) + ": " + str(v) for k, v in self.value.items()))})'
 
 class Any(Base):
   def __init__(self, value=None):

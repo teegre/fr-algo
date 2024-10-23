@@ -296,9 +296,13 @@ class TableGetKeys:
     self.var = var
   def eval(self):
     var = self.var.eval()
-    keys = Array(self.var.key_type, len(var.get_keys()) - 1)
-    keys.value = list(var.get_keys())
+    keys = var.get_keys()
     return keys
+  @property
+  def data_type(self):
+    var = self.var.eval()
+    keys = var.get_keys()
+    return repr_datatype(keys.data_type)
   def __repr__(self):
     return f'Clefs({self.var})'
 
@@ -307,11 +311,23 @@ class TableGetValues:
     self.var = var
   def eval(self):
     var = self.var.eval()
-    values = Array(self.var.value_type, len(var.get_values()) - 1)
-    values.value = list(var.get_values())
+    values = var.get_values()
     return values
+  @property
+  def data_type(self):
+    var = self.var.eval()
+    values = var.get_values()
+    return repr_datatype(values.data_type)
   def __repr__(self):
     return f'Valeurs({self.var})'
+
+class TableEraseKey:
+  def __init__(self, var, key):
+    self.var = var
+    self.key = key
+  def eval(self):
+    var = self.var.eval()
+    var.delete_key(self.key.eval())
 
 class StructureGetItem:
   def __init__(self, name, field, namespace=None):
@@ -457,6 +473,8 @@ class FunctionCall:
           ok &= False
         if t5 == -1 and not isinstance(t6, tuple):
           ok &= True
+      else:
+        ok &= False
       if not ok:
         raise BadType(f'`{self.name}` : type {repr_datatype(p1)} attendu [paramètre {i + 1}]')
   def _check_returned_type(self, rt, value):

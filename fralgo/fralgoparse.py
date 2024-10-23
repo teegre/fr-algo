@@ -38,7 +38,7 @@ from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTab
 from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFile, EOF
 from fralgo.lib.ast import Reference, UnixTimestamp, Import
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
-from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues
+from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
 from fralgo.lib.ast import Panic
 from fralgo.lib.datatypes import map_type
@@ -924,6 +924,12 @@ def p_table_key_exists(p):
   expression : EXISTS LPAREN expression COMMA expression RPAREN
   '''
   p[0] = TableKeyExists(p[3], p[5])
+
+def p_table_erase_key(p):
+  '''
+  expression : ERASE LPAREN expression COMMA expression RPAREN
+  '''
+  p[0] = TableEraseKey(p[3], p[5])
 
 def p_table_keys(p):
   '''

@@ -76,3 +76,5 @@ class FralgoInterruption(FralgoException):
   '''Exécution interrompue.'''
 class PanicException(FralgoException):
   '''Interruption programmée.'''
+class KeyNotFound(FralgoException):
+  '''La clef est introuvable'''

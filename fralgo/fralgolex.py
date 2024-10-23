@@ -56,6 +56,7 @@ class Lexer:
     'EcrireErr':     'PRINTERR',
     'EcrireFichier': 'WRITEFILE',
     'Ecriture':      'MODE_WRITE',
+    'Effacer':       'ERASE',
     'Entier':        'TYPE_INTEGER',
     'Existe':        'EXISTS',
     'Extraire':      'MID',

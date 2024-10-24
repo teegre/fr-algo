@@ -341,7 +341,7 @@ class Symbols:
       print('---')
     if self.table[self.__structs]:
       print('+++ Structures')
-      for v in sorted(self.table[self.__structs].values()):
+      for v in self.table[self.__structs].values():
         print('...', v)
       print('---')
     if self.is_local():

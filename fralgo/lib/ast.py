@@ -27,11 +27,12 @@
 
 import os
 import sys
-from sys import stdout, stderr
+from sys import stdin, stdout, stderr
 import operator
 from time import sleep
 from random import random
 from datetime import datetime
+from termios import tcgetattr, tcsetattr, CREAD, ECHO, ICANON, TCSADRAIN
 
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
@@ -1208,6 +1209,55 @@ class UnixTimestamp:
   @property
   def data_type(self):
     return 'Numérique'
+
+class GetTermSize:
+  def eval(self):
+    size = os.get_terminal_size(stdout.fileno())
+    array = Array('Entier', 1)
+    array.value = array.new_array(2)
+    array.set_value((0,), map_type(size.lines))
+    array.set_value((1,), map_type(size.columns))
+    return array
+  def __repr__(self):
+    return 'TailleEcran()'
+  @property
+  def data_type(self):
+    return 'Tableau[1] en Entier'
+
+class GetCursorPos:
+  def eval(self):
+    tty = os.ttyname(stdin.fileno())
+    fd = os.open(tty, os.O_RDWR + os.O_NOCTTY)
+    cflag, lflag = 2, 3
+    saved = tcgetattr(fd)
+    temp = tcgetattr(fd)
+    temp[lflag] = temp[lflag] & ~ICANON
+    temp[lflag] = temp[lflag] & ~ECHO
+    temp[cflag] = temp[cflag] & ~CREAD
+    try:
+      tcsetattr(fd, TCSADRAIN, temp)
+      os.write(fd, b'\x1b[6n')
+      result = os.read(fd, 9)
+    except Exception:
+      raise FralgoException('Impossible d\'obtenir la position du curseur')
+    finally:
+      tcsetattr(fd, TCSADRAIN, saved)
+      os.close(fd)
+      result = result.decode()
+      result = result[2:]
+      result = result.split(';')
+      y = int(result[0])
+      x = int(result[1][:-1])
+    array = Array('Entier', 1)
+    array.value = array.new_array(2)
+    array.set_value((0,), map_type(y))
+    array.set_value((1,), map_type(x))
+    return array
+  def __repr__(self):
+    return 'CurPos()'
+  @property
+  def data_type(self):
+    return 'Tableau[1] en Entier'
 
 class Import:
   def __init__(self, filename, Lexer, lex, parser, alias=None):

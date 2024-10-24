@@ -36,7 +36,7 @@ from fralgo.lib.ast import Function, FunctionCall, FunctionReturn, ProcTerminate
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFile, EOF
-from fralgo.lib.ast import Reference, UnixTimestamp, Import
+from fralgo.lib.ast import Reference, UnixTimestamp, Import, GetTermSize, GetCursorPos
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
@@ -994,6 +994,17 @@ def p_expression_unixtimestamp(p):
   '''
   p[0] = UnixTimestamp()
 
+def p_expression_get_term_size(p):
+  '''
+  expression : TERMSIZE LPAREN RPAREN
+  '''
+  p[0] = GetTermSize()
+
+def p_expression_get_cursor_position(p):
+  '''
+  expression : CURPOS LPAREN RPAREN
+  '''
+  p[0] = GetCursorPos()
 
 def p_expression_type_conv(p):
   '''

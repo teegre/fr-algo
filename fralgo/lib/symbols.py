@@ -405,6 +405,11 @@ class Namespaces:
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
+  def get_current_context(self):
+    sym = self.get_namespace(self.current_namespace)
+    if sym.is_local():
+      return sym.get_local_ref_context()
+    return None
   def get_variable(self, name, namespace=None):
     if name.startswith('___'):
       if self.current_namespace != namespace:

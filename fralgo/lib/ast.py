@@ -421,6 +421,7 @@ class FunctionCall:
   def __init__(self, name, params, namespace=None):
     self.name = name
     self.params = params
+    self.context = None
     self.namespace = namespace if namespace else namespaces.current_namespace
     self.cnamespace = namespaces.current_namespace
   def _check_param_count(self, params):
@@ -501,8 +502,11 @@ class FunctionCall:
   def eval(self):
     func = namespaces.get_function(self.name, self.namespace)
     params = func.params
+    context = namespaces.get_current_context()
     namespaces.set_local(self.namespace, context_name=self.name)
     sym = namespaces.get_namespace(self.namespace)
+    if context: # give access to references
+      sym.set_local_ref_context(context.dereference)
     if params is not None:
       # check parameter count
       self._check_param_count(params)

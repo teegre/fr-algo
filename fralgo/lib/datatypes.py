@@ -763,11 +763,18 @@ class Table(Base):
       raise BadType(f'Valeur : type `{self.value_type}` attendu')
     self.value[key.eval()] = value.eval()
   def get_item(self, key):
-    value = self.value.get(key.eval())
+    k = key.eval()
+    if isinstance(k, (String, Integer, Float, Boolean)):
+      k = k.eval()
+    value = self.value.get(k)
     return value
   def delete_key(self, key):
     try:
-      self.value.pop(key)
+      if isinstance(key, (String, Integer, Float, Boolean)):
+        k = key.eval()
+      else:
+        k = key
+      self.value.pop(k)
     except KeyError:
       raise KeyNotFound(f'Clef `{key}` inexistante')
   def get_keys(self):

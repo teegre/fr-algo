@@ -464,6 +464,8 @@ class FunctionCall:
       if isinstance(t1, tuple):
         if t1[0] == t2 == 'Caractère':
           continue
+        if t1[0] == 'Caractère' and t2 == 'Chaîne':
+          continue
       if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
       if t1 == 'Quelconque':

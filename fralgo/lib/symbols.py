@@ -32,6 +32,7 @@ class Context:
   def __init__(self, context_name:str):
     self.name = context_name
     self.dereference = False
+    self.has_reference = False
   def __repr__(self):
     return f'{self.name} [{"+" if self.dereference else "-"}]'
   def __str__(self):
@@ -130,6 +131,9 @@ class Symbols:
   def set_local_ref_context(self, dereference:bool):
     context = self.get_local_ref_context()
     context.dereference = dereference
+  def set_local_ref_context_has_reference(self, has_reference:bool):
+    context = self.get_local_ref_context()
+    context.has_reference = has_reference
   def declare_var(self, name, data_type, superglobal=False):
     if superglobal:
       variables = self.__superglobal
@@ -207,6 +211,10 @@ class Symbols:
   def get_variable(self, name, visited=None):
     if self.is_local():
       context = self.get_local_ref_context()
+      if not context.has_reference:
+        for variables in reversed(self.table[self.__local]):
+          if name in variables:
+            return variables[name]
       if context.dereference:
         if visited is None:
           visited = set()

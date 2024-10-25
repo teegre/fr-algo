@@ -439,6 +439,7 @@ class FunctionCall:
         # enable dereferencing
         sym = namespaces.get_namespace(self.namespace)
         sym.set_local_ref_context(dereference=True)
+        sym.set_local_ref_context_has_reference(has_reference=True)
       p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
       try:
         if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):

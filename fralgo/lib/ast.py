@@ -33,6 +33,7 @@ from time import sleep
 from random import random
 from datetime import datetime
 from termios import tcgetattr, tcsetattr, CREAD, ECHO, ICANON, TCSADRAIN
+from collections import Counter
 
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
@@ -42,7 +43,7 @@ from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared, PanicException
-from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide
+from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide, InvalidStructureField
 from fralgo.lib.exceptions import FuncInvalidParameterCount, FralgoInterruption, FatalError
 
 namespaces = Namespaces(_get_type)
@@ -166,6 +167,13 @@ class DeclareStruct:
     self.name = name
     self.fields = fields
   def eval(self):
+    structfields = [f for f, _ in self.fields]
+    duplicates = [f for f, c in Counter(structfields).items() if c > 1]
+    if duplicates:
+      fields = ', '.join(duplicates)
+      field = 'champs' if len(duplicates) > 1 else 'champ'
+      dup = 'dupliqués' if len(duplicates) > 1 else 'dupliqué'
+      raise InvalidStructureField(f'Structure {self.name} : {field} `{fields}` {dup}')
     sym = namespaces.get_namespace(name=None)
     for field, datatype in self.fields:
       if datatype not in self.__types:
@@ -173,7 +181,7 @@ class DeclareStruct:
           continue
         elif isinstance(datatype, tuple) or sym.is_structure(datatype):
           continue
-        raise BadType(f'Type invalide : `{self.name}.{field} en >{datatype}`')
+        raise BadType(f'Type invalide : `{self.name}.{field} en `{datatype}`')
     sym.declare_structure(Structure(self.name, self.fields))
   def __repr__(self):
     return f'Structure {self.name} {self.fields}'
@@ -195,7 +203,7 @@ class ArrayGetItem:
     return value.data_type
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
-    return f'{self.var.name}[{",".join(indexes)}]'
+    return f'{self.var.name}[{", ".join(indexes)}]'
 
 class ArraySetItem:
   def __init__(self, var, value, *indexes):
@@ -210,7 +218,7 @@ class ArraySetItem:
     var.set_value(self.indexes, self.value)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'{self.var.name}[{",".join(indexes)}] ← {self.value}'
+    return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
 
 class ArrayResize:
   def __init__(self, var, *indexes):
@@ -224,7 +232,7 @@ class ArrayResize:
     var.resize(*self.indexes)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'Redim {self.var.name}[{",".join(indexes)}]'
+    return f'Redim {self.var.name}[{", ".join(indexes)}]'
 
 class FreeFormArray(Array):
   def __init__(self, value):
@@ -267,7 +275,7 @@ class SizeOf:
     if isinstance(self.var, Array) or issubclass(type(self.var), Array):
       if len(self.var.sizes) == 1:
         return 'Entier'
-      indexes = ",".join([str(v) for v in self.var.indexes])
+      indexes = ", ".join([str(v) for v in self.var.indexes])
       return f'Tableau[{len(self.var.indexes) - 1}] en Entier'
     var = self.var.eval()
     if isinstance(var, Table):
@@ -413,8 +421,8 @@ class Function:
     else:
       params = ''
     if self.return_type is not None:
-      return f'Fonction {self.name}({",".join(params)}) en {self.return_type}'
-    return f'Procédure {self.name}({",".join(params)})'
+      return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
+    return f'Procédure {self.name}({", ".join(params)})'
 
 class FunctionCall:
   '''Function call'''
@@ -588,9 +596,9 @@ class FunctionCall:
     params = [str(param) for param in self.params]
     if func:
       if func.return_type is not None:
-        return f'{self.name}({",".join(params)}) → {func.return_type}'
+        return f'{self.name}({", ".join(params)}) → {func.return_type}'
     else:
-      return f'{self.name}({",".join(params)})'
+      return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
   def __init__(self, expression):

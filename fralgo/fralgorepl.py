@@ -35,8 +35,8 @@ import traceback
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo import __version__
-# from fralgo.fralgoparse import parser
-from fralgo.parser import parser
+from fralgo.fralgoparse import parser
+# from fralgo.parser import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.ast import namespaces, libs
 from fralgo.lib.exceptions import FralgoException, print_err

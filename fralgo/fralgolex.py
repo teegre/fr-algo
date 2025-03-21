@@ -200,7 +200,6 @@ class Lexer:
     t.lexer.lineno += 1
     pass
 
-
   def t_error(self, t):
     msg = f'caractère invalide {t.value[0]!r}'
     if 'FRALGOREPL' not in os.environ:

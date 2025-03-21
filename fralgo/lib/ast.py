@@ -206,12 +206,13 @@ class ArrayGetItem:
     return f'{self.var.name}[{", ".join(indexes)}]'
 
 class ArraySetItem:
-  def __init__(self, var, value, *indexes):
+  def __init__(self, var, value, *indexes, namespace=None):
     self.var = var
     self.value = value
     self.indexes = indexes
+    self.namespace = namespace
   def eval(self):
-    var = namespaces.get_variable(self.var.name, None)
+    var = namespaces.get_variable(self.var.name, self.namespace)
     if isinstance(var, tuple):
       raise ReadOnlyValue(f'Constante `{self.var.name}` : valeur en lecture seule')
     var = self.var.eval()
@@ -892,9 +893,9 @@ class For:
     sym = namespaces.get_namespace(self.namespace)
     if self.var != self.var_next:
       raise FralgoException(f'Pour `{self.var}` ... `{self.var_next}` Suivant')
-    i = self.start.eval()
-    end = self.end.eval()
-    step = self.step.eval()
+    i = algo_to_python(self.start.eval())
+    end = algo_to_python(self.end.eval())
+    step = algo_to_python(self.step.eval())
     sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
@@ -906,7 +907,11 @@ class For:
         return None
       if result is not None:
         return result
-      i += step
+      try:
+        i += step
+      except TypeError:
+        i = i.eval()
+        i += step
       sym.assign_value(self.var, i)
     return None
   def __repr__(self):

@@ -46,8 +46,6 @@ from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.fralgolex import Lexer, lexer, lex
 from fralgo.ply import yacc
 
-namespaces = []
-
 tokens = Lexer.tokens
 
 array_depth = 0
@@ -261,7 +259,6 @@ def p_const_declaration(p):
                     | CONST ID INTEGER NEWLINE
                     | CONST ID STRING NEWLINE
                     | CONST ID freeform_array NEWLINE
-
   '''
   p[0] = Node(DeclareConst(p[2], p[3]), p.lineno(1))
 
@@ -307,18 +304,6 @@ def p_array_max_index(p):
   array_max_index : INTEGER
   '''
   p[0] = [p[1]]
-
-# def p_freeform_arrays(p):
-#   '''
-#   freeform_arrays : LBRACKET freeform_arrays COMMA freeform_array RBRACKET
-#                   | freeform_array
-#   '''
-#   if len(p) == 6:
-#     print(p[1], p[2], p[3], p[4], p[5])
-#     p[0] = [p[2] + p[4]]
-#   else:
-#     p[0] = p[1]
-
 
 def p_freeform_array(p):
   '''

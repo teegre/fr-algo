@@ -73,7 +73,7 @@ class LibMan:
       statements.eval()
     except FralgoException as e:
       print_err(f'Librairie : {libfile}.algo')
-      print_err(f'Ligne {self.lexer.lineno - 1}')
+      print_err(f'Ligne {self.lexer.lineno}')
       self.namespaces.del_namespace(alias)
       raise e
     finally:

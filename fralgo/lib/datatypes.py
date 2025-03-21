@@ -609,7 +609,7 @@ class Structure(Base):
     return iter(self.fields)
   def __repr__(self):
     data = [f'{n}{repr_datatype(t)}' for n, t in self.fields]
-    return f'{self.name} → {",".join(data)}'
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -742,7 +742,7 @@ class StructureData(Base):
     return ','.join(data)
   def __repr__(self):
     data = [k+": " + str(v) if v else '?' for k,v in self.data.items()]
-    return f'{self.name} → {",".join(data)}'
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -879,7 +879,7 @@ def repr_datatype(datatype, shortform=True):
       else:
         indexes = datatype[2] if datatype[2] != -1 else ''
       if shortform:
-        return f'[{indexes}] en {repr_datatype(datatype[1])}'
+        return f'[{indexes}] en {repr_datatype(datatype[1], shortform=False)}'
       return f'{datatype[0]}[{indexes}] en {repr_datatype(datatype[1])}'
   if shortform:
     return f' en {datatype}' if not isinstance(datatype, tuple) else f' en {datatype[0]}'

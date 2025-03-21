@@ -57,6 +57,20 @@ class StructuresRegistry:
   def clear_structures(cls):
     cls.__structures.clear()
 
+class Symbol:
+  def __init__(self, namespace=None, datatype=None, name=None):
+    self.namespace = namespace
+    self.datatype = datatype
+    self.name = name
+  def eval(self):
+    try:
+      return self.name.eval()
+    except AttributeError:
+      return self.name
+  def __repr__(self):
+    ns = 'main' if self.namespace is None else self.namespace
+    return f'{ns}:{self.name} ({self.datatype})'
+
 class Symbols:
   __func         = 'functions'
   __vars         = 'variables'
@@ -197,7 +211,7 @@ class Symbols:
     variables[name] = Char(None, size)
   def assign_value(self, name, value, namespace=None):
     if name.startswith('___') and self.namespace != namespace:
-      raise ex.FralgoException('Affectation d\'une valeur à une variable privée.')
+      raise ex.FralgoException('Affectation d\'une valeur à un symbole privé.')
     var = self.get_variable(name)
     if isinstance(var, tuple): # constant!
       raise ex.ReadOnlyValue(f'Constante `{name}` : en lecture seule')

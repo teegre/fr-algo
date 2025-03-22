@@ -59,7 +59,7 @@ def main():
     version = f'fr-v100 {__version__}mg'
     print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
     print()
-    print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
+    print('(c) 2024-2025 Stéphane MEYER (Teegre)', flush=True)
     sleep(0.0625)
     print()
     sleep(0.0625)

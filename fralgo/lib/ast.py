@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -29,9 +29,9 @@ import os
 import sys
 from sys import stdin, stdout, stderr
 import operator
-from time import sleep
-from random import random
 from datetime import datetime
+from time import time, strftime, sleep
+from random import random
 from termios import tcgetattr, tcsetattr, CREAD, ECHO, ICANON, TCSADRAIN
 from collections import Counter
 
@@ -927,6 +927,9 @@ class Len:
       raise BadType('Longueur(C | T) : Type Chaîne ou Tableau attendu')
   def __repr__(self):
     return f'Longueur({self.value})'
+  @property
+  def data_type(self):
+    return 'Entier'
 
 class Mid:
   def __init__(self, exp, start, length):
@@ -1223,12 +1226,30 @@ class Sleep:
 
 class UnixTimestamp:
   def eval(self):
-    return datetime.now().timestamp()
+    return time()
   def __repr__(self):
     return 'TempsUnix()'
   @property
   def data_type(self):
     return 'Numérique'
+
+class TimeZone:
+  def __init__(self, timestamp=None, text=False):
+    self.timestamp = timestamp if timestamp is not None else None
+    self.text = text
+  def eval(self):
+    tzcode = '%Z' if self.text else '%z'
+    if self.timestamp:
+      tz = datetime.fromtimestamp(self.timestamp.eval()).astimezone().strftime(tzcode)
+      return tz
+    return strftime(tzcode)
+  def __repr__(self):
+    if self.text:
+      return 'ZoneHoraireTxt'
+    return 'ZoneHoraire'
+  @property
+  def data_type(self):
+    return 'Chaîne'
 
 class GetTermSize:
   def eval(self):
@@ -1317,6 +1338,7 @@ def algo_to_python(expression):
       String,
       StructureGetItem,
       TableKeyExists,
+      TimeZone,
       ToBoolean, ToFloat, ToInteger, ToString,
       Trim,
       Type,

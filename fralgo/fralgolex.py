@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -110,6 +110,8 @@ class Lexer:
     'Valeurs':       'VALUES',
     'Variable':      'VAR_DECL',
     'Variables':     'VARS_DECL',
+    'ZoneHoraire':   'TIMEZONE',
+    'ZoneHoraireTxt': 'TIMEZONEX',
     'en':            'TYPE_DECL',
     'sur':           'FD_ON',
     'à':             'TO',

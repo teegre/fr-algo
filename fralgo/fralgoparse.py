@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -40,7 +40,7 @@ from fralgo.lib.ast import Reference, UnixTimestamp, Import, GetTermSize, GetCur
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import Panic
+from fralgo.lib.ast import Panic, TimeZone
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.fralgolex import Lexer, lexer, lex
@@ -978,6 +978,22 @@ def p_expression_unixtimestamp(p):
   expression : UNIXTIMESTAMP LPAREN RPAREN
   '''
   p[0] = UnixTimestamp()
+
+def p_expression_timezone(p):
+  '''
+  expression : TIMEZONE LPAREN RPAREN
+             | TIMEZONE LPAREN expression RPAREN
+  '''
+  if len(p) == 4:
+    p[0] = TimeZone()
+  else:
+    p[0] = TimeZone(timestamp=p[3])
+
+def p_expression_timezone_ext(p):
+  '''
+  expression : TIMEZONEX LPAREN RPAREN
+  '''
+  p[0] = TimeZone(text=True)
 
 def p_expression_get_term_size(p):
   '''

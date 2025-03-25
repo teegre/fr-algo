@@ -989,11 +989,15 @@ def p_expression_timezone(p):
   else:
     p[0] = TimeZone(timestamp=p[3])
 
-def p_expression_timezone_ext(p):
+def p_expression_timezone_text(p):
   '''
   expression : TIMEZONEX LPAREN RPAREN
+             | TIMEZONEX LPAREN expression RPAREN
   '''
-  p[0] = TimeZone(text=True)
+  if len(p) == 4:
+    p[0] = TimeZone(text=True)
+  else:
+    p[0] = TimeZone(timestamp=p[3], text=True)
 
 def p_expression_get_term_size(p):
   '''

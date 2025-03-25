@@ -619,6 +619,18 @@ class ProcTerminate:
   def __repr__(self):
     return 'Terminer'
 
+class Continue:
+  def eval(self):
+    return self
+  def __repr__(self):
+    return 'Continuer'
+
+class Exit:
+  def eval(self):
+    return self
+  def __repr__(self):
+    return 'Sortir'
+
 class Assign:
   def __init__(self, var, value):
     self.var = var
@@ -869,7 +881,11 @@ class While:
     while self.condition.eval():
       try:
         result = self.dothis.eval()
-        if result is not None:
+        if isinstance(result, Continue):
+          continue
+        elif isinstance(result, Exit):
+          return None
+        elif result is not None:
           return result
       except KeyboardInterrupt:
         print()
@@ -900,12 +916,14 @@ class For:
     while i <= end if step > 0 else i >= end:
       try:
         result = self.dothis.eval()
+        if isinstance(result, Exit):
+          return None
       except KeyboardInterrupt:
         print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoInterruption:
         return None
-      if result is not None:
+      if result is not None and not isinstance(result, Continue):
         return result
       try:
         i += step

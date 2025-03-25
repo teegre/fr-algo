@@ -40,7 +40,7 @@ from fralgo.lib.ast import Reference, UnixTimestamp, Import, GetTermSize, GetCur
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import Panic, TimeZone
+from fralgo.lib.ast import Panic, Continue, Exit, TimeZone
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.fralgolex import Lexer, lexer, lex
@@ -458,6 +458,16 @@ def p_statements(p):
     p[1].append(p[2])
     p[0] = p[1]
 
+def p_loop_statement(p):
+  '''
+  loop_statement : CONTINUE NEWLINE
+                 | EXIT NEWLINE
+  '''
+  if p[1] == 'Continuer':
+    p[0] = Node(Continue(), p.lineno(1))
+  else:
+    p[0] = Node(Exit(), p.lineno(1))
+
 def p_statement(p):
   '''
   statement : var_assignment
@@ -465,6 +475,7 @@ def p_statement(p):
             | if_block
             | while_block
             | for_block
+            | loop_statement
             | return_statement
             | PRINT sequence NEWLINE
             | PRINT sequence BACKSLASH NEWLINE

@@ -210,7 +210,7 @@ class Symbols:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Char(None, size)
   def assign_value(self, name, value, namespace=None):
-    if name.startswith('___') and self.namespace != namespace:
+    if name.startswith('@') and self.namespace != namespace:
       raise ex.FralgoException('Affectation d\'une valeur à un symbole privé.')
     var = self.get_variable(name)
     if isinstance(var, tuple): # constant!
@@ -335,7 +335,7 @@ class Symbols:
       print('%%% Super globales')
       for k, v in sorted(self.__superglobal.items()):
         if isinstance(v, tuple):
-          if k.startswith('___'):
+          if k.startswith('@'):
             continue
           print('... Constante', k, '=', repr(v[1]))
         else:
@@ -344,7 +344,7 @@ class Symbols:
     if self.__main_global:
       print('+++ Variables globales')
       for k, v in sorted(self.__main_global.items()):
-        if k.startswith('___'):
+        if k.startswith('@'):
           continue
         if isinstance(v, tuple):
           print('... Constante', k, '=', repr(v[1]))
@@ -354,7 +354,7 @@ class Symbols:
     if self.table[self.__vars]:
       print('+++ Variables locales', self.namespace)
       for k, v in sorted(self.table[self.__vars].items()):
-        if k.startswith('___'):
+        if k.startswith('@'):
           continue
         if isinstance(v, tuple):
           print('... Constante', k, '=', repr(v[1]))
@@ -382,7 +382,7 @@ class Symbols:
         if not self.table[self.__localfunc]:
           print('+++ Fonctions et Procédures')
           for k, v in sorted(self.table[self.__localfunc].items()):
-            if k.startswith('___'):
+            if k.startswith('@'):
               continue
             print(f'... {k} :', v)
           print('---')
@@ -395,7 +395,7 @@ class Symbols:
     if self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
-        if k.startswith('___'):
+        if k.startswith('@'):
           continue
         print(f'... {k} :', v)
       print('---')
@@ -433,13 +433,13 @@ class Namespaces:
       return sym.get_local_ref_context()
     return None
   def get_variable(self, name, namespace=None):
-    if name.startswith('___'):
+    if name.startswith('@'):
       if self.current_namespace != namespace:
         raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)
     return sym.get_variable(name)
   def get_function(self, name, namespace):
-    if name.startswith('___'):
+    if name.startswith('@'):
       if self.current_namespace != namespace:
         raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)

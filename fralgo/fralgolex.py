@@ -189,7 +189,7 @@ class Lexer:
     return t
 
   def t_ID(self, t):
-    r'[A-Za-zàéèî\_][A-Za-zàéèî0-9\_]*'
+    r'[A-Za-zàéèî@\_][A-Za-zàéèî0-9@\_]*'
     t.type = self.reserved.get(t.value, 'ID')
     return t
 

@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2025/03/25
+" Last change: 2025/03/26
 
 if exists("b:current_syntax")
   finish
@@ -56,7 +56,8 @@ syn region AlgoString start="'" skip=/\v\\./ end="'"
 
 syn keyword AlgoTodo TODO FIXME NOTE NOTES contained
 syn match AlgoComment "#.*" contains=AlgoTodo
-syn match Private "\<___\w*\>"
+syn match Private "\k\@\<!@\w*\>"
+
 
 syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained
 

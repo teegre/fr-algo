@@ -843,7 +843,7 @@ class Neg:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     if not isinstance(value, (int, float)):
       raise BadType('-E|N : Type Entier ou Numérique attendu')
     return -value

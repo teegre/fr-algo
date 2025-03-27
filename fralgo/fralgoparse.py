@@ -259,6 +259,7 @@ def p_const_declaration(p):
                     | CONST ID INTEGER NEWLINE
                     | CONST ID STRING NEWLINE
                     | CONST ID freeform_array NEWLINE
+                    | CONST ID expression NEWLINE
   '''
   p[0] = Node(DeclareConst(p[2], p[3]), p.lineno(1))
 

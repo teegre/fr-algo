@@ -121,7 +121,11 @@ class DeclareConst:
     self.value = map_type(value)
   def eval(self):
     sym = namespaces.get_namespace(name=None)
-    sym.declare_const(self.name, self.value.eval())
+    if isinstance(self.value, (Array, ArrayGetItem, FreeFormArray)):
+      value = self.value
+    else:
+      value = self.value.eval()
+    sym.declare_const(self.name, value)
   def __repr__(self):
     return f'Constante {self.name} {self.value}'
 

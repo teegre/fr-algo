@@ -485,6 +485,8 @@ class FunctionCall:
         continue
       if t1 == 'Quelconque':
         continue
+      if t1 == 'Numérique' and t2 == 'Entier':
+        continue
       if t1 == t2 == 'Tableau':
         if t3 == 'Chaîne' and t4[0] == 'Caractère':
           ok &= True

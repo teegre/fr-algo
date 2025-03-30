@@ -23,19 +23,19 @@ class Test(unittest.TestCase):
   def test_continuer_sortir_boucle(self):
     prog='''Variables i, idx en Entier
     Variables test1, test2 en Booléen
-    Tableau T[5] en Entier
+    Tableau T[4] en Entier
     Début
       Ecrire "24. Test Continuer/Sortir boucle"
       i ← 1
       idx ← 0
       TantQue VRAI
         Si i % 2 <> 0 Alors
-          Redim T[idx]
           T[idx] ← i
           i ← i + 1
           idx ← idx + 1
           Continuer
-        SinonSi i > 9 Alors
+        FinSi
+        Si i > 9 Alors
           Sortir
         FinSi
         i ← i + 1

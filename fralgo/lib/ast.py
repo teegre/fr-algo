@@ -1262,7 +1262,10 @@ class TimeZone:
   def eval(self):
     tzcode = '%Z' if self.text else '%z'
     if self.timestamp:
-      tz = datetime.fromtimestamp(self.timestamp.eval()).astimezone().strftime(tzcode)
+      try:
+        tz = datetime.fromtimestamp(self.timestamp.eval()).astimezone().strftime(tzcode)
+      except ValueError:
+        tz = "LMT" if tzcode == "%Z" else "+0000"
       return tz
     return strftime(tzcode)
   def __repr__(self):

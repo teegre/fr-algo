@@ -36,6 +36,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from fralgo import __version__
 from fralgo.fralgoparse import parser
+# from fralgo.parser import parser
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.ast import namespaces, libs
 from fralgo.lib.exceptions import FralgoException, print_err
@@ -208,7 +209,7 @@ def main():
   print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
   sleep(0.0625)
   print()
-  print('(c) 2024 Stéphane MEYER (Teegre)', flush=True)
+  print('(c) 2024-2025 Stéphane MEYER (Teegre)', flush=True)
   sleep(0.0625)
   print()
   print(f'{greetings()},', os.getenv('USER').capitalize(), '!')

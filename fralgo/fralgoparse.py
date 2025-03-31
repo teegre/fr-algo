@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -36,17 +36,15 @@ from fralgo.lib.ast import Function, FunctionCall, FunctionReturn, ProcTerminate
 from fralgo.lib.ast import If, While, For, Len, Mid, Trim, Chr, Ord, Find
 from fralgo.lib.ast import Node, Declare, DeclareConst, DeclareArray, DeclareTable, DeclareStruct
 from fralgo.lib.ast import FreeFormArray, OpenFile, CloseFile, ReadFile, WriteFile, EOF
-from fralgo.lib.ast import Reference, UnixTimestamp, Import
+from fralgo.lib.ast import Reference, UnixTimestamp, Import, GetTermSize, GetCursorPos
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import Panic
+from fralgo.lib.ast import Panic, Continue, Exit, TimeZone
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.fralgolex import Lexer, lexer, lex
 from fralgo.ply import yacc
-
-namespaces = []
 
 tokens = Lexer.tokens
 
@@ -261,7 +259,7 @@ def p_const_declaration(p):
                     | CONST ID INTEGER NEWLINE
                     | CONST ID STRING NEWLINE
                     | CONST ID freeform_array NEWLINE
-
+                    | CONST ID expression NEWLINE
   '''
   p[0] = Node(DeclareConst(p[2], p[3]), p.lineno(1))
 
@@ -307,18 +305,6 @@ def p_array_max_index(p):
   array_max_index : INTEGER
   '''
   p[0] = [p[1]]
-
-# def p_freeform_arrays(p):
-#   '''
-#   freeform_arrays : LBRACKET freeform_arrays COMMA freeform_array RBRACKET
-#                   | freeform_array
-#   '''
-#   if len(p) == 6:
-#     print(p[1], p[2], p[3], p[4], p[5])
-#     p[0] = [p[2] + p[4]]
-#   else:
-#     p[0] = p[1]
-
 
 def p_freeform_array(p):
   '''
@@ -473,6 +459,16 @@ def p_statements(p):
     p[1].append(p[2])
     p[0] = p[1]
 
+def p_loop_statement(p):
+  '''
+  loop_statement : CONTINUE NEWLINE
+                 | EXIT NEWLINE
+  '''
+  if p[1] == 'Continuer':
+    p[0] = Node(Continue(), p.lineno(1))
+  else:
+    p[0] = Node(Exit(), p.lineno(1))
+
 def p_statement(p):
   '''
   statement : var_assignment
@@ -480,6 +476,7 @@ def p_statement(p):
             | if_block
             | while_block
             | for_block
+            | loop_statement
             | return_statement
             | PRINT sequence NEWLINE
             | PRINT sequence BACKSLASH NEWLINE
@@ -994,6 +991,37 @@ def p_expression_unixtimestamp(p):
   '''
   p[0] = UnixTimestamp()
 
+def p_expression_timezone(p):
+  '''
+  expression : TIMEZONE LPAREN RPAREN
+             | TIMEZONE LPAREN expression RPAREN
+  '''
+  if len(p) == 4:
+    p[0] = TimeZone()
+  else:
+    p[0] = TimeZone(timestamp=p[3])
+
+def p_expression_timezone_text(p):
+  '''
+  expression : TIMEZONEX LPAREN RPAREN
+             | TIMEZONEX LPAREN expression RPAREN
+  '''
+  if len(p) == 4:
+    p[0] = TimeZone(text=True)
+  else:
+    p[0] = TimeZone(timestamp=p[3], text=True)
+
+def p_expression_get_term_size(p):
+  '''
+  expression : TERMSIZE LPAREN RPAREN
+  '''
+  p[0] = GetTermSize()
+
+def p_expression_get_cursor_position(p):
+  '''
+  expression : CURPOS LPAREN RPAREN
+  '''
+  p[0] = GetCursorPos()
 
 def p_expression_type_conv(p):
   '''

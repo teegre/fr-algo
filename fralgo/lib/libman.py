@@ -36,6 +36,7 @@ class LibMan:
     self.__path = None
     self.__local_lib_path = os.path.join(os.getenv("HOME"), '.local/lib/fralgo')
     self.namespaces = None
+    self.imports = ['main']
   def set_main(self, mainfile=None):
     self.mainfile = mainfile
     if mainfile is not None:
@@ -65,17 +66,19 @@ class LibMan:
       raise e
     if not alias:
       alias = os.path.basename(libfile)
+    self.imports.append(alias)
     self.namespaces.declare_namespace(alias)
     try:
       statements = self.parser.parse(''.join(lib), lexer=self.lexer)
       statements.eval()
     except FralgoException as e:
       print_err(f'Librairie : {libfile}.algo')
-      print_err(f'Ligne {self.lexer.lineno - 1}')
+      print_err(f'Ligne {self.lexer.lineno}')
       self.namespaces.del_namespace(alias)
       raise e
     finally:
-      self.namespaces.set_current_namespace('main')
+      self.imports.pop()
+      self.namespaces.set_current_namespace(self.imports[-1])
   def checklib(self, algocontent, libfile):
     start = False
     for line in algocontent:

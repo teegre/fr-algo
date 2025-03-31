@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -47,6 +47,8 @@ class Lexer:
     'Clefs':         'KEYS',
     'CodeCar':       'ORD',
     'Constante':     'CONST',
+    'Continuer':     'CONTINUE',
+    'CurPos':        'CURPOS',
     'DP':            'DIVBY',
     'Dormir':        'SLEEP',
     'Droite':        'RTRIM',
@@ -93,12 +95,14 @@ class Lexer:
     'Si':            'IF',
     'Sinon':         'ELSE',
     'SinonSi':       'ELSIF',
+    'Sortir':        'EXIT',
     'Structure':     'STRUCT',
     'Suivant':       'NEXT',
     'Table':         'TYPE_TABLE',
     'Tableau':       'ARRAY_DECL',
     'Tableaux':      'ARRAYS_DECL',
     'Taille':        'SIZE',
+    'TailleEcran':   'TERMSIZE',
     'TantQue':       'WHILE',
     'TempsUnix':     'UNIXTIMESTAMP',
     'Terminer':      'TERMINATE',
@@ -108,6 +112,8 @@ class Lexer:
     'Valeurs':       'VALUES',
     'Variable':      'VAR_DECL',
     'Variables':     'VARS_DECL',
+    'ZoneHoraire':   'TIMEZONE',
+    'ZoneHoraireTxt': 'TIMEZONEX',
     'en':            'TYPE_DECL',
     'sur':           'FD_ON',
     'à':             'TO',
@@ -183,7 +189,7 @@ class Lexer:
     return t
 
   def t_ID(self, t):
-    r'[A-Za-zàéèî\_][A-Za-zàéèî0-9\_]*'
+    r'[A-Za-zàéèî@\_][A-Za-zàéèî0-9@\_]*'
     t.type = self.reserved.get(t.value, 'ID')
     return t
 
@@ -197,7 +203,6 @@ class Lexer:
     r'\#.*\n'
     t.lexer.lineno += 1
     pass
-
 
   def t_error(self, t):
     msg = f'caractère invalide {t.value[0]!r}'

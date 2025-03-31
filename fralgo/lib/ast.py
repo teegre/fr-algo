@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FR-ALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -27,11 +27,13 @@
 
 import os
 import sys
-from sys import stdout, stderr
+from sys import stdin, stdout, stderr
 import operator
-from time import sleep
-from random import random
 from datetime import datetime
+from time import time, strftime, sleep
+from random import random
+from termios import tcgetattr, tcsetattr, CREAD, ECHO, ICANON, TCSADRAIN
+from collections import Counter
 
 from fralgo.lib.libman import LibMan
 from fralgo.lib.datatypes import map_type
@@ -41,7 +43,7 @@ from fralgo.lib.symbols import Namespaces
 from fralgo.lib.file import new_file_descriptor, get_file_descriptor, clear_file_descriptor
 from fralgo.lib.exceptions import print_err
 from fralgo.lib.exceptions import FralgoException, BadType, InterruptedByUser, VarUndeclared, PanicException
-from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide
+from fralgo.lib.exceptions import ReadOnlyValue, VarUndefined, ZeroDivide, InvalidStructureField
 from fralgo.lib.exceptions import FuncInvalidParameterCount, FralgoInterruption, FatalError
 
 namespaces = Namespaces(_get_type)
@@ -119,7 +121,11 @@ class DeclareConst:
     self.value = map_type(value)
   def eval(self):
     sym = namespaces.get_namespace(name=None)
-    sym.declare_const(self.name, self.value)
+    if isinstance(self.value, (Array, ArrayGetItem, FreeFormArray)):
+      value = self.value
+    else:
+      value = self.value.eval()
+    sym.declare_const(self.name, value)
   def __repr__(self):
     return f'Constante {self.name} {self.value}'
 
@@ -165,6 +171,13 @@ class DeclareStruct:
     self.name = name
     self.fields = fields
   def eval(self):
+    structfields = [f for f, _ in self.fields]
+    duplicates = [f for f, c in Counter(structfields).items() if c > 1]
+    if duplicates:
+      fields = ', '.join(duplicates)
+      field = 'champs' if len(duplicates) > 1 else 'champ'
+      dup = 'dupliqués' if len(duplicates) > 1 else 'dupliqué'
+      raise InvalidStructureField(f'Structure {self.name} : {field} `{fields}` {dup}')
     sym = namespaces.get_namespace(name=None)
     for field, datatype in self.fields:
       if datatype not in self.__types:
@@ -172,7 +185,7 @@ class DeclareStruct:
           continue
         elif isinstance(datatype, tuple) or sym.is_structure(datatype):
           continue
-        raise BadType(f'Type invalide : `{self.name}.{field} en >{datatype}`')
+        raise BadType(f'Type invalide : `{self.name}.{field} en `{datatype}`')
     sym.declare_structure(Structure(self.name, self.fields))
   def __repr__(self):
     return f'Structure {self.name} {self.fields}'
@@ -194,22 +207,23 @@ class ArrayGetItem:
     return value.data_type
   def __repr__(self):
     indexes = [str(index.eval()) for index in self.indexes]
-    return f'{self.var.name}[{",".join(indexes)}]'
+    return f'{self.var.name}[{", ".join(indexes)}]'
 
 class ArraySetItem:
-  def __init__(self, var, value, *indexes):
+  def __init__(self, var, value, *indexes, namespace=None):
     self.var = var
     self.value = value
     self.indexes = indexes
+    self.namespace = namespace
   def eval(self):
-    var = namespaces.get_variable(self.var.name, None)
+    var = namespaces.get_variable(self.var.name, self.namespace)
     if isinstance(var, tuple):
       raise ReadOnlyValue(f'Constante `{self.var.name}` : valeur en lecture seule')
     var = self.var.eval()
     var.set_value(self.indexes, self.value)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'{self.var.name}[{",".join(indexes)}] ← {self.value}'
+    return f'{self.var.name}[{", ".join(indexes)}] ← {self.value}'
 
 class ArrayResize:
   def __init__(self, var, *indexes):
@@ -223,7 +237,7 @@ class ArrayResize:
     var.resize(*self.indexes)
   def __repr__(self):
     indexes = (str(index) for index in self.indexes)
-    return f'Redim {self.var.name}[{",".join(indexes)}]'
+    return f'Redim {self.var.name}[{", ".join(indexes)}]'
 
 class FreeFormArray(Array):
   def __init__(self, value):
@@ -266,7 +280,7 @@ class SizeOf:
     if isinstance(self.var, Array) or issubclass(type(self.var), Array):
       if len(self.var.sizes) == 1:
         return 'Entier'
-      indexes = ",".join([str(v) for v in self.var.indexes])
+      indexes = ", ".join([str(v) for v in self.var.indexes])
       return f'Tableau[{len(self.var.indexes) - 1}] en Entier'
     var = self.var.eval()
     if isinstance(var, Table):
@@ -412,14 +426,15 @@ class Function:
     else:
       params = ''
     if self.return_type is not None:
-      return f'Fonction {self.name}({",".join(params)}) en {self.return_type}'
-    return f'Procédure {self.name}({",".join(params)})'
+      return f'Fonction {self.name}({", ".join(params)}) en {self.return_type}'
+    return f'Procédure {self.name}({", ".join(params)})'
 
 class FunctionCall:
   '''Function call'''
   def __init__(self, name, params, namespace=None):
     self.name = name
     self.params = params
+    self.context = None
     self.namespace = namespace if namespace else namespaces.current_namespace
     self.cnamespace = namespaces.current_namespace
   def _check_param_count(self, params):
@@ -437,6 +452,7 @@ class FunctionCall:
         # enable dereferencing
         sym = namespaces.get_namespace(self.namespace)
         sym.set_local_ref_context(dereference=True)
+        sym.set_local_ref_context_has_reference(has_reference=True)
       p1 = params[i][1][0] if isinstance(params[i][1][0], tuple) else params[i][1:]
       try:
         if isinstance(p, (BinOp, Node, ArrayGetItem, StructureGetItem)):
@@ -463,9 +479,13 @@ class FunctionCall:
       if isinstance(t1, tuple):
         if t1[0] == t2 == 'Caractère':
           continue
+        if t1[0] == 'Caractère' and t2 == 'Chaîne':
+          continue
       if t1 == 'Chaîne' and t2 == 'Caractère':
         continue
       if t1 == 'Quelconque':
+        continue
+      if t1 == 'Numérique' and t2 == 'Entier':
         continue
       if t1 == t2 == 'Tableau':
         if t3 == 'Chaîne' and t4[0] == 'Caractère':
@@ -498,8 +518,11 @@ class FunctionCall:
   def eval(self):
     func = namespaces.get_function(self.name, self.namespace)
     params = func.params
+    context = namespaces.get_current_context()
     namespaces.set_local(self.namespace, context_name=self.name)
     sym = namespaces.get_namespace(self.namespace)
+    if context: # give access to references
+      sym.set_local_ref_context(context.dereference)
     if params is not None:
       # check parameter count
       self._check_param_count(params)
@@ -580,9 +603,9 @@ class FunctionCall:
     params = [str(param) for param in self.params]
     if func:
       if func.return_type is not None:
-        return f'{self.name}({",".join(params)}) → {func.return_type}'
+        return f'{self.name}({", ".join(params)}) → {func.return_type}'
     else:
-      return f'{self.name}({",".join(params)})'
+      return f'{self.name}({", ".join(params)})'
 
 class FunctionReturn:
   def __init__(self, expression):
@@ -601,6 +624,18 @@ class ProcTerminate:
     return self
   def __repr__(self):
     return 'Terminer'
+
+class Continue:
+  def eval(self):
+    return self
+  def __repr__(self):
+    return 'Continuer'
+
+class Exit:
+  def eval(self):
+    return self
+  def __repr__(self):
+    return 'Sortir'
 
 class Assign:
   def __init__(self, var, value):
@@ -814,7 +849,7 @@ class Neg:
   def __init__(self, value):
     self.value = value
   def eval(self):
-    value = self.value.eval()
+    value = algo_to_python(self.value)
     if not isinstance(value, (int, float)):
       raise BadType('-E|N : Type Entier ou Numérique attendu')
     return -value
@@ -852,7 +887,11 @@ class While:
     while self.condition.eval():
       try:
         result = self.dothis.eval()
-        if result is not None:
+        if isinstance(result, Continue):
+          continue
+        elif isinstance(result, Exit):
+          return None
+        elif result is not None:
           return result
       except KeyboardInterrupt:
         print()
@@ -876,21 +915,27 @@ class For:
     sym = namespaces.get_namespace(self.namespace)
     if self.var != self.var_next:
       raise FralgoException(f'Pour `{self.var}` ... `{self.var_next}` Suivant')
-    i = self.start.eval()
-    end = self.end.eval()
-    step = self.step.eval()
+    i = algo_to_python(self.start.eval())
+    end = algo_to_python(self.end.eval())
+    step = algo_to_python(self.step.eval())
     sym.assign_value(self.var, i)
     while i <= end if step > 0 else i >= end:
       try:
         result = self.dothis.eval()
+        if isinstance(result, Exit):
+          return None
       except KeyboardInterrupt:
         print()
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoInterruption:
         return None
-      if result is not None:
+      if result is not None and not isinstance(result, Continue):
         return result
-      i += step
+      try:
+        i += step
+      except TypeError:
+        i = i.eval()
+        i += step
       sym.assign_value(self.var, i)
     return None
   def __repr__(self):
@@ -906,6 +951,9 @@ class Len:
       raise BadType('Longueur(C | T) : Type Chaîne ou Tableau attendu')
   def __repr__(self):
     return f'Longueur({self.value})'
+  @property
+  def data_type(self):
+    return 'Entier'
 
 class Mid:
   def __init__(self, exp, start, length):
@@ -1202,12 +1250,82 @@ class Sleep:
 
 class UnixTimestamp:
   def eval(self):
-    return datetime.now().timestamp()
+    return time()
   def __repr__(self):
     return 'TempsUnix()'
   @property
   def data_type(self):
     return 'Numérique'
+
+class TimeZone:
+  def __init__(self, timestamp=None, text=False):
+    self.timestamp = timestamp if timestamp is not None else None
+    self.text = text
+  def eval(self):
+    tzcode = '%Z' if self.text else '%z'
+    if self.timestamp:
+      try:
+        tz = datetime.fromtimestamp(self.timestamp.eval()).astimezone().strftime(tzcode)
+      except ValueError:
+        tz = "LMT" if tzcode == "%Z" else "+0000"
+      return tz
+    return strftime(tzcode)
+  def __repr__(self):
+    if self.text:
+      return 'ZoneHoraireTxt'
+    return 'ZoneHoraire'
+  @property
+  def data_type(self):
+    return 'Chaîne'
+
+class GetTermSize:
+  def eval(self):
+    size = os.get_terminal_size(stdout.fileno())
+    array = Array('Entier', 1)
+    array.value = array.new_array(2)
+    array.set_value((0,), map_type(size.lines))
+    array.set_value((1,), map_type(size.columns))
+    return array
+  def __repr__(self):
+    return 'TailleEcran()'
+  @property
+  def data_type(self):
+    return 'Tableau[1] en Entier'
+
+class GetCursorPos:
+  def eval(self):
+    tty = os.ttyname(stdin.fileno())
+    fd = os.open(tty, os.O_RDWR + os.O_NOCTTY)
+    cflag, lflag = 2, 3
+    saved = tcgetattr(fd)
+    temp = tcgetattr(fd)
+    temp[lflag] = temp[lflag] & ~ICANON
+    temp[lflag] = temp[lflag] & ~ECHO
+    temp[cflag] = temp[cflag] & ~CREAD
+    try:
+      tcsetattr(fd, TCSADRAIN, temp)
+      os.write(fd, b'\x1b[6n')
+      result = os.read(fd, 9)
+    except Exception:
+      raise FralgoException('Impossible d\'obtenir la position du curseur')
+    finally:
+      tcsetattr(fd, TCSADRAIN, saved)
+      os.close(fd)
+      result = result.decode()
+      result = result[2:]
+      result = result.split(';')
+      y = int(result[0])
+      x = int(result[1][:-1])
+    array = Array('Entier', 1)
+    array.value = array.new_array(2)
+    array.set_value((0,), map_type(y))
+    array.set_value((1,), map_type(x))
+    return array
+  def __repr__(self):
+    return 'CurPos()'
+  @property
+  def data_type(self):
+    return 'Tableau[1] en Entier'
 
 class Import:
   def __init__(self, filename, Lexer, lex, parser, alias=None):
@@ -1247,6 +1365,7 @@ def algo_to_python(expression):
       String,
       StructureGetItem,
       TableKeyExists,
+      TimeZone,
       ToBoolean, ToFloat, ToInteger, ToString,
       Trim,
       Type,

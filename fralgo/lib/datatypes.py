@@ -191,7 +191,7 @@ class String(Base):
   def __repr__(self):
     if self.value is None:
       return '?'
-    return f'"{self.value}"'
+    return f'"{self.value.encode("unicode_escape").decode("ASCII")}"'
 
 class Char(String):
   _type = 'Caractère'
@@ -609,7 +609,7 @@ class Structure(Base):
     return iter(self.fields)
   def __repr__(self):
     data = [f'{n}{repr_datatype(t)}' for n, t in self.fields]
-    return f'{self.name} → {",".join(data)}'
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -742,7 +742,7 @@ class StructureData(Base):
     return ','.join(data)
   def __repr__(self):
     data = [k+": " + str(v) if v else '?' for k,v in self.data.items()]
-    return f'{self.name} → {",".join(data)}'
+    return f'{self.name} → {", ".join(data)}'
   @property
   def data_type(self):
     return self.name
@@ -763,11 +763,18 @@ class Table(Base):
       raise BadType(f'Valeur : type `{self.value_type}` attendu')
     self.value[key.eval()] = value.eval()
   def get_item(self, key):
-    value = self.value.get(key.eval())
+    k = key.eval()
+    if isinstance(k, (String, Integer, Float, Boolean)):
+      k = k.eval()
+    value = self.value.get(k)
     return value
   def delete_key(self, key):
     try:
-      self.value.pop(key)
+      if isinstance(key, (String, Integer, Float, Boolean)):
+        k = key.eval()
+      else:
+        k = key
+      self.value.pop(k)
     except KeyError:
       raise KeyNotFound(f'Clef `{key}` inexistante')
   def get_keys(self):
@@ -872,7 +879,7 @@ def repr_datatype(datatype, shortform=True):
       else:
         indexes = datatype[2] if datatype[2] != -1 else ''
       if shortform:
-        return f'[{indexes}] en {repr_datatype(datatype[1])}'
+        return f'[{indexes}] en {repr_datatype(datatype[1], shortform=False)}'
       return f'{datatype[0]}[{indexes}] en {repr_datatype(datatype[1])}'
   if shortform:
     return f' en {datatype}' if not isinstance(datatype, tuple) else f' en {datatype[0]}'

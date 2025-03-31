@@ -32,6 +32,7 @@ class Context:
   def __init__(self, context_name:str):
     self.name = context_name
     self.dereference = False
+    self.has_reference = False
   def __repr__(self):
     return f'{self.name} [{"+" if self.dereference else "-"}]'
   def __str__(self):
@@ -55,6 +56,20 @@ class StructuresRegistry:
   @classmethod
   def clear_structures(cls):
     cls.__structures.clear()
+
+class Symbol:
+  def __init__(self, namespace=None, datatype=None, name=None):
+    self.namespace = namespace
+    self.datatype = datatype
+    self.name = name
+  def eval(self):
+    try:
+      return self.name.eval()
+    except AttributeError:
+      return self.name
+  def __repr__(self):
+    ns = 'main' if self.namespace is None else self.namespace
+    return f'{ns}:{self.name} ({self.datatype})'
 
 class Symbols:
   __func         = 'functions'
@@ -130,6 +145,9 @@ class Symbols:
   def set_local_ref_context(self, dereference:bool):
     context = self.get_local_ref_context()
     context.dereference = dereference
+  def set_local_ref_context_has_reference(self, has_reference:bool):
+    context = self.get_local_ref_context()
+    context.has_reference = has_reference
   def declare_var(self, name, data_type, superglobal=False):
     if superglobal:
       variables = self.__superglobal
@@ -192,8 +210,8 @@ class Symbols:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     variables[name] = Char(None, size)
   def assign_value(self, name, value, namespace=None):
-    if name.startswith('___') and self.namespace != namespace:
-      raise ex.FralgoException('Affectation d\'une valeur à une variable privée.')
+    if name.startswith('@') and self.namespace != namespace:
+      raise ex.FralgoException('Affectation d\'une valeur à un symbole privé.')
     var = self.get_variable(name)
     if isinstance(var, tuple): # constant!
       raise ex.ReadOnlyValue(f'Constante `{name}` : en lecture seule')
@@ -207,6 +225,10 @@ class Symbols:
   def get_variable(self, name, visited=None):
     if self.is_local():
       context = self.get_local_ref_context()
+      if not context.has_reference:
+        for variables in reversed(self.table[self.__local]):
+          if name in variables:
+            return variables[name]
       if context.dereference:
         if visited is None:
           visited = set()
@@ -313,29 +335,35 @@ class Symbols:
       print('%%% Super globales')
       for k, v in sorted(self.__superglobal.items()):
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          if k.startswith('@'):
+            continue
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.__main_global:
       print('+++ Variables globales')
       for k, v in sorted(self.__main_global.items()):
+        if k.startswith('@'):
+          continue
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.table[self.__vars]:
       print('+++ Variables locales', self.namespace)
       for k, v in sorted(self.table[self.__vars].items()):
+        if k.startswith('@'):
+          continue
         if isinstance(v, tuple):
-          print('... Constante', k, '=', v[1], '[-]' if k.startswith('___') else '')
+          print('... Constante', k, '=', repr(v[1]))
         else:
-          print('... Variable', k, '=', v, '[-]' if k.startswith('___') else '')
+          print('... Variable', k, '=', repr(v))
       print('---')
     if self.table[self.__structs]:
       print('+++ Structures')
-      for v in sorted(self.table[self.__structs].values()):
+      for v in self.table[self.__structs].values():
         print('...', v)
       print('---')
     if self.is_local():
@@ -345,7 +373,7 @@ class Symbols:
           context = self.table[self.__context][i]
           print('### Contexte', context.name, '+' if context.dereference else '-')
           for k, v in locs.items():
-            print('...', k, '=', v)
+            print('...', k, '=', repr(v))
           print('---')
         if self.table[self.__localstructs][-1]:
           print('+++ Structures locales')
@@ -354,18 +382,22 @@ class Symbols:
         if not self.table[self.__localfunc]:
           print('+++ Fonctions et Procédures')
           for k, v in sorted(self.table[self.__localfunc].items()):
-            print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
+            if k.startswith('@'):
+              continue
+            print(f'... {k} :', v)
           print('---')
         if self.__localrefs:
           print('&&& Références locales')
           for refs in self.__localrefs:
             for k, v in sorted(refs.items()):
-              print('...', k, '=', v, '[-]' if k.startswith('___') else '')
+              print('...', k, '=', repr(v))
           print('---')
     if self.table[self.__func]:
       print('+++ Fonctions et Procédures')
       for k, v in sorted(self.table[self.__func].items()):
-        print(f'... {k} :', v, '[-]' if k.startswith('___') else '')
+        if k.startswith('@'):
+          continue
+        print(f'... {k} :', v)
       print('---')
   def __repr__(self):
     return f'Espace {self.namespace}'
@@ -395,14 +427,19 @@ class Namespaces:
   def declare_ref(self, name, var, namespace):
     sym = self.get_namespace(namespace)
     sym.declare_ref(name, var)
+  def get_current_context(self):
+    sym = self.get_namespace(self.current_namespace)
+    if sym.is_local():
+      return sym.get_local_ref_context()
+    return None
   def get_variable(self, name, namespace=None):
-    if name.startswith('___'):
+    if name.startswith('@'):
       if self.current_namespace != namespace:
         raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)
     return sym.get_variable(name)
   def get_function(self, name, namespace):
-    if name.startswith('___'):
+    if name.startswith('@'):
       if self.current_namespace != namespace:
         raise ex.FralgoException('Accès à un symbole privé')
     sym = self.get_namespace(namespace)

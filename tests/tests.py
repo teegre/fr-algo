@@ -20,6 +20,38 @@ def reset_parser():
 
 class Test(unittest.TestCase):
 
+  def test_continuer_sortir_boucle(self):
+    prog='''Variables i, idx en Entier
+    Variables test1, test2 en Booléen
+    Tableau T[4] en Entier
+    Début
+      Ecrire "24. Test Continuer/Sortir boucle"
+      i ← 1
+      idx ← 0
+      TantQue VRAI
+        Si i % 2 <> 0 Alors
+          T[idx] ← i
+          i ← i + 1
+          idx ← idx + 1
+          Continuer
+        FinSi
+        Si i > 9 Alors
+          Sortir
+        FinSi
+        i ← i + 1
+      FinTantQue
+      test1 ← T = [1,3,5,7,9]
+      test2 ← i = 10
+    Fin'''
+
+    reset_parser()
+    statements = parser.parse(prog)
+    statements.eval()
+    t1 = sym.get_variable('test1')
+    self.assertEqual(t1.eval(), True, 'test1 should be VRAI')
+    t2 = sym.get_variable('test2')
+    self.assertEqual(t2.eval(), True, 'test2 should be VRAI')
+
   def test_concatenation_de_listes_a_affecter_a_une_variable(self):
     prog='''Tableaux T[11], A[3], B[3], C[3]  en Entier
     Variable test en Booléen

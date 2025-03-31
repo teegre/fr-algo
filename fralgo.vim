@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: ALGO
 " Maintainer: Stéphane MEYER (Teegre)
-" Last change: 2024/10/23
+" Last change: 2025/03/26
 
 if exists("b:current_syntax")
   finish
@@ -39,12 +39,13 @@ syn keyword Program Début Fin
 syn keyword Library Librairie Initialise
 syn keyword File Ajout Ecriture Lecture
 syn keyword Func Fonction Retourne FinFonction
-syn keyword Proc Procédure FinProcédure Terminer
+syn keyword Proc Procédure Terminer FinProcédure
 syn keyword StockFunc Aléa Car Clefs CodeCar Dormir Droite Ecrire EcrireErr EcrireFichier Effacer
 syn keyword StockFunc Existe Extraire FDF Fermer Gauche Lire LireFichier Longueur NON Ouvrir
 syn keyword StockFunc Panique Redim Taille
 syn keyword StockFunc Valeurs TempsUnix Trouve Type
-syn keyword Loop TantQue FinTantQue Pour Pas Suivant
+syn keyword StockFunc ZoneHoraire ZoneHoraireTxt
+syn keyword Loop TantQue FinTantQue Pour Pas Suivant Continuer Sortir
 syn keyword Condition Si Alors SinonSi Sinon FinSi
 syn keyword Bool VRAI FAUX
 syn keyword Conjonction à en sur
@@ -55,7 +56,8 @@ syn region AlgoString start="'" skip=/\v\\./ end="'"
 
 syn keyword AlgoTodo TODO FIXME NOTE NOTES contained
 syn match AlgoComment "#.*" contains=AlgoTodo
-syn match Private "\<___\w*\>"
+syn match Private "\k\@\<!@\w*\>"
+
 
 syn match ID "\v[a-zA-Zàéè_(][a-zA-Z0-9-_:)]*" display contained
 

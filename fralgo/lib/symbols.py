@@ -158,8 +158,6 @@ class Symbols:
     # Beware of global variables!
     if self.namespace == 'main' and self.__main_global.get(name, None) is not None:
       raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
-    elif self.namespace != 'main' and self.__vars.get(name, None) is not None:
-      raise ex.VarRedeclared(f'Redéclaration de la variable `{name}`')
     datatype = self.get_type(data_type, self.get_structure)
     if isinstance(datatype, tuple): # structure!
       data = datatype[0](datatype[1])

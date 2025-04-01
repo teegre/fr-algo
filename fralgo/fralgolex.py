@@ -159,6 +159,11 @@ class Lexer:
 
   t_ignore = ' \t'
 
+  def t_MULTILINE(self, t):
+    r'\\\\\n'
+    t.lexer.lineno += 1
+    pass
+
   def t_STRING(self, t):
     r'\".*?\"|\'.*?\''
     t.value = t.value[1:-1].encode('utf-8').decode('unicode_escape').encode('latin-1').decode('utf-8')

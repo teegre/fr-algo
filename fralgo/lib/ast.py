@@ -751,6 +751,7 @@ class Read:
       user_input = input()
     except (KeyboardInterrupt, EOFError):
       print()
+      print('\033[?1049l', end='')
       raise InterruptedByUser('Interrompu par l\'utilisateur')
     try:
       var = namespaces.get_variable(self.var, None)
@@ -895,6 +896,7 @@ class While:
           return result
       except KeyboardInterrupt:
         print()
+        print('\033[?1049l', end='')
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoInterruption:
         return None
@@ -926,6 +928,7 @@ class For:
           return None
       except KeyboardInterrupt:
         print()
+        print('\033[?1049l', end='')
         raise InterruptedByUser('Interrompu par l\'utilisateur')
       except FralgoInterruption:
         return None

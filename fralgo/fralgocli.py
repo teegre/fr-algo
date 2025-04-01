@@ -87,6 +87,7 @@ def main():
   except FatalError as e:
     print_err(f'Oh oh : {e.message}')
     print('\033[?25h\033[0m', end='')
+    print('\033[?1049l')
     sys.exit(666)
 
 if __name__ == "__main__":

@@ -684,7 +684,7 @@ class Variable:
   def data_type(self):
     var = namespaces.get_variable(self.name, self.namespace)
     if isinstance(var, tuple): # constant!
-      var = var[1]
+      var = map_type(var[1])
     return var.data_type
   @property
   def key_type(self):

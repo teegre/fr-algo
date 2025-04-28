@@ -46,6 +46,7 @@ class Lexer:
     'Clef':          'KEY',
     'Clefs':         'KEYS',
     'CodeCar':       'ORD',
+    'Commande':      'SHELL',
     'Constante':     'CONST',
     'Continuer':     'CONTINUE',
     'CurPos':        'CURPOS',

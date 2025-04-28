@@ -1281,6 +1281,18 @@ class TimeZone:
   def data_type(self):
     return 'Chaîne'
 
+class Shell:
+  def __init__(self, cmd):
+    self.cmd = cmd
+  def eval(self):
+    try:
+      cmd = self.cmd.eval()
+    except AttributeError:
+      cmd = self.cmd
+    import subprocess
+    r = subprocess.run(cmd, shell=True, capture_output=True)
+    return map_type(r.stdout.decode()[:-1])
+
 class GetTermSize:
   def eval(self):
     size = os.get_terminal_size(stdout.fileno())
@@ -1364,6 +1376,7 @@ def algo_to_python(expression):
       Node,
       Nothing,
       Random,
+      Shell,
       SizeOf,
       String,
       StructureGetItem,

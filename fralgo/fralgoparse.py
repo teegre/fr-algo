@@ -40,7 +40,7 @@ from fralgo.lib.ast import Reference, UnixTimestamp, Import, GetTermSize, GetCur
 from fralgo.lib.ast import StructureGetItem, StructureSetItem
 from fralgo.lib.ast import TableKeyExists, TableGetKeys, TableGetValues, TableEraseKey
 from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random, Sleep, SizeOf
-from fralgo.lib.ast import Panic, Continue, Exit, TimeZone
+from fralgo.lib.ast import Panic, Continue, Exit, Shell, TimeZone
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
 from fralgo.fralgolex import Lexer, lexer, lex
@@ -541,6 +541,12 @@ def p_statement_panic(p):
   statement : PANIC sequence NEWLINE
   '''
   p[0] = Node(Panic(p[2]), p.lineno(1))
+
+def p_expression_shell(p):
+  '''
+  expression : SHELL LPAREN expression RPAREN
+  '''
+  p[0] = Node(Shell(p[3]), p.lineno(1))
 
 def p_var_assignment(p):
   '''

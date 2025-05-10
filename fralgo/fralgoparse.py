@@ -390,7 +390,10 @@ def p_structure_accesses(p):
   '''
   if len(p) == 4:
     if len(p[3]) > 1:
-      p[0] = p[1] + p[3]
+      if isinstance(p[3], str):
+        p[0] = p[1] + (p[3],)
+      else:
+        p[0] = p[1] + p[3]
     else:
       p[0] = (p[1], p[3])
   else:

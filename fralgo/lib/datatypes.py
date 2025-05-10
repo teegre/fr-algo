@@ -40,7 +40,7 @@ class Base:
   def set_value(self, value):
     self.value = value
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing):
       return f'{self.data_type} → ?'
     return f'{self.data_type} → {self.value}'
   @property
@@ -111,7 +111,7 @@ class Number(Base):
       return False
     return True
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing) or self.value <= 0:
       return '?'
     return str(self.value)
 
@@ -185,11 +185,11 @@ class String(Base):
       return False
     return True
   def __str__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing):
       return '?'
     return self.value
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing):
       return '?'
     return f'"{self.value.encode("unicode_escape").decode("ASCII")}"'
 
@@ -220,7 +220,7 @@ class Char(String):
   def eval(self):
     return self.value
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing) or self.value <= 0:
       return '?'
     return f'"{self.value}"'
   @property
@@ -821,7 +821,7 @@ class Any(Base):
       self.__class__ = String
     self.value = map_type(value)
   def __repr__(self):
-    if self.value is None:
+    if self.value is None or isinstance(self.value, Nothing):
       return '? → ?'
     return f'{self.data_type} → {self.value}'
 

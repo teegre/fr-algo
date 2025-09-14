@@ -111,7 +111,7 @@ class Number(Base):
       return False
     return True
   def __repr__(self):
-    if self.value is None or isinstance(self.value, Nothing) or self.value <= 0:
+    if self.value is None or isinstance(self.value, Nothing):
       return '?'
     return str(self.value)
 

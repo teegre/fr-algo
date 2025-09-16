@@ -564,7 +564,10 @@ class FunctionCall:
               array = array[1]
             sym.declare_array(n, t, *array.indexes)
           else:
-            sym.declare_array(n, t, *s)
+            if isinstance(s, int):
+              sym.declare_array(n, t, s)
+            else:
+              sym.declare_array(n, t, *s)
         elif isinstance(param[1], tuple): # Sized char
           n, dt = param
           _, s = dt

@@ -732,7 +732,8 @@ class Print:
       std.write(' '.join(result) + '\n')
     else:
       std.write(' '.join(result))
-    stdout.flush()
+    std.flush()
+
   def __repr__(self):
     return f'Ecrire {self.data}'
 

@@ -49,8 +49,7 @@ def clear_file_descriptor(fd_number):
   fd = __file_descriptors[fd_number-1]
   if fd is not None:
     if fd.state == -1:
-      del __file_descriptors[fd_number-1]
-      __file_descriptors[fd_number] = None
+      __file_descriptors[fd_number-1] = None
     else:
       raise FatalError(f'Fichier ouvert sur le canal {fd_number}')
   else:

@@ -130,7 +130,9 @@ class File:
   def write(self, buffer):
     if self.__access_mode == 1:
       raise FatalError('Impossible d\'écrire dans un fichier en mode Lecture')
-    return self.__file.write(buffer + '\n')
+    bytes_written = self.__file.write(buffer + '\n')
+    self.__file.flush()
+    return bytes_written
   @property
   def state(self):
     return self.__state

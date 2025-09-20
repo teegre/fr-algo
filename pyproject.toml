@@ -10,7 +10,7 @@ authors = [
 ]
 description = 'FRALGO est un interpréteur et un REPL pour le pseudo-langage de programmation ALGO.'
 readme = 'README.md'
-license = "GPL-3.0-or-later"
+license = "MIT"
 classifiers = [
   'Programming Language :: Python :: 3.13',
 ]

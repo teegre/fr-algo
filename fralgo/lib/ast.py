@@ -241,6 +241,8 @@ class ArrayResize:
 
 class FreeFormArray(Array):
   def __init__(self, value):
+    # FIXME: variables should not be evaluated when parsing
+    # a function/procedure declaration!
     super().__init__(map_type(value[0]).data_type, len(value) - 1)
     self.value = [v.eval() if isinstance(v, (Variable, BinOp)) else v for v in value]
   def check(self):
@@ -562,7 +564,10 @@ class FunctionCall:
               array = array[1]
             sym.declare_array(n, t, *array.indexes)
           else:
-            sym.declare_array(n, t, *s)
+            if isinstance(s, int):
+              sym.declare_array(n, t, s)
+            else:
+              sym.declare_array(n, t, *s)
         elif isinstance(param[1], tuple): # Sized char
           n, dt = param
           _, s = dt
@@ -727,7 +732,8 @@ class Print:
       std.write(' '.join(result) + '\n')
     else:
       std.write(' '.join(result))
-    stdout.flush()
+    std.flush()
+
   def __repr__(self):
     return f'Ecrire {self.data}'
 
@@ -1281,6 +1287,18 @@ class TimeZone:
   def data_type(self):
     return 'Chaîne'
 
+class Shell:
+  def __init__(self, cmd):
+    self.cmd = cmd
+  def eval(self):
+    try:
+      cmd = self.cmd.eval()
+    except AttributeError:
+      cmd = self.cmd
+    import subprocess
+    r = subprocess.run(cmd, shell=True, capture_output=True)
+    return map_type(r.stdout.decode()[:-1])
+
 class GetTermSize:
   def eval(self):
     size = os.get_terminal_size(stdout.fileno())
@@ -1364,6 +1382,7 @@ def algo_to_python(expression):
       Node,
       Nothing,
       Random,
+      Shell,
       SizeOf,
       String,
       StructureGetItem,

@@ -1,0 +1,4 @@
+[submodule "fralgo-std"]
+	path = fralgo-std
+	url = git@github.com:teegre/fr-algo-std.git
+	branch = master

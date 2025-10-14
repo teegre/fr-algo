@@ -20,17 +20,14 @@ Cloner ce dépôt :
 Puis :
 
 ```
-$ cd fr-algo
-$ python -m build
+cd fr-algo
 ```
 
-Et installer **FR-ALGO** à l'aide de la commande suivante :
+Enfin, installer **FR-ALGO** à l'aide de la commande suivante :
 
 ```
-$ pipx install dist/fralgo-0.11.2b7.tar.gz
+./install.sh
 ```
-
-**/!\ Le numéro de version peut être différent.**
 
 ## Utilisation
 
@@ -52,14 +49,12 @@ Fin
 
 Pour exécuter le programme ci-dessus enregistré dans le fichier `bonjour.algo`, il suffit d'entrer cette commande dans un terminal :
 
-`$ fralgo bonjour.algo`
+`fralgo bonjour.algo`
 
 Après un appui sur la touche <kbd>Entrée</kbd>, nous obtenons :
 
 ```
-$ fralgo bonjour.algo
 Bonjour le monde !
-$
 ```
 
 ### fralgorepl
@@ -70,20 +65,19 @@ C'est un **environnement interactif** qui permet d'exécuter des expressions éc
 Pour charger **l'environnement interactif**, entrer la commande suivante :
 
 ```
-$ fralgorepl
+fralgorepl
 ```
 
 Une invite de commande est alors affichée...
 
 ```
-$ fralgorepl
  _______ ______        _______ _____   _______ _______
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.11.2.beta.12mg
+|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.1mg
 
-(c) 2024 Stéphane MEYER (Teegre)
+(c) 2024-2025 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.
@@ -94,14 +88,13 @@ En attente de vos instructions.
 ... Et l'on peut entrer n'importe quelle expression en **ALGO** qui sera exécutée après un appui sur la touche <kbd>Entrée</kbd>
 
 ```
-$ fralgorepl
  _______ ______        _______ _____   _______ _______
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.11.2.beta.12mg
+|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.1mg
 
-(c) 2024 Stéphane MEYER (Teegre)
+(c) 2024-2025 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.
@@ -131,7 +124,10 @@ Outre la commande `.réinit` citée plus haut, il existe d'autres commandes qui 
 
 **Êtes-vous sûr de vouloir désinstaller FR-ALGO ?**
 
-`$ pipx uninstall fralgo`
+```
+pipx uninstall fralgo
+rm -rf ~/.local/lib/fralgo
+```
 
 ## Wiki
 

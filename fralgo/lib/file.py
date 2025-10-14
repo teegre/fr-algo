@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FRALGO
-# Copyright © 2024 Stéphane MEYER (Teegre)
+# Copyright © 2024-2025 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -49,8 +49,7 @@ def clear_file_descriptor(fd_number):
   fd = __file_descriptors[fd_number-1]
   if fd is not None:
     if fd.state == -1:
-      del __file_descriptors[fd_number-1]
-      __file_descriptors[fd_number] = None
+      __file_descriptors[fd_number-1] = None
     else:
       raise FatalError(f'Fichier ouvert sur le canal {fd_number}')
   else:
@@ -131,7 +130,9 @@ class File:
   def write(self, buffer):
     if self.__access_mode == 1:
       raise FatalError('Impossible d\'écrire dans un fichier en mode Lecture')
-    return self.__file.write(buffer + '\n')
+    bytes_written = self.__file.write(buffer + '\n')
+    self.__file.flush()
+    return bytes_written
   @property
   def state(self):
     return self.__state

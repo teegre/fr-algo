@@ -19,7 +19,7 @@ if python -m build &> /dev/null; then
     mkdir -p ~/.local/lib/fralgo 
     git submodule init &> /dev/null
     git submodule update &> /dev/null && \
-      cp ./fralgo-std/* ~/.local/lib/fralgo/ || stdlib=1
+      cp ./fralgo-std/src/*.algo ~/.local/lib/fralgo/ || stdlib=1
     [[ $stdlib ]] && echo "x L'installation de la librairie standard a échoué."
     echo "o FR-ALGO installé avec succès."
   else

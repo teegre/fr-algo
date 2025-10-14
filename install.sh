@@ -17,7 +17,9 @@ if python -m build &> /dev/null; then
   if pipx install "dist/fralgo-${version}.tar.gz" &> /dev/null; then
     echo "* Installation de la librairie standard"
     mkdir -p ~/.local/lib/fralgo 
-    cp ./fralgo-std/* ~/.local/lib/fralgo/ || stdlib=1
+    git submodule init &> /dev/null
+    git submodule update &> /dev/null && \
+      cp ./fralgo-std/* ~/.local/lib/fralgo/ || stdlib=1
     [[ $stdlib ]] && echo "x L'installation de la librairie standard a échoué."
     echo "o FR-ALGO installé avec succès."
   else

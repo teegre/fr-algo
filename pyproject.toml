@@ -6,7 +6,7 @@ requires = ['setuptools', 'wheel']
 name = 'fralgo'
 dynamic = ['version']
 authors = [
-  { name = 'Stéphane MEYER (teegre)', email='stephane.meyer@afpa.fr' },
+  { name = 'Stéphane MEYER (teegre)', email='teegre@icloud.com' },
 ]
 description = 'FRALGO est un interpréteur et un REPL pour le pseudo-langage de programmation ALGO.'
 readme = 'README.md'
@@ -26,5 +26,4 @@ fralgorepl = 'fralgo.fralgorepl:main'
 
 [project.urls]
 Home = 'https://github.com/teegre/fralgo'
-
 Tracker = 'https://github.com/teegre/fralgo/issues'

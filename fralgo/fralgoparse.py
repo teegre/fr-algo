@@ -43,7 +43,7 @@ from fralgo.lib.ast import ToFloat, ToInteger, ToString, ToBoolean, Type, Random
 from fralgo.lib.ast import Panic, Continue, Exit, Shell, TimeZone
 from fralgo.lib.datatypes import map_type
 from fralgo.lib.exceptions import FralgoException, FatalError
-from fralgo.fralgolex import Lexer, lexer, lex
+from fralgo.fralgolex import Lexer, lex
 from fralgo.ply import yacc
 
 tokens = Lexer.tokens
@@ -139,7 +139,7 @@ def p_structure_declarations(p):
     p[1].append(p[2])
     p[0] = p[1]
 
-def p_structure_declaraction(p):
+def p_structure_declaration(p):
   '''
   struct_declaration : STRUCT ID NEWLINE struct_fields ENDSTRUCT NEWLINE
   '''

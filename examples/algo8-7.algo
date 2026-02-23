@@ -10,10 +10,12 @@
 # Si le mouvement est impossible (i.e. on sort du damier ), on le signale à l’utilisateur
 # et on s’arrête là . Sinon, on déplace le pion et on affiche le damier résultant, 
 # en affichant un « O » pour une case vide et un « X » pour la case où se trouve le pion.
+
 Variables i, j, posi, posj, i2, j2, Dep en Entier
 Variables Correct, MoveOK en Booléen
 Tableau Damier[7, 7] en Booléen
 Tableau Mouv[3, 1] en Entier
+
 Début
   Mouv[0, 0] ← -1
   Mouv[0, 1] ← -1
@@ -33,12 +35,18 @@ Début
     Ecrire "Entrez la ligne de votre pion : " \
     Lire posi
     Correct ← posi >= 0 ET posi <= 7
+    Si NON(Correct) Alors
+      Ecrire "Numéro de ligne invalide (0-7)"
+    FinSi
   FinTantQue
   Correct ← FAUX
   TantQue NON(Correct)
     Ecrire "Entrez la colonne de votre pion : " \
     Lire posj
     Correct ← posj >= 0 ET posj <= 7
+    Si NON(Correct) Alors
+      Ecrire "Numéro de colonne invalide (0-7)"
+    FinSi
   FinTantQue
   Damier[posi, posj] ← VRAI
   Ecrire "Quel déplacement ?"

@@ -1213,7 +1213,7 @@ class ToString:
     value = algo_to_python(self.value)
     tvalue = map_type(self.value)
     try:
-      return str(value)
+      return str(value) if not isinstance(value, bool) else 'VRAI' if value else 'FAUX'
     except (ValueError, TypeError):
       raise BadType(f'Chaîne(E ou N) : Conversion du type `{repr_datatype(tvalue.data_type)}` impossible')
   def __repr__(self):

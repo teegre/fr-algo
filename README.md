@@ -75,9 +75,9 @@ Une invite de commande est alors affichée...
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.1mg
+|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.2mg
 
-(c) 2024-2025 Stéphane MEYER (Teegre)
+(c) 2024-2026 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.
@@ -92,9 +92,9 @@ En attente de vos instructions.
 |    ___|   __ \______|   _   |     |_|     __|       |
 |    ___|      <______|       |       |    |  |   -   |
 |___|   |___|__|      |___|___|_______|_______|_______|
-|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.1mg
+|A|L|G|O|R|I|T|H|M|E|S|        fr-v100 0.12.1.beta.2mg
 
-(c) 2024-2025 Stéphane MEYER (Teegre)
+(c) 2024-2026 Stéphane MEYER (Teegre)
 
 Bonjour, Teegre !
 En attente de vos instructions.

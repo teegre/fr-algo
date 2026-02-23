@@ -4,7 +4,7 @@
 # |    ___|      <______|       |       |    |  |   -   |
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
-# Copyright © 2024 Stéphane MEYER (teegre)
+# Copyright © 2024-2026 Stéphane MEYER (teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),
@@ -209,7 +209,7 @@ def main():
   print('|A|L|G|O|R|I|T|H|M|E|S|'.ljust(55-len(version)) + version)
   sleep(0.0625)
   print()
-  print('(c) 2024-2025 Stéphane MEYER (Teegre)', flush=True)
+  print('(c) 2024-2026 Stéphane MEYER (Teegre)', flush=True)
   sleep(0.0625)
   print()
   print(f'{greetings()},', os.getenv('USER').capitalize(), '!')

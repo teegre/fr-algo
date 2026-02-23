@@ -5,7 +5,7 @@
 # |___|   |___|__|      |___|___|_______|_______|_______|
 #
 # This file is part of FRALGO
-# Copyright © 2024-2025 Stéphane MEYER (Teegre)
+# Copyright © 2024-2026 Stéphane MEYER (Teegre)
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the "Software"),

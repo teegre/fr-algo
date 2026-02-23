@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 version="$(python -c 'from fralgo import __version__; print(__version__.replace(".beta.", "b"))')"
+
 [[ -z $version ]] && {
   echo "Impossible de déterminer la version de FR-ALGO..."
   exit 1

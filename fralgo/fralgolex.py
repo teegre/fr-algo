@@ -25,6 +25,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import ast
 import os
 import sys
 
@@ -166,8 +167,8 @@ class Lexer:
     pass
 
   def t_STRING(self, t):
-    r'\".*?\"|\'.*?\''
-    t.value = t.value[1:-1].encode('utf-8').decode('unicode_escape').encode('latin-1').decode('utf-8')
+    r'"([^"\\]|\\.)*"|\'([^\'\\]|\\.)*\''
+    t.value = ast.literal_eval(t.value)
     return t
 
   def t_FLOAT(self, t):

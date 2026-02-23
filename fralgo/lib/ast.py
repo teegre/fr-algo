@@ -836,10 +836,12 @@ class BinOp:
         return a + b
       raise BadType('C & C : Type Chaîne attendu')
     elif self.b is None:
-      return op(a)
+      return op(bool(a))
     elif isinstance(a, str) and isinstance(b, str) and self.op not in comp:
       raise BadType(f'E|N {self.op} E|N : Type Entier ou Numérique attendu')
     try:
+      if self.op in ('ET', 'OU', 'OUX'):
+        return op(bool(a), bool(b))
       return op(a, b)
     except TypeError:
       raise BadType('Opération sur des types incompatibles')
